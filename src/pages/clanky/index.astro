@@ -1,8 +1,34 @@
 ---
+import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const articles = (await getCollection('articles')).sort(
+	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
 ---
 
 <BaseLayout title="Články – Hypotéka.cz" description="Průvodci a články o hypotékách, fixacích, státní podpoře a bydlení v Česku.">
 	<h1 class="text-3xl font-bold mb-4">Články</h1>
-	<p class="text-gray-600 mb-8">Připravujeme srozumitelné průvodce světem hypoték. Žádný bankovní jazyk, slibujeme.</p>
+	<p class="text-base-content/70 mb-8">Srozumitelné průvodce světem hypoték. Žádný bankovní jazyk, slibujeme.</p>
+
+	{articles.length === 0 ? (
+		<p class="text-base-content/50">Zatím žádné články. Pracujeme na tom!</p>
+	) : (
+		<section class="grid gap-6 sm:grid-cols-2">
+			{articles.map((entry) => (
+				<a href={`/clanky/${entry.id}`} class="card bg-base-100 border border-base-200 hover:border-primary hover:shadow-lg transition-all no-underline">
+					<div class="card-body">
+						<div class="badge badge-outline badge-sm mb-2">{entry.data.category}</div>
+						<h2 class="card-title">{entry.data.title}</h2>
+						<p class="text-base-content/60 text-sm">{entry.data.description}</p>
+						<div class="text-xs text-base-content/40 mt-2">
+							<time datetime={entry.data.pubDate.toISOString()}>
+								{entry.data.pubDate.toLocaleDateString('cs-CZ', { year: 'numeric', month: 'long', day: 'numeric' })}
+							</time>
+						</div>
+					</div>
+				</a>
+			))}
+		</section>
+	)}
 </BaseLayout>
