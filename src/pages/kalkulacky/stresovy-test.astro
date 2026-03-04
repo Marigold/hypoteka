@@ -1,9 +1,10 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import StressTest from '../../components/calculators/StressTest.tsx';
 ---
 
 <BaseLayout title="Stresový test hypotéky – Hypotéka.cz" description="Otestujte, jak zvládnete splátky při růstu úroků nebo poklesu příjmu.">
 	<h1 class="text-3xl font-bold mb-4">Stresový test</h1>
-	<p class="text-gray-600 mb-8">Tady to brzy rozjedem. Zatím ladíme čísla.</p>
-	<!-- React island StressTest will go here -->
+	<p class="text-gray-600 mb-8">Zjistěte, zda zvládnete splátky hypotéky i v nepříznivých scénářích – při růstu úrokových sazeb, poklesu příjmu nebo nečekaných výdajích. Kalkulačka vám ukáže, jaká je vaše finanční rezerva a kde leží vaše limity.</p>
+	<StressTest client:visible />
 </BaseLayout>
