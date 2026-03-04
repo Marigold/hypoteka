@@ -1,0 +1,61 @@
+---
+const cards = [
+	{
+		href: '/kalkulacky/najem-vs-vlastni',
+		icon: '⚖️',
+		iconBg: 'bg-primary/10',
+		borderColor: 'border-t-primary',
+		title: 'Nájem vs. vlastní',
+		description: 'Vyplatí se ti víc nájem, nebo hypotéka? Spočítej si to.',
+	},
+	{
+		href: '/kalkulacky/splatka-hypoteky',
+		icon: '💰',
+		iconBg: 'bg-secondary/10',
+		borderColor: 'border-t-secondary',
+		title: 'Kolik budeš platit',
+		description: 'Měsíční splátka, celkové náklady a kolik na tobě vydělá banka.',
+	},
+	{
+		href: '/kalkulacky/stresovy-test',
+		icon: '🔥',
+		iconBg: 'bg-accent/10',
+		borderColor: 'border-t-accent',
+		title: 'Stresový test',
+		description: 'Co když úroky vyletí nahoru? Nebo přijdeš o část příjmu? Zjisti, jestli to dáš.',
+	},
+	{
+		href: '/clanky',
+		icon: '📖',
+		iconBg: 'bg-info/10',
+		borderColor: 'border-t-info',
+		title: 'Články',
+		description: 'Jak funguje hypotéka, co je fixace, jaké jsou dotace – bez bankovního balastu.',
+	},
+];
+---
+
+<section class="grid gap-6 sm:grid-cols-2">
+	{cards.map((card) => (
+		<a
+			href={card.href}
+			class:list={[
+				'card bg-base-100 border border-base-200 border-t-4 hover:shadow-lg transition-all duration-300 no-underline overflow-hidden group',
+				card.borderColor,
+			]}
+		>
+			<div class="card-body">
+				<div
+					class:list={[
+						'w-12 h-12 rounded-xl flex items-center justify-center text-2xl mb-3 transition-transform duration-300 group-hover:scale-110',
+						card.iconBg,
+					]}
+				>
+					{card.icon}
+				</div>
+				<h2 class="card-title">{card.title}</h2>
+				<p class="text-base-content/60 text-sm">{card.description}</p>
+			</div>
+		</a>
+	))}
+</section>
