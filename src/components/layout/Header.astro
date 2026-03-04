@@ -8,27 +8,49 @@ const navLinks = [
 const currentPath = Astro.url.pathname;
 ---
 
-<div class="navbar bg-base-100 border-b border-base-200 max-w-5xl mx-auto">
-	<div class="navbar-start">
-		<div class="dropdown">
-			<div tabindex="0" role="button" class="btn btn-ghost lg:hidden">
-				<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h8m-8 6h16" />
-				</svg>
+<header class="sticky top-0 z-50 bg-base-100/95 backdrop-blur-sm shadow-sm border-b border-base-200">
+	<div class="navbar max-w-6xl mx-auto">
+		<div class="navbar-start">
+			<div class="dropdown">
+				<div tabindex="0" role="button" class="btn btn-ghost lg:hidden" aria-label="Menu">
+					<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h8m-8 6h16" />
+					</svg>
+				</div>
+				<ul tabindex="0" class="menu menu-sm dropdown-content bg-base-100 rounded-box z-50 mt-3 w-56 p-3 shadow-lg border border-base-200 gap-1">
+					{navLinks.map(({ href, label }) => (
+						<li>
+							<a
+								href={href}
+								class:list={[
+									'rounded-lg py-3 px-4 text-base transition-colors duration-200',
+									currentPath === href ? 'bg-primary/10 text-primary font-semibold' : 'hover:bg-base-200',
+								]}
+							>
+								{label}
+							</a>
+						</li>
+					))}
+				</ul>
 			</div>
-			<ul tabindex="0" class="menu menu-sm dropdown-content bg-base-100 rounded-box z-10 mt-3 w-52 p-2 shadow">
+			<a href="/" class="btn btn-ghost text-xl font-bold text-primary hover:text-primary/80">Hypotéka.cz</a>
+		</div>
+		<div class="navbar-end hidden lg:flex">
+			<ul class="menu menu-horizontal px-1 gap-1">
 				{navLinks.map(({ href, label }) => (
-					<li><a href={href} class:list={[currentPath === href && 'active']}>{label}</a></li>
+					<li>
+						<a
+							href={href}
+							class:list={[
+								'rounded-lg transition-colors duration-200',
+								currentPath === href ? 'bg-primary/10 text-primary font-semibold border-b-2 border-primary' : '',
+							]}
+						>
+							{label}
+						</a>
+					</li>
 				))}
 			</ul>
 		</div>
-		<a href="/" class="btn btn-ghost text-xl font-bold">Hypotéka.cz</a>
 	</div>
-	<div class="navbar-end hidden lg:flex">
-		<ul class="menu menu-horizontal px-1 gap-1">
-			{navLinks.map(({ href, label }) => (
-				<li><a href={href} class:list={[currentPath === href && 'active']}>{label}</a></li>
-			))}
-		</ul>
-	</div>
-</div>
+</header>

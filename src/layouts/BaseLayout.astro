@@ -6,9 +6,10 @@ import Footer from '../components/layout/Footer.astro';
 interface Props {
 	title: string;
 	description?: string;
+	fullWidth?: boolean;
 }
 
-const { title, description = 'Nezávislý průvodce hypotékami v Česku. Kalkulačky, srovnání nájmu vs. vlastního bydlení, státní podpora 2026.' } = Astro.props;
+const { title, description = 'Nezávislý průvodce hypotékami v Česku. Kalkulačky, srovnání nájmu vs. vlastního bydlení, státní podpora 2026.', fullWidth = false } = Astro.props;
 ---
 
 <html lang="cs">
@@ -25,7 +26,7 @@ const { title, description = 'Nezávislý průvodce hypotékami v Česku. Kalkul
 	</head>
 	<body class="min-h-screen flex flex-col bg-white text-gray-900">
 		<Header />
-		<main class="flex-1 w-full max-w-4xl mx-auto px-4 py-8">
+		<main class:list={['flex-1 w-full', fullWidth ? '' : 'max-w-4xl mx-auto px-4 py-8']}>
 			<slot />
 		</main>
 		<Footer />

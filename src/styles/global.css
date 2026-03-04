@@ -1,7 +1,39 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 @plugin "daisyui" {
-	themes: corporate --default;
+	themes: hypoteka --default;
+}
+
+@plugin "daisyui/theme" {
+	name: "hypoteka";
+	default: true;
+	color-scheme: light;
+	--color-base-100: oklch(0.98 0.005 250);
+	--color-base-200: oklch(0.94 0.01 250);
+	--color-base-300: oklch(0.88 0.015 250);
+	--color-base-content: oklch(0.25 0.02 250);
+	--color-primary: oklch(0.45 0.15 240);
+	--color-primary-content: oklch(0.98 0.005 250);
+	--color-secondary: oklch(0.55 0.12 270);
+	--color-secondary-content: oklch(0.98 0.005 250);
+	--color-accent: oklch(0.65 0.18 85);
+	--color-accent-content: oklch(0.25 0.02 85);
+	--color-neutral: oklch(0.35 0.02 250);
+	--color-neutral-content: oklch(0.95 0.005 250);
+	--color-info: oklch(0.60 0.12 240);
+	--color-info-content: oklch(0.98 0.005 240);
+	--color-success: oklch(0.60 0.16 155);
+	--color-success-content: oklch(0.98 0.005 155);
+	--color-warning: oklch(0.75 0.15 75);
+	--color-warning-content: oklch(0.25 0.02 75);
+	--color-error: oklch(0.55 0.18 25);
+	--color-error-content: oklch(0.98 0.005 25);
+	--radius-selector: 1rem;
+	--radius-field: 0.75rem;
+	--radius-box: 1.25rem;
+	--border: 1.5px;
+	--depth: 1;
+	--noise: 0;
 }
 
 @theme {

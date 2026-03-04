@@ -1,57 +1,18 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import HeroSection from '../components/landing/HeroSection.astro';
+import TrustBar from '../components/landing/TrustBar.astro';
+import FeatureCards from '../components/landing/FeatureCards.astro';
+import HowItWorks from '../components/landing/HowItWorks.astro';
+import SubsidyTeaser from '../components/landing/SubsidyTeaser.astro';
 ---
 
-<BaseLayout title="Hypotéka.cz – Průvodce hypotékami v Česku">
-	<div class="hero bg-gradient-to-br from-base-200 to-base-100 rounded-2xl py-16 px-8 mb-12">
-		<div class="hero-content text-center">
-			<div class="max-w-xl">
-				<h1 class="text-4xl md:text-5xl font-bold mb-4">Hypotéka na rovinu</h1>
-				<p class="text-lg text-base-content/70 mb-6">
-					Žádný finanční poradce, žádné provize, žádné reklamy.
-					Jen férové kalkulačky a srozumitelné vysvětlení, jak to celé funguje.
-				</p>
-				<div class="stats shadow">
-					<div class="stat">
-						<div class="stat-value text-primary">13,3×</div>
-						<div class="stat-desc">ročních platů stojí průměrný byt v Česku</div>
-					</div>
-				</div>
-			</div>
-		</div>
+<BaseLayout title="Hypotéka.cz – Průvodce hypotékami v Česku" fullWidth>
+	<div class="flex flex-col gap-16 md:gap-20">
+		<HeroSection />
+		<TrustBar />
+		<FeatureCards />
+		<HowItWorks />
+		<SubsidyTeaser />
 	</div>
-
-	<section class="grid gap-6 sm:grid-cols-2">
-		<a href="/kalkulacky/najem-vs-vlastni" class="card bg-base-100 border border-base-200 hover:border-primary hover:shadow-lg transition-all no-underline">
-			<div class="card-body">
-				<div class="text-3xl mb-2">⚖️</div>
-				<h2 class="card-title">Nájem vs. vlastní</h2>
-				<p class="text-base-content/60 text-sm">Vyplatí se ti víc nájem, nebo hypotéka? Spočítej si to.</p>
-			</div>
-		</a>
-
-		<a href="/kalkulacky/splatka-hypoteky" class="card bg-base-100 border border-base-200 hover:border-primary hover:shadow-lg transition-all no-underline">
-			<div class="card-body">
-				<div class="text-3xl mb-2">💰</div>
-				<h2 class="card-title">Kolik budeš platit</h2>
-				<p class="text-base-content/60 text-sm">Měsíční splátka, celkové náklady a kolik na tobě vydělá banka.</p>
-			</div>
-		</a>
-
-		<a href="/kalkulacky/stresovy-test" class="card bg-base-100 border border-base-200 hover:border-primary hover:shadow-lg transition-all no-underline">
-			<div class="card-body">
-				<div class="text-3xl mb-2">🔥</div>
-				<h2 class="card-title">Stresový test</h2>
-				<p class="text-base-content/60 text-sm">Co když úroky vyletí nahoru? Nebo přijdeš o část příjmu? Zjisti, jestli to dáš.</p>
-			</div>
-		</a>
-
-		<a href="/clanky" class="card bg-base-100 border border-base-200 hover:border-primary hover:shadow-lg transition-all no-underline">
-			<div class="card-body">
-				<div class="text-3xl mb-2">📖</div>
-				<h2 class="card-title">Články</h2>
-				<p class="text-base-content/60 text-sm">Jak funguje hypotéka, co je fixace, jaké jsou dotace – bez bankovního balastu.</p>
-			</div>
-		</a>
-	</section>
 </BaseLayout>

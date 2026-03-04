@@ -1,0 +1,54 @@
+---
+const programs = [
+	{
+		title: 'Zákon o podpoře v bydlení',
+		description: '115 kontaktních míst po celé ČR s bezplatným právním poradenstvím k bydlení.',
+		svg: '<path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />',
+	},
+	{
+		title: 'Družstevní bydlení',
+		description: 'Úroky z úvěrů na družstevní bydlení nově odečitatelné z daní (max 150 000 Kč/rok).',
+		svg: '<path stroke-linecap="round" stroke-linejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3h.008v.008h-.008v-.008Zm0 3h.008v.008h-.008v-.008Zm0 3h.008v.008h-.008v-.008Z" />',
+	},
+	{
+		title: 'Program dostupného bydlení',
+		description: 'Rozpočet 2,25 mld. Kč – až 80% pokrytí nákladů s úrokem 1–2 %.',
+		svg: '<path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0 1 15.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 0 1 3 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 0 0-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 0 1-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 0 0 3 15h-.75M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm3 0h.008v.008H18V10.5Zm-12 0h.008v.008H6V10.5Z" />',
+	},
+];
+---
+
+<section class="bg-gradient-to-br from-primary/5 via-base-100 to-secondary/5 py-16 px-6">
+	<div class="max-w-6xl mx-auto">
+		<div class="text-center mb-10">
+			<span class="badge badge-accent mb-3">Novinky 2026</span>
+			<h2 class="text-3xl font-bold">Státní podpora bydlení</h2>
+			<p class="text-base-content/60 text-sm mt-3 max-w-lg mx-auto leading-relaxed">
+				Česko v roce 2026 rozšiřuje programy na podporu dostupného bydlení. Podívej se, na co máš nárok.
+			</p>
+		</div>
+		<div class="grid gap-6 sm:grid-cols-3">
+			{programs.map((program) => (
+				<div class="card bg-base-100 border border-base-200 shadow-sm">
+					<div class="card-body items-center text-center">
+						<div class="w-14 h-14 rounded-xl bg-accent/10 flex items-center justify-center mb-2">
+							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-7 h-7 text-accent">
+								<Fragment set:html={program.svg} />
+							</svg>
+						</div>
+						<h3 class="font-semibold text-lg">{program.title}</h3>
+						<p class="text-base-content/60 text-sm leading-relaxed">{program.description}</p>
+					</div>
+				</div>
+			))}
+		</div>
+		<div class="text-center mt-10">
+			<a href="/clanky" class="btn btn-accent no-underline">
+				Zjistit více o dotacích
+				<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 ml-1" viewBox="0 0 20 20" fill="currentColor">
+					<path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z" clip-rule="evenodd" />
+				</svg>
+			</a>
+		</div>
+	</div>
+</section>
