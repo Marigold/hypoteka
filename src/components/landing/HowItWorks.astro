@@ -1,0 +1,42 @@
+---
+const steps = [
+	{
+		number: 1,
+		icon: '🧮',
+		title: 'Vyber kalkulačku',
+		description: 'Zvol si nástroj podle toho, co potřebuješ zjistit – splátku, srovnání nájmu, nebo stresový test.',
+	},
+	{
+		number: 2,
+		icon: '✏️',
+		title: 'Zadej svou situaci',
+		description: 'Vyplň pár čísel – příjem, cenu nemovitosti, úspory. Žádná registrace, žádné osobní údaje.',
+	},
+	{
+		number: 3,
+		icon: '✅',
+		title: 'Získej odpověď',
+		description: 'Okamžitě uvidíš výsledky s vysvětlením. Srozumitelně, bez bankovního žargonu.',
+	},
+];
+---
+
+<section class="py-12">
+	<h2 class="text-2xl font-bold text-center mb-10">Jak to funguje</h2>
+	<div class="grid gap-8 sm:grid-cols-3">
+		{steps.map((step, index) => (
+			<div class="relative flex flex-col items-center text-center">
+				{/* Connecting line between steps */}
+				{index < steps.length - 1 && (
+					<div class="hidden sm:block absolute top-8 left-[calc(50%+2rem)] w-[calc(100%-4rem)] h-0.5 bg-base-300" />
+				)}
+				<div class="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-3xl mb-4 relative z-10">
+					{step.icon}
+				</div>
+				<span class="badge badge-primary badge-sm mb-2">{step.number}</span>
+				<h3 class="font-semibold text-lg mb-1">{step.title}</h3>
+				<p class="text-base-content/60 text-sm max-w-xs">{step.description}</p>
+			</div>
+		))}
+	</div>
+</section>
