@@ -350,12 +350,12 @@ export default function RentVsBuy() {
               <AreaChart data={results}>
                 <defs>
                   <linearGradient id="gradBuying" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="oklch(var(--su))" stopOpacity={0.4} />
-                    <stop offset="95%" stopColor="oklch(var(--su))" stopOpacity={0.05} />
+                    <stop offset="5%" stopColor="#00a43b" stopOpacity={0.4} />
+                    <stop offset="95%" stopColor="#00a43b" stopOpacity={0.05} />
                   </linearGradient>
                   <linearGradient id="gradRenting" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="oklch(var(--in))" stopOpacity={0.4} />
-                    <stop offset="95%" stopColor="oklch(var(--in))" stopOpacity={0.05} />
+                    <stop offset="5%" stopColor="#0090b5" stopOpacity={0.4} />
+                    <stop offset="95%" stopColor="#0090b5" stopOpacity={0.05} />
                   </linearGradient>
                 </defs>
                 <XAxis
@@ -372,7 +372,7 @@ export default function RentVsBuy() {
                   type="monotone"
                   dataKey="buyingNetWorth"
                   name="Koupě – čisté jmění"
-                  stroke="oklch(var(--su))"
+                  stroke="#00a43b"
                   fill="url(#gradBuying)"
                   fillOpacity={1}
                 />
@@ -380,7 +380,7 @@ export default function RentVsBuy() {
                   type="monotone"
                   dataKey="rentingNetWorth"
                   name="Nájem + investice – čisté jmění"
-                  stroke="oklch(var(--in))"
+                  stroke="#0090b5"
                   fill="url(#gradRenting)"
                   fillOpacity={1}
                 />

@@ -261,21 +261,21 @@ export default function StressTest() {
                 <Legend />
                 <ReferenceLine
                   y={income * 0.3}
-                  stroke="oklch(var(--wa))"
+                  stroke="#fdc700"
                   strokeDasharray="5 5"
-                  label={{ value: '30 % příjmu', position: 'right', fill: 'oklch(var(--wa))' }}
+                  label={{ value: '30 % příjmu', position: 'right', fill: '#fdc700' }}
                 />
                 <ReferenceLine
                   y={income * 0.4}
-                  stroke="oklch(var(--er))"
+                  stroke="#ff6266"
                   strokeDasharray="5 5"
-                  label={{ value: '40 % příjmu', position: 'right', fill: 'oklch(var(--er))' }}
+                  label={{ value: '40 % příjmu', position: 'right', fill: '#ff6266' }}
                 />
                 <Line
                   type="monotone"
                   dataKey="payment"
                   name="Měsíční splátka"
-                  stroke="oklch(var(--p))"
+                  stroke="#0082ce"
                   strokeWidth={2}
                   dot={false}
                 />

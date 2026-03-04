@@ -284,8 +284,8 @@ export default function MortgagePayment() {
                   dataKey="principal"
                   name="Jistina"
                   stackId="1"
-                  stroke="oklch(var(--p))"
-                  fill="oklch(var(--p))"
+                  stroke="#0082ce"
+                  fill="#0082ce"
                   fillOpacity={0.6}
                 />
                 <Area
@@ -293,8 +293,8 @@ export default function MortgagePayment() {
                   dataKey="interest"
                   name="Úroky"
                   stackId="1"
-                  stroke="oklch(var(--wa))"
-                  fill="oklch(var(--wa))"
+                  stroke="#fdc700"
+                  fill="#fdc700"
                   fillOpacity={0.6}
                 />
               </AreaChart>
