@@ -1,12 +1,74 @@
 ---
 const year = new Date().getFullYear();
+
+const linkGroups = [
+	{
+		title: 'Kalkulačky',
+		links: [
+			{ href: '/kalkulacky', label: 'Všechny kalkulačky' },
+			{ href: '/kalkulacky/hypoteka', label: 'Hypoteční kalkulačka' },
+			{ href: '/kalkulacky/najem-vs-vlastni', label: 'Nájem vs. vlastní' },
+		],
+	},
+	{
+		title: 'Články',
+		links: [
+			{ href: '/clanky', label: 'Všechny články' },
+			{ href: '/clanky/jak-na-hypoteku', label: 'Jak na hypotéku' },
+			{ href: '/clanky/statni-podpora', label: 'Státní podpora 2026' },
+		],
+	},
+	{
+		title: 'O projektu',
+		links: [
+			{ href: '/o-projektu', label: 'O nás' },
+			{ href: '/o-projektu#metodika', label: 'Metodika' },
+			{ href: '/o-projektu#kontakt', label: 'Kontakt' },
+		],
+	},
+];
+
+const dataSources = [
+	{ label: 'ČNB', href: 'https://www.cnb.cz', title: 'Česká národní banka' },
+	{ label: 'ČSÚ', href: 'https://www.czso.cz', title: 'Český statistický úřad' },
+	{ label: 'Hypoindex', href: 'https://www.hypoindex.cz', title: 'Swiss Life Hypoindex' },
+];
 ---
 
-<footer class="footer footer-center bg-base-200 text-base-content p-6 mt-auto">
-	<div>
-		<p class="font-semibold">&copy; {year} Hypotéka.cz &middot; Neziskovka, ne banka.</p>
-		<p class="text-sm opacity-70">
-			Tohle není finanční poradenství. Před velkým rozhodnutím se poraď s odborníkem.
-		</p>
+<footer class="bg-base-200 text-base-content mt-auto">
+	<div class="footer max-w-5xl mx-auto px-6 py-10 grid grid-cols-2 md:grid-cols-4 gap-8">
+		{linkGroups.map(({ title, links }) => (
+			<nav>
+				<h6 class="footer-title">{title}</h6>
+				{links.map(({ href, label }) => (
+					<a href={href} class="link link-hover text-sm">{label}</a>
+				))}
+			</nav>
+		))}
+		<nav>
+			<h6 class="footer-title">Zdroje dat</h6>
+			<div class="flex flex-wrap gap-2">
+				{dataSources.map(({ label, href, title }) => (
+					<a
+						href={href}
+						target="_blank"
+						rel="noopener noreferrer"
+						title={title}
+						class="badge badge-outline badge-sm hover:badge-primary transition-colors duration-200"
+					>
+						{label}
+					</a>
+				))}
+			</div>
+			<p class="text-xs opacity-60 mt-2">Data aktualizujeme průběžně z&nbsp;veřejných zdrojů.</p>
+		</nav>
+	</div>
+	<div class="border-t border-base-300">
+		<div class="max-w-5xl mx-auto px-6 py-4 text-center text-sm">
+			<p class="font-semibold">&copy; {year} Hypotéka.cz &middot; Neziskovka, ne banka.</p>
+			<p class="opacity-70 mt-1">
+				Tohle není finanční poradenství. Před velkým rozhodnutím se poraď s&nbsp;odborníkem.
+			</p>
+		</div>
 	</div>
 </footer>
