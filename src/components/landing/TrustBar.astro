@@ -1,0 +1,18 @@
+---
+const badges = [
+	{ icon: '🏛️', label: 'Data z ČNB' },
+	{ icon: '📊', label: 'Data z ČSÚ' },
+	{ icon: '🔄', label: 'Aktualizováno 2026' },
+];
+---
+
+<div class="bg-base-200/50 border-y border-base-200 py-3">
+	<div class="max-w-5xl mx-auto flex flex-wrap items-center justify-center gap-4 sm:gap-8 px-4 text-sm text-base-content/70">
+		{badges.map(({ icon, label }) => (
+			<span class="flex items-center gap-1.5 font-medium">
+				<span>{icon}</span>
+				{label}
+			</span>
+		))}
+	</div>
+</div>
