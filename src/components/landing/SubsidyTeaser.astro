@@ -1,0 +1,43 @@
+---
+const programs = [
+	{
+		icon: '🏠',
+		title: 'Zákon o podpoře v bydlení',
+		description: '115 kontaktních míst po celé ČR s bezplatným právním poradenstvím k bydlení.',
+	},
+	{
+		icon: '🏗️',
+		title: 'Družstevní bydlení',
+		description: 'Úroky z úvěrů na družstevní bydlení nově odečitatelné z daní (max 150 000 Kč/rok).',
+	},
+	{
+		icon: '🏘️',
+		title: 'Program dostupného bydlení',
+		description: 'Rozpočet 2,25 mld. Kč – až 80% pokrytí nákladů s úrokem 1–2 %.',
+	},
+];
+---
+
+<section class="py-12 px-6 bg-accent/5 rounded-2xl border border-accent/20">
+	<div class="text-center mb-8">
+		<span class="badge badge-accent badge-sm mb-3">Novinky 2026</span>
+		<h2 class="text-2xl font-bold">Státní podpora bydlení</h2>
+		<p class="text-base-content/60 text-sm mt-2 max-w-lg mx-auto">
+			Česko v roce 2026 rozšiřuje programy na podporu dostupného bydlení. Podívejte se, na co máte nárok.
+		</p>
+	</div>
+	<div class="grid gap-6 sm:grid-cols-3">
+		{programs.map((program) => (
+			<div class="flex flex-col items-center text-center">
+				<div class="w-14 h-14 rounded-xl bg-accent/10 flex items-center justify-center text-2xl mb-3">
+					{program.icon}
+				</div>
+				<h3 class="font-semibold text-lg mb-1">{program.title}</h3>
+				<p class="text-base-content/60 text-sm max-w-xs">{program.description}</p>
+			</div>
+		))}
+	</div>
+	<div class="text-center mt-8">
+		<a href="/dotace" class="btn btn-accent btn-sm">Zjistit více o dotacích →</a>
+	</div>
+</section>
