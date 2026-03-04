@@ -1,0 +1,8 @@
+@import "tailwindcss";
+@plugin "daisyui" {
+	themes: corporate --default;
+}
+
+@theme {
+	--font-sans: "Inter", sans-serif;
+}
