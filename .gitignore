@@ -22,3 +22,6 @@ npm-debug.log*
 
 # ai
 ai/
+
+# Auto Claude data directory
+.auto-claude/
