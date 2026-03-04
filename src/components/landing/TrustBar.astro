@@ -1,18 +1,34 @@
 ---
 const badges = [
-	{ icon: '🏛️', label: 'Data z ČNB' },
-	{ icon: '📊', label: 'Data z ČSÚ' },
-	{ icon: '🔄', label: 'Aktualizováno 2026' },
+	{
+		label: 'Data z ČNB',
+		svg: '<path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0 0 12 9.75c-2.551 0-5.056.2-7.5.582V21" />',
+	},
+	{
+		label: 'Data z ČSÚ',
+		svg: '<path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" />',
+	},
+	{
+		label: 'Aktualizováno 2026',
+		svg: '<path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.992 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182" />',
+	},
 ];
 ---
 
-<div class="bg-base-200/50 border-y border-base-200 py-3">
-	<div class="max-w-5xl mx-auto flex flex-wrap items-center justify-center gap-4 sm:gap-8 px-4 text-sm text-base-content/70">
-		{badges.map(({ icon, label }) => (
-			<span class="flex items-center gap-1.5 font-medium">
-				<span>{icon}</span>
-				{label}
-			</span>
+<div class="bg-base-200/50 border-y border-base-200 py-4">
+	<div class="max-w-6xl mx-auto flex flex-wrap items-center justify-center gap-6 sm:gap-10 px-6 text-sm text-base-content/70">
+		{badges.map(({ svg, label }, i) => (
+			<>
+				<span class="flex items-center gap-2 font-medium">
+					<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-primary">
+						<Fragment set:html={svg} />
+					</svg>
+					{label}
+				</span>
+				{i < badges.length - 1 && (
+					<span class="hidden sm:block w-px h-4 bg-base-300" aria-hidden="true"></span>
+				)}
+			</>
 		))}
 	</div>
 </div>
