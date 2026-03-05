@@ -5,6 +5,8 @@
  * and durations are in years.
  */
 
+import { calculateMonthlyPayment } from "./mortgage";
+
 export interface TCOParams {
   /** Property purchase price in CZK */
   propertyPrice: number;
@@ -113,4 +115,174 @@ export interface RegionalDefaults {
   propertyTaxAnnual: number;
   /** Typical monthly energy costs in CZK */
   energyCostsMonthly: number;
+}
+
+/**
+ * Calculate the total cost of ownership for a property.
+ *
+ * This function computes the true monthly cost of owning a property including
+ * mortgage payments, mandatory costs (fond oprav, insurance, tax), and variable
+ * costs (maintenance, energy). It also calculates lifetime costs with optional
+ * inflation adjustment.
+ *
+ * @param params - Total cost of ownership parameters
+ * @returns Complete TCO analysis including monthly costs and lifetime totals
+ *
+ * @example
+ * calculateTotalCostOfOwnership({
+ *   propertyPrice: 5_000_000,
+ *   downPayment: 1_000_000,
+ *   mortgageRate: 4.5,
+ *   mortgageYears: 30,
+ *   propertyArea: 70,
+ *   fondOpravPerSqmMonth: 15,
+ *   propertyInsuranceAnnual: 3_000,
+ *   propertyTaxAnnual: 2_400,
+ *   maintenanceReserveRate: 1.0,
+ *   energyCostsMonthly: 3_000,
+ *   transactionCosts: { notary: 15_000, valuation: 5_000, bankFee: 10_000, agentCommission: 150_000 },
+ *   inflationRate: 3.0
+ * })
+ */
+export function calculateTotalCostOfOwnership(params: TCOParams): TCOResult {
+  const {
+    propertyPrice,
+    downPayment,
+    mortgageRate,
+    mortgageYears,
+    propertyArea,
+    fondOpravPerSqmMonth,
+    propertyInsuranceAnnual,
+    propertyTaxAnnual,
+    maintenanceReserveRate,
+    energyCostsMonthly,
+    transactionCosts,
+    inflationRate = 0,
+  } = params;
+
+  // Validate inputs
+  if (propertyPrice <= 0 || mortgageYears <= 0 || downPayment < 0) {
+    return {
+      monthlyMortgagePayment: 0,
+      totalMonthlyCost: 0,
+      hiddenMonthlyCosts: 0,
+      hiddenCostsPercentage: 0,
+      costBreakdown: {
+        mortgagePayment: 0,
+        mandatoryCosts: {
+          fondOprav: 0,
+          insurance: 0,
+          tax: 0,
+          total: 0,
+          percentage: 0,
+        },
+        variableCosts: {
+          maintenance: 0,
+          energy: 0,
+          total: 0,
+          percentage: 0,
+        },
+        transactionCostsTotal: 0,
+      },
+      lifetimeCosts: {
+        totalWithoutInflation: 0,
+        totalWithInflation: 0,
+        totalMortgagePayments: 0,
+        totalOwnershipCosts: 0,
+      },
+    };
+  }
+
+  // Calculate mortgage payment
+  const loanAmount = propertyPrice - downPayment;
+  const monthlyMortgage = calculateMonthlyPayment(
+    loanAmount,
+    mortgageRate,
+    mortgageYears,
+  );
+
+  // Calculate mandatory costs (monthly)
+  const fondOprav = propertyArea * fondOpravPerSqmMonth;
+  const insurance = propertyInsuranceAnnual / 12;
+  const tax = propertyTaxAnnual / 12;
+  const mandatoryTotal = fondOprav + insurance + tax;
+
+  // Calculate variable costs (monthly)
+  const maintenance = (propertyPrice * (maintenanceReserveRate / 100)) / 12;
+  const energy = energyCostsMonthly;
+  const variableTotal = maintenance + energy;
+
+  // Calculate total monthly cost
+  const totalMonthly = monthlyMortgage + mandatoryTotal + variableTotal;
+
+  // Calculate hidden costs
+  const hiddenCosts = mandatoryTotal + variableTotal;
+  const hiddenCostsPercentage =
+    monthlyMortgage > 0 ? (hiddenCosts / monthlyMortgage) * 100 : 0;
+
+  // Calculate transaction costs total
+  const transactionCostsTotal =
+    transactionCosts.notary +
+    transactionCosts.valuation +
+    transactionCosts.bankFee +
+    transactionCosts.agentCommission;
+
+  // Calculate lifetime costs
+  const months = mortgageYears * 12;
+  const totalMortgagePayments = monthlyMortgage * months;
+  const monthlyOwnershipCosts = mandatoryTotal + variableTotal;
+
+  // Calculate lifetime costs without inflation
+  let totalOwnershipCostsWithoutInflation = monthlyOwnershipCosts * months;
+  const totalWithoutInflation =
+    totalMortgagePayments + totalOwnershipCostsWithoutInflation + transactionCostsTotal;
+
+  // Calculate lifetime costs with inflation
+  let totalOwnershipCostsWithInflation = 0;
+  if (inflationRate > 0) {
+    const monthlyInflationRate = inflationRate / 100 / 12;
+    for (let month = 1; month <= months; month++) {
+      const inflationFactor = Math.pow(1 + monthlyInflationRate, month);
+      totalOwnershipCostsWithInflation += monthlyOwnershipCosts * inflationFactor;
+    }
+  } else {
+    totalOwnershipCostsWithInflation = totalOwnershipCostsWithoutInflation;
+  }
+
+  const totalWithInflation =
+    totalMortgagePayments + totalOwnershipCostsWithInflation + transactionCostsTotal;
+
+  // Calculate percentages for breakdown
+  const mandatoryPercentage = totalMonthly > 0 ? (mandatoryTotal / totalMonthly) * 100 : 0;
+  const variablePercentage = totalMonthly > 0 ? (variableTotal / totalMonthly) * 100 : 0;
+
+  return {
+    monthlyMortgagePayment: Math.round(monthlyMortgage),
+    totalMonthlyCost: Math.round(totalMonthly),
+    hiddenMonthlyCosts: Math.round(hiddenCosts),
+    hiddenCostsPercentage: Math.round(hiddenCostsPercentage * 100) / 100,
+    costBreakdown: {
+      mortgagePayment: Math.round(monthlyMortgage),
+      mandatoryCosts: {
+        fondOprav: Math.round(fondOprav),
+        insurance: Math.round(insurance),
+        tax: Math.round(tax),
+        total: Math.round(mandatoryTotal),
+        percentage: Math.round(mandatoryPercentage * 100) / 100,
+      },
+      variableCosts: {
+        maintenance: Math.round(maintenance),
+        energy: Math.round(energy),
+        total: Math.round(variableTotal),
+        percentage: Math.round(variablePercentage * 100) / 100,
+      },
+      transactionCostsTotal: Math.round(transactionCostsTotal),
+    },
+    lifetimeCosts: {
+      totalWithoutInflation: Math.round(totalWithoutInflation),
+      totalWithInflation: Math.round(totalWithInflation),
+      totalMortgagePayments: Math.round(totalMortgagePayments),
+      totalOwnershipCosts: Math.round(totalOwnershipCostsWithoutInflation),
+    },
+  };
 }
