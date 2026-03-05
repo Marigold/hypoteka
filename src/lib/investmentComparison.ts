@@ -240,3 +240,90 @@ export function compareInvestments(
 
   return results;
 }
+
+export type LeverageRiskLevel = "safe" | "warning" | "danger";
+
+/**
+ * Calculate the leverage ratio (property value / equity).
+ *
+ * @param propertyValue - Current property market value in CZK
+ * @param equity - Current equity (property value minus mortgage balance) in CZK
+ * @returns Leverage ratio (e.g. 5.0 means 5:1 leverage)
+ *
+ * @example calculateLeverageRatio(5_000_000, 1_000_000) // 5.0
+ * @example calculateLeverageRatio(5_000_000, 0) // Infinity
+ */
+export function calculateLeverageRatio(
+  propertyValue: number,
+  equity: number,
+): number {
+  if (equity <= 0) return Infinity;
+  return propertyValue / equity;
+}
+
+/**
+ * Determine risk level based on loan-to-value ratio.
+ *
+ * - LTV ≤ 80%: safe
+ * - LTV 80–90%: warning
+ * - LTV > 90%: danger
+ *
+ * @param downPaymentPercent - Down payment as percentage of property price (e.g. 20)
+ * @returns Risk level classification
+ *
+ * @example getLeverageRiskLevel(20) // "safe"
+ * @example getLeverageRiskLevel(15) // "warning"
+ * @example getLeverageRiskLevel(5) // "danger"
+ */
+export function getLeverageRiskLevel(
+  downPaymentPercent: number,
+): LeverageRiskLevel {
+  const ltv = 100 - downPaymentPercent;
+  if (ltv > 90) return "danger";
+  if (ltv > 80) return "warning";
+  return "safe";
+}
+
+export interface DownsideScenarioResult {
+  /** Property value after the price drop */
+  newPropertyValue: number;
+  /** Remaining equity after the price drop */
+  remainingEquity: number;
+  /** Equity change as a percentage of original equity (negative = loss) */
+  equityChangePercent: number;
+}
+
+/**
+ * Calculate the impact of a property price drop on equity, demonstrating leverage
+ * amplification of losses.
+ *
+ * With leverage, a small drop in property value causes a much larger percentage drop
+ * in equity. For example, with 20% down payment, a 10% price drop wipes out 50% of equity.
+ *
+ * @param propertyValue - Current property market value in CZK
+ * @param mortgageBalance - Current outstanding mortgage balance in CZK
+ * @param priceDropPercent - Hypothetical price drop as percentage (e.g. 10 for -10%)
+ * @returns Downside scenario result with remaining equity and equity change
+ *
+ * @example calculateDownsideScenario(5_000_000, 4_000_000, 10)
+ * // { newPropertyValue: 4_500_000, remainingEquity: 500_000, equityChangePercent: -50 }
+ */
+export function calculateDownsideScenario(
+  propertyValue: number,
+  mortgageBalance: number,
+  priceDropPercent: number,
+): DownsideScenarioResult {
+  const originalEquity = propertyValue - mortgageBalance;
+  const newPropertyValue = propertyValue * (1 - priceDropPercent / 100);
+  const remainingEquity = newPropertyValue - mortgageBalance;
+  const equityChangePercent =
+    originalEquity > 0
+      ? ((remainingEquity - originalEquity) / originalEquity) * 100
+      : 0;
+
+  return {
+    newPropertyValue: Math.round(newPropertyValue),
+    remainingEquity: Math.round(remainingEquity),
+    equityChangePercent: Math.round(equityChangePercent * 100) / 100,
+  };
+}
