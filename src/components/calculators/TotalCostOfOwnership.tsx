@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import Slider from '../ui/Slider';
+import ResultCard from '../ui/ResultCard';
 import {
   calculateTotalCostOfOwnership,
   type TCOParams,
@@ -455,6 +456,110 @@ export default function TotalCostOfOwnership() {
               showInput
               suffix="Kč"
             />
+          </div>
+        </div>
+      </div>
+
+      {/* Results Panel */}
+      <div className="card bg-base-100 border border-base-200 shadow-sm">
+        <div className="card-body">
+          <h2 className="card-title mb-4">Skutečné náklady na bydlení</h2>
+
+          {/* Primary Comparison */}
+          <div className="stats shadow mb-6">
+            <ResultCard
+              label="Měsíční splátka hypotéky"
+              value={formatCurrency(tcoResult.monthlyMortgagePayment)}
+              description="Samotná splátka úvěru"
+            />
+            <ResultCard
+              label="Skutečné měsíční náklady"
+              value={formatCurrency(tcoResult.totalMonthlyCost)}
+              description="Včetně všech provozních nákladů"
+              color="primary"
+            />
+            <ResultCard
+              label="Skryté náklady"
+              value={formatCurrency(tcoResult.hiddenMonthlyCosts)}
+              description={`+${tcoResult.hiddenCostsPercentage}% navíc oproti hypotéce`}
+              color="warning"
+            />
+          </div>
+
+          {/* Detailed Cost Breakdown */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">Rozpad nákladů</h3>
+
+            <div className="stats shadow w-full">
+              <ResultCard
+                label="Hypotéka"
+                value={formatCurrency(tcoResult.costBreakdown.mortgagePayment)}
+                description="Měsíční splátka"
+              />
+              <ResultCard
+                label="Povinné náklady"
+                value={formatCurrency(tcoResult.costBreakdown.mandatoryCosts.total)}
+                description={`${tcoResult.costBreakdown.mandatoryCosts.percentage.toFixed(1)}% celkových nákladů`}
+              />
+              <ResultCard
+                label="Provozní náklady"
+                value={formatCurrency(tcoResult.costBreakdown.variableCosts.total)}
+                description={`${tcoResult.costBreakdown.variableCosts.percentage.toFixed(1)}% celkových nákladů`}
+              />
+            </div>
+
+            {/* Mandatory Costs Detail */}
+            <div className="p-4 bg-base-200 rounded-lg">
+              <h4 className="font-semibold mb-2">Povinné náklady (měsíčně):</h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-sm">
+                <div>
+                  Fond oprav: <span className="font-semibold">{formatCurrency(tcoResult.costBreakdown.mandatoryCosts.fondOprav)}</span>
+                </div>
+                <div>
+                  Pojištění: <span className="font-semibold">{formatCurrency(tcoResult.costBreakdown.mandatoryCosts.insurance)}</span>
+                </div>
+                <div>
+                  Daň: <span className="font-semibold">{formatCurrency(tcoResult.costBreakdown.mandatoryCosts.tax)}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Variable Costs Detail */}
+            <div className="p-4 bg-base-200 rounded-lg">
+              <h4 className="font-semibold mb-2">Provozní náklady (měsíčně):</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+                <div>
+                  Údržba: <span className="font-semibold">{formatCurrency(tcoResult.costBreakdown.variableCosts.maintenance)}</span>
+                </div>
+                <div>
+                  Energie: <span className="font-semibold">{formatCurrency(tcoResult.costBreakdown.variableCosts.energy)}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Lifetime Costs */}
+          <div className="space-y-4 mt-6">
+            <h3 className="text-lg font-semibold">Celkové náklady za {mortgageYears} let</h3>
+
+            <div className="stats shadow w-full">
+              <ResultCard
+                label="Celkem bez inflace"
+                value={formatCurrency(tcoResult.lifetimeCosts.totalWithoutInflation)}
+                description={`Hypotéka: ${formatCurrency(tcoResult.lifetimeCosts.totalMortgagePayments)}`}
+              />
+              <ResultCard
+                label="Celkem s inflací"
+                value={formatCurrency(tcoResult.lifetimeCosts.totalWithInflation)}
+                description={`Vlastnictví: ${formatCurrency(tcoResult.lifetimeCosts.totalOwnershipCosts)}`}
+                color="primary"
+              />
+              <ResultCard
+                label="Transakční náklady"
+                value={formatCurrency(tcoResult.costBreakdown.transactionCostsTotal)}
+                description="Jednorázové při koupi"
+              />
+            </div>
           </div>
         </div>
       </div>
