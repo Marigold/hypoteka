@@ -19,6 +19,8 @@ import {
   formatPercent,
 } from '../../lib/formatters';
 
+type Region = 'prague' | 'regional';
+
 interface Params {
   propertyPrice: number;
   downPayment: number;
@@ -34,6 +36,13 @@ interface Params {
   valuation: number;
   bankFee: number;
   agentCommission: number;
+}
+
+function getRegionFromURL(): Region {
+  if (typeof window === 'undefined') return 'prague';
+  const sp = new URLSearchParams(window.location.search);
+  const region = sp.get('oblast');
+  return region === 'regionalni' ? 'regional' : 'prague';
 }
 
 function getParamsFromURL(): Partial<Params> {
@@ -74,10 +83,11 @@ function getParamsFromURL(): Partial<Params> {
   return result;
 }
 
-function setParamsToURL(params: Params) {
+function setParamsToURL(params: Params, region: Region) {
   if (typeof window === 'undefined') return;
   const sp = new URLSearchParams();
 
+  sp.set('oblast', region === 'prague' ? 'praha' : 'regionalni');
   sp.set('cena', String(params.propertyPrice));
   sp.set('hotovost', String(params.downPayment));
   sp.set('urok', String(params.mortgageRate));
@@ -97,77 +107,123 @@ function setParamsToURL(params: Params) {
   window.history.replaceState(null, '', url);
 }
 
-const DEFAULTS: Params = {
-  propertyPrice: 5_000_000,
-  downPayment: 1_000_000,
+const PRAGUE_DEFAULTS: Params = {
+  propertyPrice: 8_000_000,
+  downPayment: 1_600_000,
+  mortgageRate: 4.5,
+  mortgageYears: 30,
+  propertyArea: 60,
+  fondOprav: 20,
+  insurance: 4_000,
+  tax: 4_000,
+  maintenanceRate: 1.0,
+  energy: 3_500,
+  notary: 20_000,
+  valuation: 7_000,
+  bankFee: 12_000,
+  agentCommission: 0,
+};
+
+const REGIONAL_DEFAULTS: Params = {
+  propertyPrice: 4_000_000,
+  downPayment: 800_000,
   mortgageRate: 4.5,
   mortgageYears: 30,
   propertyArea: 70,
-  fondOprav: 15,
-  insurance: 3_000,
-  tax: 2_500,
+  fondOprav: 12,
+  insurance: 2_500,
+  tax: 1_500,
   maintenanceRate: 1.0,
-  energy: 3_000,
+  energy: 2_500,
   notary: 15_000,
   valuation: 5_000,
   bankFee: 10_000,
   agentCommission: 0,
 };
 
+function getDefaults(region: Region): Params {
+  return region === 'prague' ? PRAGUE_DEFAULTS : REGIONAL_DEFAULTS;
+}
+
 export default function TotalCostOfOwnership() {
+  const urlRegion = useMemo(() => getRegionFromURL(), []);
   const urlParams = useMemo(() => getParamsFromURL(), []);
+  const initialDefaults = useMemo(() => getDefaults(urlRegion), [urlRegion]);
+
+  // Region selection
+  const [region, setRegion] = useState<Region>(urlRegion);
 
   // Mortgage parameters
   const [propertyPrice, setPropertyPrice] = useState(
-    urlParams.propertyPrice ?? DEFAULTS.propertyPrice
+    urlParams.propertyPrice ?? initialDefaults.propertyPrice
   );
   const [downPayment, setDownPayment] = useState(
-    urlParams.downPayment ?? DEFAULTS.downPayment
+    urlParams.downPayment ?? initialDefaults.downPayment
   );
   const [mortgageRate, setMortgageRate] = useState(
-    urlParams.mortgageRate ?? DEFAULTS.mortgageRate
+    urlParams.mortgageRate ?? initialDefaults.mortgageRate
   );
   const [mortgageYears, setMortgageYears] = useState(
-    urlParams.mortgageYears ?? DEFAULTS.mortgageYears
+    urlParams.mortgageYears ?? initialDefaults.mortgageYears
   );
 
   // Property parameters
   const [propertyArea, setPropertyArea] = useState(
-    urlParams.propertyArea ?? DEFAULTS.propertyArea
+    urlParams.propertyArea ?? initialDefaults.propertyArea
   );
 
   // Mandatory costs
   const [fondOprav, setFondOprav] = useState(
-    urlParams.fondOprav ?? DEFAULTS.fondOprav
+    urlParams.fondOprav ?? initialDefaults.fondOprav
   );
   const [insurance, setInsurance] = useState(
-    urlParams.insurance ?? DEFAULTS.insurance
+    urlParams.insurance ?? initialDefaults.insurance
   );
   const [tax, setTax] = useState(
-    urlParams.tax ?? DEFAULTS.tax
+    urlParams.tax ?? initialDefaults.tax
   );
 
   // Variable costs
   const [maintenanceRate, setMaintenanceRate] = useState(
-    urlParams.maintenanceRate ?? DEFAULTS.maintenanceRate
+    urlParams.maintenanceRate ?? initialDefaults.maintenanceRate
   );
   const [energy, setEnergy] = useState(
-    urlParams.energy ?? DEFAULTS.energy
+    urlParams.energy ?? initialDefaults.energy
   );
 
   // Transaction costs
   const [notary, setNotary] = useState(
-    urlParams.notary ?? DEFAULTS.notary
+    urlParams.notary ?? initialDefaults.notary
   );
   const [valuation, setValuation] = useState(
-    urlParams.valuation ?? DEFAULTS.valuation
+    urlParams.valuation ?? initialDefaults.valuation
   );
   const [bankFee, setBankFee] = useState(
-    urlParams.bankFee ?? DEFAULTS.bankFee
+    urlParams.bankFee ?? initialDefaults.bankFee
   );
   const [agentCommission, setAgentCommission] = useState(
-    urlParams.agentCommission ?? DEFAULTS.agentCommission
+    urlParams.agentCommission ?? initialDefaults.agentCommission
   );
+
+  // Handle region change - update all values to region defaults
+  const handleRegionChange = useCallback((newRegion: Region) => {
+    setRegion(newRegion);
+    const defaults = getDefaults(newRegion);
+    setPropertyPrice(defaults.propertyPrice);
+    setDownPayment(defaults.downPayment);
+    setMortgageRate(defaults.mortgageRate);
+    setMortgageYears(defaults.mortgageYears);
+    setPropertyArea(defaults.propertyArea);
+    setFondOprav(defaults.fondOprav);
+    setInsurance(defaults.insurance);
+    setTax(defaults.tax);
+    setMaintenanceRate(defaults.maintenanceRate);
+    setEnergy(defaults.energy);
+    setNotary(defaults.notary);
+    setValuation(defaults.valuation);
+    setBankFee(defaults.bankFee);
+    setAgentCommission(defaults.agentCommission);
+  }, []);
 
   // Sync to URL
   useEffect(() => {
@@ -186,8 +242,9 @@ export default function TotalCostOfOwnership() {
       valuation,
       bankFee,
       agentCommission,
-    });
+    }, region);
   }, [
+    region,
     propertyPrice,
     downPayment,
     mortgageRate,
@@ -289,7 +346,29 @@ export default function TotalCostOfOwnership() {
       {/* Input Panel */}
       <div className="card bg-base-100 border border-base-200 shadow-sm">
         <div className="card-body space-y-6">
-          <h2 className="card-title">Parametry nemovitosti</h2>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <h2 className="card-title">Parametry nemovitosti</h2>
+
+            {/* Region Toggle */}
+            <div className="flex gap-2">
+              <button
+                onClick={() => handleRegionChange('prague')}
+                className={`btn btn-sm ${
+                  region === 'prague' ? 'btn-primary' : 'btn-outline'
+                }`}
+              >
+                Praha
+              </button>
+              <button
+                onClick={() => handleRegionChange('regional')}
+                className={`btn btn-sm ${
+                  region === 'regional' ? 'btn-primary' : 'btn-outline'
+                }`}
+              >
+                Regionální
+              </button>
+            </div>
+          </div>
 
           {/* Property & Mortgage Parameters */}
           <div className="space-y-4">
