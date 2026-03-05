@@ -286,3 +286,45 @@ export function calculateTotalCostOfOwnership(params: TCOParams): TCOResult {
     },
   };
 }
+
+/**
+ * Get typical cost defaults for Prague properties.
+ *
+ * Based on market averages for newer buildings in Prague with typical
+ * amenities and services.
+ *
+ * @returns Regional defaults for Prague properties
+ *
+ * @example
+ * const pragueDefaults = getPragueDefaults();
+ * // Use these values to pre-fill form inputs for Prague properties
+ */
+export function getPragueDefaults(): RegionalDefaults {
+  return {
+    fondOpravPerSqmMonth: 18,
+    propertyInsuranceAnnual: 3_500,
+    propertyTaxAnnual: 3_000,
+    energyCostsMonthly: 3_500,
+  };
+}
+
+/**
+ * Get typical cost defaults for regional properties (outside Prague).
+ *
+ * Based on market averages for properties outside Prague and major cities,
+ * typically lower than Prague due to older buildings and lower service costs.
+ *
+ * @returns Regional defaults for properties outside Prague
+ *
+ * @example
+ * const regionalDefaults = getRegionalDefaults();
+ * // Use these values to pre-fill form inputs for non-Prague properties
+ */
+export function getRegionalDefaults(): RegionalDefaults {
+  return {
+    fondOpravPerSqmMonth: 12,
+    propertyInsuranceAnnual: 2_500,
+    propertyTaxAnnual: 2_000,
+    energyCostsMonthly: 2_800,
+  };
+}
