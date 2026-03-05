@@ -1,10 +1,15 @@
 import { useState, useEffect, useMemo } from 'react';
 import Slider from '../ui/Slider';
+import ResultCard from '../ui/ResultCard';
 import {
   formatCurrency,
   formatCurrencyCompact,
   formatPercent,
 } from '../../lib/formatters';
+import {
+  calculateFixationScenarios,
+  type FixationRateMap,
+} from '../../lib/fixationOptimizer';
 
 interface Params {
   loanAmount: number;
@@ -137,6 +142,56 @@ export default function FixationOptimizer() {
     rate15y,
     rate20y,
   ]);
+
+  // Build fixation rates map
+  const fixationRates: FixationRateMap = useMemo(
+    () => ({
+      1: rate1y,
+      3: rate3y,
+      5: rate5y,
+      7: rate7y,
+      10: rate10y,
+      15: rate15y,
+      20: rate20y,
+    }),
+    [rate1y, rate3y, rate5y, rate7y, rate10y, rate15y, rate20y],
+  );
+
+  // Calculate optimization results
+  const results = useMemo(
+    () =>
+      calculateFixationScenarios({
+        loanAmount,
+        remainingYears,
+        fixationRates,
+        holdingPeriod,
+        riskTolerance,
+      }),
+    [loanAmount, remainingYears, fixationRates, holdingPeriod, riskTolerance],
+  );
+
+  // Group scenarios by fixation period for table display
+  const groupedScenarios = useMemo(() => {
+    const groups: {
+      [fixationYears: number]: {
+        optimistic?: (typeof results.scenarios)[0];
+        base?: (typeof results.scenarios)[0];
+        pessimistic?: (typeof results.scenarios)[0];
+      };
+    } = {};
+
+    for (const scenario of results.scenarios) {
+      if (!groups[scenario.fixationYears]) {
+        groups[scenario.fixationYears] = {};
+      }
+      groups[scenario.fixationYears][scenario.rateScenario] = scenario;
+    }
+
+    return groups;
+  }, [results.scenarios]);
+
+  // State for table visibility
+  const [tableOpen, setTableOpen] = useState(false);
 
   return (
     <div className="space-y-8">
@@ -329,13 +384,161 @@ export default function FixationOptimizer() {
         </div>
       </div>
 
-      {/* Results Placeholder */}
+      {/* Results Summary */}
       <div className="card bg-base-100 border border-base-200 shadow-sm">
         <div className="card-body">
           <h2 className="card-title">Doporučená fixace</h2>
-          <p className="text-sm text-base-content/60">
-            Výsledky optimalizace budou zobrazeny v další fázi implementace.
-          </p>
+          <div className="stats stats-vertical lg:stats-horizontal shadow-sm w-full">
+            <ResultCard
+              label="Doporučená délka fixace"
+              value={
+                <>
+                  {results.recommendation.fixationYears}{' '}
+                  {results.recommendation.fixationYears === 1
+                    ? 'rok'
+                    : results.recommendation.fixationYears < 5
+                      ? 'roky'
+                      : 'let'}
+                </>
+              }
+              description={results.recommendation.reason}
+              color="primary"
+            />
+            <ResultCard
+              label="Rozpětí nákladů"
+              value={formatCurrency(results.summary.costSpread)}
+              description={`Mezi nejlepším a nejhorším scénářem`}
+              color="warning"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Detailed Comparison Table */}
+      <div className="card bg-base-100 border border-base-200 shadow-sm">
+        <div className="card-body">
+          <div className="flex items-center justify-between">
+            <h3 className="card-title">Porovnání všech scénářů</h3>
+            <button
+              type="button"
+              className="btn btn-sm btn-ghost"
+              onClick={() => setTableOpen(!tableOpen)}
+            >
+              {tableOpen ? 'Skrýt' : 'Zobrazit'}
+            </button>
+          </div>
+
+          {tableOpen && (
+            <div className="overflow-x-auto mt-4">
+              <table className="table table-zebra table-sm">
+                <thead>
+                  <tr>
+                    <th className="bg-base-200">Fixace</th>
+                    <th className="bg-base-200">Scénář</th>
+                    <th className="bg-base-200 text-right">Celkové úroky</th>
+                    <th className="bg-base-200 text-right">Celkem zaplaceno</th>
+                    <th className="bg-base-200 text-right">Průměrná splátka</th>
+                    <th className="bg-base-200 text-right">Počet refixací</th>
+                    <th className="bg-base-200 text-right">Změna sazby</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {Object.keys(groupedScenarios)
+                    .map(Number)
+                    .sort((a, b) => a - b)
+                    .map((fixationYears) => {
+                      const group = groupedScenarios[fixationYears];
+                      const scenarios = [
+                        group.optimistic,
+                        group.base,
+                        group.pessimistic,
+                      ].filter(Boolean);
+
+                      return scenarios.map((scenario, idx) => (
+                        <tr
+                          key={`${fixationYears}-${scenario!.rateScenario}`}
+                          className={
+                            scenario!.fixationYears === results.recommendation.fixationYears &&
+                            scenario!.rateScenario === 'base'
+                              ? 'bg-primary/10'
+                              : ''
+                          }
+                        >
+                          {idx === 0 ? (
+                            <td rowSpan={scenarios.length} className="font-semibold">
+                              {fixationYears}{' '}
+                              {fixationYears === 1 ? 'rok' : fixationYears < 5 ? 'roky' : 'let'}
+                            </td>
+                          ) : null}
+                          <td>
+                            <span
+                              className={`badge badge-sm ${
+                                scenario!.rateScenario === 'optimistic'
+                                  ? 'badge-success'
+                                  : scenario!.rateScenario === 'base'
+                                    ? 'badge-info'
+                                    : 'badge-warning'
+                              }`}
+                            >
+                              {scenario!.rateScenario === 'optimistic'
+                                ? 'Optimistický'
+                                : scenario!.rateScenario === 'base'
+                                  ? 'Základní'
+                                  : 'Pesimistický'}
+                            </span>
+                          </td>
+                          <td className="text-right font-mono">
+                            {formatCurrency(scenario!.totalInterest)}
+                          </td>
+                          <td className="text-right font-mono">
+                            {formatCurrency(scenario!.totalPaid)}
+                          </td>
+                          <td className="text-right font-mono">
+                            {formatCurrency(scenario!.averageMonthlyPayment)}
+                          </td>
+                          <td className="text-right">{scenario!.refixationCount}×</td>
+                          <td className="text-right">
+                            <span
+                              className={
+                                scenario!.rateChangeAtRefixation > 0
+                                  ? 'text-error'
+                                  : scenario!.rateChangeAtRefixation < 0
+                                    ? 'text-success'
+                                    : ''
+                              }
+                            >
+                              {scenario!.rateChangeAtRefixation > 0 ? '+' : ''}
+                              {scenario!.rateChangeAtRefixation.toFixed(1)} %
+                            </span>
+                          </td>
+                        </tr>
+                      ));
+                    })}
+                </tbody>
+              </table>
+
+              <div className="mt-4 text-sm text-base-content/60">
+                <p>
+                  <strong>Vysvětlení scénářů:</strong>
+                </p>
+                <ul className="list-disc list-inside space-y-1 mt-2">
+                  <li>
+                    <strong>Optimistický:</strong> Předpokládá pokles úrokových sazeb při refixaci
+                  </li>
+                  <li>
+                    <strong>Základní:</strong> Předpokládá stabilní úrokové sazby při refixaci
+                  </li>
+                  <li>
+                    <strong>Pesimistický:</strong> Předpokládá nárůst úrokových sazeb při refixaci
+                  </li>
+                </ul>
+                <p className="mt-2">
+                  Zelená řádka označuje doporučenou fixaci v základním scénáři pro vaši toleranci
+                  rizika.
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
