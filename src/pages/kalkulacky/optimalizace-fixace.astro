@@ -1,0 +1,10 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import FixationOptimizer from '../../components/calculators/FixationOptimizer.tsx';
+---
+
+<BaseLayout title="Optimalizace doby fixace hypotéky – Hypotéka.cz" description="Porovnejte různé délky fixace hypotéky a zjistěte, která varianta je pro vás nejvýhodnější. Kalkulačka zohledňuje úrokové sazby, refixace a celkové náklady.">
+	<h1 class="text-3xl font-bold mb-4">Kterou fixaci zvolit</h1>
+	<p class="text-gray-600 mb-8">Porovnejte různé délky fixace a jejich dopad na celkové náklady hypotéky. Kalkulačka vám ukáže, jak se liší měsíční splátky, celkové přeplatky a co se stane při refixaci.</p>
+	<FixationOptimizer client:visible />
+</BaseLayout>
