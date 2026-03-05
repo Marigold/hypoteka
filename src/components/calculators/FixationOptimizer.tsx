@@ -1,4 +1,13 @@
 import { useState, useEffect, useMemo } from 'react';
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+} from 'recharts';
 import Slider from '../ui/Slider';
 import ResultCard from '../ui/ResultCard';
 import {
@@ -93,6 +102,23 @@ const RISK_TOLERANCE_LABELS: Record<string, string> = {
   moderate: 'Vyvážený',
   aggressive: 'Agresivní',
 };
+
+// Historical Hypoindex data (Swiss Life Hypoindex - average mortgage rates)
+// Showing 11+ years of historical volatility to provide context for fixation decisions
+const HISTORICAL_HYPOINDEX_DATA = [
+  { year: 2014, rate: 2.89 },
+  { year: 2015, rate: 2.32 },
+  { year: 2016, rate: 2.09 },
+  { year: 2017, rate: 2.18 },
+  { year: 2018, rate: 2.65 },
+  { year: 2019, rate: 2.91 },
+  { year: 2020, rate: 2.45 },
+  { year: 2021, rate: 2.68 },
+  { year: 2022, rate: 4.89 },
+  { year: 2023, rate: 5.76 },
+  { year: 2024, rate: 5.12 },
+  { year: 2025, rate: 4.48 },
+];
 
 export default function FixationOptimizer() {
   const urlParams = useMemo(() => getParamsFromURL(), []);
@@ -539,6 +565,67 @@ export default function FixationOptimizer() {
               </div>
             </div>
           )}
+        </div>
+      </div>
+
+      {/* Historical Rate Context */}
+      <div className="card bg-base-100 border border-base-200 shadow-sm">
+        <div className="card-body">
+          <h3 className="card-title">Historický vývoj průměrných sazeb hypoték</h3>
+          <p className="text-sm text-base-content/60 mb-4">
+            Swiss Life Hypoindex ukazuje průměrné úrokové sazby hypoték v České republice. Graf
+            demonstruje volatilitu sazeb a pomáhá pochopit rizika krátkých a dlouhých fixací.
+          </p>
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={HISTORICAL_HYPOINDEX_DATA} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+              <XAxis
+                dataKey="year"
+                tick={{ fontSize: 12 }}
+                tickFormatter={(value) => String(value)}
+              />
+              <YAxis
+                tick={{ fontSize: 12 }}
+                tickFormatter={(value) => `${value} %`}
+                domain={[0, 'auto']}
+              />
+              <Tooltip
+                formatter={(value: number) => [`${value.toFixed(2)} %`, 'Průměrná sazba']}
+                labelFormatter={(label) => `Rok ${label}`}
+                contentStyle={{
+                  backgroundColor: 'hsl(var(--b1))',
+                  border: '1px solid hsl(var(--b3))',
+                  borderRadius: '0.5rem',
+                }}
+              />
+              <Legend
+                wrapperStyle={{ fontSize: '14px' }}
+                formatter={() => 'Průměrná úroková sazba (%)'}
+              />
+              <Line
+                type="monotone"
+                dataKey="rate"
+                stroke="hsl(var(--p))"
+                strokeWidth={2}
+                dot={{ fill: 'hsl(var(--p))', r: 4 }}
+                activeDot={{ r: 6 }}
+                name="Průměrná úroková sazba"
+              />
+            </LineChart>
+          </ResponsiveContainer>
+          <div className="mt-4 text-sm text-base-content/60">
+            <p>
+              <strong>Klíčové poznatky:</strong>
+            </p>
+            <ul className="list-disc list-inside space-y-1 mt-2">
+              <li>Sazby v letech 2015-2021 kolísaly mezi 2% a 3%</li>
+              <li>V letech 2022-2023 vzrostly nad 5% kvůli inflaci a růstu repo sazby ČNB</li>
+              <li>V roce 2025 sazby opět klesly kolem 4,5% díky snížení repo sazby na 3,5%</li>
+              <li>
+                <strong>Volatilita ukazuje</strong>, že rozdíl mezi fixacemi může být značný a
+                volba závisí na očekávání budoucího vývoje
+              </li>
+            </ul>
+          </div>
         </div>
       </div>
 
