@@ -1,0 +1,10 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SubsidyNavigator from '../../components/subsidy/SubsidyNavigator.tsx';
+---
+
+<BaseLayout title="Státní podpora bydlení 2026 – Průvodce – Hypotéka.cz" description="Zjistěte, na jakou státní podporu máte nárok při pořízení bydlení. Dotazník vás provede různými programy a najde pro vás tu pravou formu podpory.">
+	<h1 class="text-3xl font-bold mb-4">Státní podpora bydlení</h1>
+	<p class="text-gray-600 mb-8">Odpovězte na několik otázek a my vám ukážeme, na jakou státní podporu máte nárok. Projdeme s vámi dostupné programy, od družstevního bydlení přes dostupné byty až po právní poradny.</p>
+	<SubsidyNavigator client:visible />
+</BaseLayout>
