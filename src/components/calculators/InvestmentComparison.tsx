@@ -443,6 +443,101 @@ export default function InvestmentComparison() {
           </div>
         </div>
       </div>
+
+      {/* Volatility Education Section */}
+      <div className="collapse collapse-arrow bg-base-100 border border-base-200 shadow-sm">
+        <input type="checkbox" />
+        <div className="collapse-title font-semibold">
+          Proč je srovnání složitější, než se zdá – viditelná vs. skrytá volatilita
+        </div>
+        <div className="collapse-content space-y-4 text-sm leading-relaxed">
+          <p>
+            Akciový trh ukazuje hodnotu vašeho portfolia <strong>každý den</strong>. Když index spadne o 30 %, vidíte ztrátu okamžitě. Nemovitost má ale <strong>stejnou volatilitu</strong> – jen ji nevidíte, protože se neobchoduje na burze.
+          </p>
+          <p>
+            <strong>Příklad z české reality (2008–2013):</strong> Ceny bytů v Praze klesly o 15–25 % během finanční krize. Kdo musel prodat v roce 2012, realizoval velkou ztrátu – stejně jako investor na akciovém trhu. Rozdíl? Vlastník nemovitosti ztrátu „neviděl" na displeji každý den, takže nepodléhal panice.
+          </p>
+          <p>
+            Tato <strong>skrytá volatilita</strong> je jednou z hlavních psychologických výhod nemovitostí – ale také pastí. Investoři často podceňují riziko, protože si neuvědomují, že hodnota jejich nemovitosti kolísá stejně jako akcie.
+          </p>
+          <div className="bg-base-200/50 rounded-lg p-4">
+            <p className="font-semibold mb-1">Klíčový závěr:</p>
+            <p>
+              Nemovitost není „bezpečnější" než akcie – je jen méně průhledná. Obě investice mají rizika, ale u nemovitostí je navíc riziko finanční páky (hypotéky), které může zisky i ztráty výrazně znásobit.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Tax Comparison Table */}
+      <div className="card bg-base-100 border border-base-200 shadow-sm">
+        <div className="card-body">
+          <h2 className="card-title">Srovnání zdanění – akcie vs. nemovitost</h2>
+          <p className="text-sm text-base-content/70 mb-4">
+            Česká daňová pravidla (platná k roku 2026) se liší podle typu investice a doby držení.
+          </p>
+          <div className="overflow-x-auto">
+            <table className="table table-sm">
+              <thead>
+                <tr>
+                  <th>Doba držení</th>
+                  <th>Akcie (cenné papíry)</th>
+                  <th>Nemovitost</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td className="font-semibold">Do 3 let</td>
+                  <td>15 % z kapitálového zisku</td>
+                  <td>15 % z kapitálového zisku</td>
+                </tr>
+                <tr>
+                  <td className="font-semibold">3–10 let</td>
+                  <td>
+                    <span className="badge badge-success badge-sm">Osvobozeno</span>{' '}
+                    po 3 letech držení
+                  </td>
+                  <td>15 % z kapitálového zisku</td>
+                </tr>
+                <tr>
+                  <td className="font-semibold">Nad 10 let</td>
+                  <td>
+                    <span className="badge badge-success badge-sm">Osvobozeno</span>
+                  </td>
+                  <td>
+                    <span className="badge badge-success badge-sm">Osvobozeno</span>{' '}
+                    po 10 letech (5 let pokud bydlíte)
+                  </td>
+                </tr>
+                <tr>
+                  <td className="font-semibold">Příjmy z pronájmu / dividendy</td>
+                  <td>15 % srážková daň z dividend</td>
+                  <td>15 % daň z příjmu z pronájmu (po odpočtu nákladů)</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p className="text-xs text-base-content/50 mt-2">
+            Poznámka: Osvobození od daně u akcií platí při splnění podmínek § 4 zákona o daních z příjmů.
+            U nemovitostí se lhůta počítá od nabytí vlastnictví. Kalkulátor automaticky zohledňuje tyto daňové podmínky.
+          </p>
+        </div>
+      </div>
+
+      {/* Legal Disclaimer */}
+      <div className="alert alert-warning">
+        <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+        <div className="text-sm">
+          <p className="font-semibold">Důležité upozornění</p>
+          <p>
+            Tento kalkulátor slouží výhradně pro vzdělávací účely a nepředstavuje investiční doporučení.
+            Minulé výnosy nejsou zárukou budoucích výnosů. Skutečné výsledky se mohou výrazně lišit v závislosti na tržních podmínkách, konkrétní lokalitě nemovitosti, načasování investice a dalších faktorech.
+            Před jakýmkoliv investičním rozhodnutím se poraďte s licencovaným finančním poradcem.
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
