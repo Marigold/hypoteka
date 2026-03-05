@@ -114,3 +114,129 @@ export function calculateRentalIncomeTax(annualRent: number): number {
   // 15% tax on the taxable base → effective rate = 0.70 × 0.15 = 0.105
   return annualRent * 0.7 * 0.15;
 }
+
+/**
+ * Compare real estate investment (buy-to-let with mortgage) vs. stock market investing.
+ *
+ * Real estate scenario: investor buys property with mortgage, collects rental income
+ * (after tax and maintenance), property appreciates over time.
+ *
+ * Stock scenario: investor puts the same initial capital (down payment + transaction costs)
+ * into a stock portfolio that compounds annually. Monthly mortgage payments minus net rental
+ * income represent the ongoing cash outflow for the property investor; the stock investor
+ * adds that same amount monthly to their portfolio.
+ *
+ * @returns Year-by-year array comparing net worth for both strategies
+ */
+export function compareInvestments(
+  params: InvestmentComparisonParams,
+): InvestmentYearResult[] {
+  const {
+    propertyPrice,
+    downPaymentPercent,
+    mortgageRate,
+    mortgageYears,
+    propertyAppreciation,
+    monthlyRentalIncome,
+    holdingPeriod,
+    stockReturnRate,
+    propertyMaintenanceRate,
+    propertyTransactionCost,
+  } = params;
+
+  if (propertyPrice <= 0 || holdingPeriod <= 0) return [];
+
+  const downPayment = propertyPrice * (downPaymentPercent / 100);
+  const transactionCostAmount = propertyPrice * (propertyTransactionCost / 100);
+  const loanAmount = propertyPrice - downPayment;
+  const monthlyMortgage = calculateMonthlyPayment(loanAmount, mortgageRate, mortgageYears);
+  const monthlyMortgageRate = mortgageRate / 100 / 12;
+  const monthlyStockReturn = stockReturnRate / 100 / 12;
+
+  // Initial capital is the same for both strategies
+  const initialCapital = downPayment + transactionCostAmount;
+
+  const results: InvestmentYearResult[] = [];
+
+  // Real estate state
+  let mortgageBalance = loanAmount;
+  let propertyValue = propertyPrice;
+  let cumulativeRentalNet = 0;
+
+  // Stock state: investor starts with the same initial capital
+  let stockPortfolio = initialCapital;
+  const stockCostBasis = initialCapital;
+
+  for (let year = 1; year <= holdingPeriod; year++) {
+    let yearlyRentalGross = 0;
+
+    for (let month = 1; month <= 12; month++) {
+      // --- Real estate: mortgage amortization ---
+      const interestThisMonth = mortgageBalance * monthlyMortgageRate;
+      const principalThisMonth = monthlyMortgage - interestThisMonth;
+      mortgageBalance = Math.max(0, mortgageBalance - principalThisMonth);
+
+      // --- Real estate: rental income ---
+      yearlyRentalGross += monthlyRentalIncome;
+
+      // --- Real estate: monthly cash outflow ---
+      const maintenanceMonthly = propertyValue * (propertyMaintenanceRate / 100) / 12;
+      const propertyCashOutflow = monthlyMortgage + maintenanceMonthly;
+      const propertyNetCashflow = monthlyRentalIncome - propertyCashOutflow;
+
+      // --- Stock: invest the equivalent monthly outflow ---
+      // Stock investor contributes the same cash the property investor spends
+      // net of rental income. If property generates positive cashflow, stock
+      // investor contributes nothing extra (they don't receive rental income).
+      if (propertyNetCashflow < 0) {
+        stockPortfolio += Math.abs(propertyNetCashflow);
+      }
+
+      // Stock portfolio grows monthly
+      stockPortfolio *= 1 + monthlyStockReturn;
+    }
+
+    // Annual property appreciation
+    propertyValue *= 1 + propertyAppreciation / 100;
+
+    // Annual rental income tax and maintenance
+    const yearlyMaintenance = propertyPrice * Math.pow(1 + propertyAppreciation / 100, year - 1)
+      * (propertyMaintenanceRate / 100);
+    const rentalTax = calculateRentalIncomeTax(yearlyRentalGross);
+    const netRentalIncome = yearlyRentalGross - rentalTax - yearlyMaintenance;
+    cumulativeRentalNet += netRentalIncome;
+
+    // Real estate net worth
+    const realEstateEquity = propertyValue - mortgageBalance;
+    const realEstateNetWorth = realEstateEquity + cumulativeRentalNet;
+
+    // After-tax values (if sold this year)
+    const propertyGain = propertyValue - propertyPrice;
+    const propertySaleTax = calculatePropertySaleTax(propertyGain, year);
+    const realEstateNetWorthAfterTax = realEstateNetWorth - propertySaleTax;
+
+    const stockGain = stockPortfolio - stockCostBasis;
+    const stockTax = calculateStockTax(stockGain, year);
+    const stockNetWorthAfterTax = stockPortfolio - stockTax;
+
+    // Leverage ratio: property value / equity (how leveraged the investment is)
+    const leverageRatio = realEstateEquity > 0
+      ? propertyValue / realEstateEquity
+      : Infinity;
+
+    results.push({
+      year,
+      propertyValue: Math.round(propertyValue),
+      mortgageBalance: Math.round(mortgageBalance),
+      realEstateEquity: Math.round(realEstateEquity),
+      cumulativeRentalNet: Math.round(cumulativeRentalNet),
+      realEstateNetWorth: Math.round(realEstateNetWorth),
+      realEstateNetWorthAfterTax: Math.round(realEstateNetWorthAfterTax),
+      stockPortfolioValue: Math.round(stockPortfolio),
+      stockNetWorthAfterTax: Math.round(stockNetWorthAfterTax),
+      leverageRatio: Math.round(leverageRatio * 100) / 100,
+    });
+  }
+
+  return results;
+}
