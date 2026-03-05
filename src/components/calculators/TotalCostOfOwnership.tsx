@@ -1,4 +1,12 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
+import {
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  Tooltip,
+  Legend,
+} from 'recharts';
 import Slider from '../ui/Slider';
 import ResultCard from '../ui/ResultCard';
 import {
@@ -234,6 +242,47 @@ export default function TotalCostOfOwnership() {
     bankFee,
     agentCommission,
   ]);
+
+  // Chart data for cost breakdown visualization
+  const chartData = useMemo(() => {
+    return [
+      {
+        name: 'Hypotéka',
+        value: Math.round(tcoResult.costBreakdown.mortgagePayment),
+        color: '#3b82f6', // blue
+      },
+      {
+        name: 'Fond oprav',
+        value: Math.round(tcoResult.costBreakdown.mandatoryCosts.fondOprav),
+        color: '#8b5cf6', // purple
+      },
+      {
+        name: 'Pojištění',
+        value: Math.round(tcoResult.costBreakdown.mandatoryCosts.insurance),
+        color: '#ec4899', // pink
+      },
+      {
+        name: 'Daň',
+        value: Math.round(tcoResult.costBreakdown.mandatoryCosts.tax),
+        color: '#f97316', // orange
+      },
+      {
+        name: 'Údržba',
+        value: Math.round(tcoResult.costBreakdown.variableCosts.maintenance),
+        color: '#eab308', // yellow
+      },
+      {
+        name: 'Energie',
+        value: Math.round(tcoResult.costBreakdown.variableCosts.energy),
+        color: '#14b8a6', // teal
+      },
+    ];
+  }, [tcoResult]);
+
+  const tooltipFormatter = useCallback(
+    (value: number | undefined) => formatCurrency(Math.round(value ?? 0)),
+    [],
+  );
 
   return (
     <div className="space-y-8">
@@ -484,6 +533,36 @@ export default function TotalCostOfOwnership() {
               description={`+${tcoResult.hiddenCostsPercentage}% navíc oproti hypotéce`}
               color="warning"
             />
+          </div>
+
+          {/* Cost Breakdown Visualization */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">Rozpad měsíčních nákladů</h3>
+
+            <div className="bg-base-200 rounded-lg p-4">
+              <ResponsiveContainer width="100%" height={400}>
+                <PieChart>
+                  <Pie
+                    data={chartData}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ name, percent }) =>
+                      `${name}: ${((percent ?? 0) * 100).toFixed(1)}%`
+                    }
+                    outerRadius={120}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {chartData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip formatter={tooltipFormatter} />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
           </div>
 
           {/* Detailed Cost Breakdown */}
