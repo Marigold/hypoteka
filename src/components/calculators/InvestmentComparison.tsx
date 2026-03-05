@@ -1,5 +1,11 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import Slider from '../ui/Slider';
+import ResultCard from '../ui/ResultCard';
+import {
+  compareInvestments,
+  getLeverageRiskLevel,
+  type LeverageRiskLevel,
+} from '../../lib/investmentComparison';
 import {
   formatCurrency,
   formatCurrencyCompact,
@@ -92,6 +98,58 @@ export default function InvestmentComparison() {
     const transactionCost = Math.round(propertyPrice * 0.04);
     return downPayment + transactionCost;
   }, [propertyPrice, downPayment]);
+
+  const results = useMemo(
+    () =>
+      compareInvestments({
+        propertyPrice,
+        downPaymentPercent,
+        mortgageRate,
+        mortgageYears,
+        propertyAppreciation,
+        monthlyRentalIncome,
+        holdingPeriod,
+        stockReturnRate,
+        propertyMaintenanceRate: 1,
+        propertyTransactionCost: 4,
+        rentalTaxRate: 10.5,
+      }),
+    [propertyPrice, downPaymentPercent, mortgageRate, mortgageYears, propertyAppreciation, monthlyRentalIncome, holdingPeriod, stockReturnRate],
+  );
+
+  // Summary statistics at end of holding period
+  const lastResult = results[results.length - 1];
+  const realEstateReturn = lastResult
+    ? ((lastResult.realEstateNetWorthAfterTax - investmentAmount) / investmentAmount) * 100
+    : 0;
+  const stockReturn = lastResult
+    ? ((lastResult.stockNetWorthAfterTax - investmentAmount) / investmentAmount) * 100
+    : 0;
+  const realEstateAnnualized = holdingPeriod > 0
+    ? (Math.pow(1 + realEstateReturn / 100, 1 / holdingPeriod) - 1) * 100
+    : 0;
+  const stockAnnualized = holdingPeriod > 0
+    ? (Math.pow(1 + stockReturn / 100, 1 / holdingPeriod) - 1) * 100
+    : 0;
+  const realEstateProfit = lastResult
+    ? lastResult.realEstateNetWorthAfterTax - investmentAmount
+    : 0;
+  const stockProfit = lastResult
+    ? lastResult.stockNetWorthAfterTax - investmentAmount
+    : 0;
+  const leverageRatio = lastResult ? lastResult.leverageRatio : 0;
+
+  const isRealEstateBetter = realEstateProfit > stockProfit;
+
+  // Leverage risk based on LTV
+  const riskLevel = useMemo(() => getLeverageRiskLevel(downPaymentPercent), [downPaymentPercent]);
+  const ltv = 100 - downPaymentPercent;
+
+  const RISK_STYLES: Record<LeverageRiskLevel, { alert: string; label: string }> = {
+    safe: { alert: 'alert-info', label: 'Bezpečné' },
+    warning: { alert: 'alert-warning', label: 'Zvýšené riziko' },
+    danger: { alert: 'alert-error', label: 'Vysoké riziko' },
+  };
 
   return (
     <div className="space-y-8">
@@ -234,7 +292,79 @@ export default function InvestmentComparison() {
         </div>
       </div>
 
-      {/* Placeholder for results, charts, and educational content (next subtasks) */}
+      {/* Summary Result Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Real Estate Results */}
+        <div className="stats stats-vertical shadow w-full">
+          <ResultCard
+            label="Nemovitost – celkový výnos"
+            value={`${realEstateReturn >= 0 ? '+' : ''}${formatPercent(realEstateReturn)}`}
+            description={`Anualizovaně: ${formatPercent(realEstateAnnualized)}`}
+            color={realEstateReturn >= 0 ? 'success' : 'error'}
+          />
+          <ResultCard
+            label="Nemovitost – čistý zisk po dani"
+            value={formatCurrency(Math.round(realEstateProfit))}
+            description={`Za ${holdingPeriod} let`}
+            color={realEstateProfit >= 0 ? 'success' : 'error'}
+          />
+        </div>
+
+        {/* Stock Results */}
+        <div className="stats stats-vertical shadow w-full">
+          <ResultCard
+            label="Akcie – celkový výnos"
+            value={`${stockReturn >= 0 ? '+' : ''}${formatPercent(stockReturn)}`}
+            description={`Anualizovaně: ${formatPercent(stockAnnualized)}`}
+            color={stockReturn >= 0 ? 'success' : 'error'}
+          />
+          <ResultCard
+            label="Akcie – čistý zisk po dani"
+            value={formatCurrency(Math.round(stockProfit))}
+            description={`Za ${holdingPeriod} let`}
+            color={stockProfit >= 0 ? 'success' : 'error'}
+          />
+        </div>
+      </div>
+
+      {/* Leverage ratio */}
+      <div className="stats shadow w-full">
+        <ResultCard
+          label="Počáteční finanční páka"
+          value={`${(propertyPrice / downPayment).toFixed(1)}×`}
+          description={`LTV: ${ltv} % · Aktuální páka po ${holdingPeriod} letech: ${leverageRatio === Infinity ? '∞' : leverageRatio.toFixed(1)}×`}
+        />
+      </div>
+
+      {/* Key takeaway */}
+      <div className={`alert ${isRealEstateBetter ? 'alert-success' : 'alert-info'}`}>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="stroke-current shrink-0 w-6 h-6">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span>
+          {isRealEstateBetter
+            ? `Za ${holdingPeriod} let vychází investice do nemovitosti lépe o ${formatCurrency(Math.round(realEstateProfit - stockProfit))}.`
+            : `Za ${holdingPeriod} let vychází investice do akcií lépe o ${formatCurrency(Math.round(stockProfit - realEstateProfit))}.`}
+          {' '}Výsledek silně závisí na zvolených parametrech.
+        </span>
+      </div>
+
+      {/* Leverage risk warning */}
+      {riskLevel !== 'safe' && (
+        <div className={`alert ${RISK_STYLES[riskLevel].alert}`}>
+          <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <span>
+            <strong>{RISK_STYLES[riskLevel].label}:</strong>{' '}
+            {ltv > 90
+              ? `LTV ${ltv} % je velmi vysoké. Pokles cen nemovitostí o pouhých ${Math.round(100 - (100 * downPaymentPercent) / ltv)} % by vymazal veškerý vlastní kapitál.`
+              : `LTV ${ltv} % zvyšuje riziko. Finanční páka zesiluje jak zisky, tak ztráty.`}
+          </span>
+        </div>
+      )}
+
+      {/* Placeholder for charts and educational content (next subtasks) */}
     </div>
   );
 }
