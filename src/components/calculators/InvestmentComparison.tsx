@@ -1,4 +1,14 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+  ReferenceLine,
+} from 'recharts';
 import Slider from '../ui/Slider';
 import ResultCard from '../ui/ResultCard';
 import {
@@ -144,6 +154,11 @@ export default function InvestmentComparison() {
   // Leverage risk based on LTV
   const riskLevel = useMemo(() => getLeverageRiskLevel(downPaymentPercent), [downPaymentPercent]);
   const ltv = 100 - downPaymentPercent;
+
+  const tooltipFormatter = useCallback(
+    (value: number | undefined) => formatCurrency(Math.round(value ?? 0)),
+    [],
+  );
 
   const RISK_STYLES: Record<LeverageRiskLevel, { alert: string; label: string }> = {
     safe: { alert: 'alert-info', label: 'Bezpečné' },
@@ -364,7 +379,70 @@ export default function InvestmentComparison() {
         </div>
       )}
 
-      {/* Placeholder for charts and educational content (next subtasks) */}
+      {/* Chart */}
+      <div className="card bg-base-100 border border-base-200 shadow-sm">
+        <div className="card-body">
+          <h2 className="card-title">Vývoj čistého jmění v čase</h2>
+          <div style={{ height: 400 }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={results}>
+                <defs>
+                  <linearGradient id="gradRealEstate" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#00a43b" stopOpacity={0.4} />
+                    <stop offset="95%" stopColor="#00a43b" stopOpacity={0.05} />
+                  </linearGradient>
+                  <linearGradient id="gradStock" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#0090b5" stopOpacity={0.4} />
+                    <stop offset="95%" stopColor="#0090b5" stopOpacity={0.05} />
+                  </linearGradient>
+                </defs>
+                <XAxis
+                  dataKey="year"
+                  tickFormatter={(v: number) => `${v}. rok`}
+                />
+                <YAxis tickFormatter={(v: number) => formatCurrencyCompact(v)} width={100} />
+                <Tooltip
+                  formatter={tooltipFormatter as never}
+                  labelFormatter={(v) => `${v}. rok`}
+                />
+                <Legend />
+                {holdingPeriod >= 3 && (
+                  <ReferenceLine
+                    x={3}
+                    stroke="#666"
+                    strokeDasharray="3 3"
+                    label={{ value: '3 roky – test pro akcie', position: 'top', fontSize: 11 }}
+                  />
+                )}
+                {holdingPeriod >= 10 && (
+                  <ReferenceLine
+                    x={10}
+                    stroke="#666"
+                    strokeDasharray="3 3"
+                    label={{ value: '10 let – test pro nemovitost', position: 'top', fontSize: 11 }}
+                  />
+                )}
+                <Area
+                  type="monotone"
+                  dataKey="realEstateNetWorthAfterTax"
+                  name="Nemovitost – čisté jmění"
+                  stroke="#00a43b"
+                  fill="url(#gradRealEstate)"
+                  fillOpacity={1}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="stockNetWorthAfterTax"
+                  name="Akcie – čisté jmění"
+                  stroke="#0090b5"
+                  fill="url(#gradStock)"
+                  fillOpacity={1}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
