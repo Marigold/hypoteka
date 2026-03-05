@@ -897,6 +897,34 @@ export default function SubsidyNavigator() {
             </div>
           )}
 
+          {/* Disclaimer */}
+          <div className="alert alert-info">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              className="stroke-current shrink-0 w-6 h-6"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            <div className="text-sm">
+              <p className="font-semibold">Důležité upozornění</p>
+              <p>
+                Tento průvodce poskytuje pouze orientační informace o možných programech podpory bydlení.
+                Výsledky jsou založeny na zjednodušených kritériích a negarantují automatický nárok na dotaci či podporu.
+                Skutečná způsobilost je vždy posuzována příslušným správcem programu.
+                Pro ověření nároku, aktuální podmínky a pomoc s žádostí kontaktujte Kontaktní místo pro bydlení
+                ve vašem regionu nebo navštivte oficiální webové stránky jednotlivých programů.
+                Informace jsou aktuální k březnu 2026.
+              </p>
+            </div>
+          </div>
+
           {/* Actions */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button onClick={handleStartOver} className="btn btn-outline">
