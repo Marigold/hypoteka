@@ -697,15 +697,17 @@ export default function FixationOptimizer() {
                   border: '1px solid hsl(var(--b3))',
                   borderRadius: '0.5rem',
                 }}
-                formatter={(value: number, name: string) => {
+                formatter={(value: number | undefined, name: string | undefined) => {
+                  const displayName = name ?? '';
+                  if (value === undefined) return ['', displayName];
                   if (name === 'Doporučená fixace') {
                     const years = value;
                     return [
                       `${value} ${years === 1 ? 'rok' : years < 5 ? 'roky' : 'let'}`,
-                      name,
+                      displayName,
                     ];
                   }
-                  return [formatCurrency(value), name];
+                  return [formatCurrency(value), displayName];
                 }}
               />
               <Legend wrapperStyle={{ fontSize: '14px', paddingTop: '10px' }} />
@@ -957,7 +959,11 @@ export default function FixationOptimizer() {
                 domain={[0, 'auto']}
               />
               <Tooltip
-                formatter={(value: number) => [`${value.toFixed(2)} %`, 'Průměrná sazba']}
+                formatter={(value: number | undefined) =>
+                  value !== undefined
+                    ? [`${value.toFixed(2)} %`, 'Průměrná sazba']
+                    : ['N/A', 'Průměrná sazba']
+                }
                 labelFormatter={(label) => `Rok ${label}`}
                 contentStyle={{
                   backgroundColor: 'hsl(var(--b1))',
