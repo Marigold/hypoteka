@@ -8,7 +8,9 @@ import {
   getAllRegions,
   REGION_NAMES,
   type CzechRegion,
+  getNearestContactPoint,
 } from '../../lib/housingContactPoints';
+import ResultCard from '../ui/ResultCard';
 
 type IncomeBracket = QuestionnaireAnswers['incomeBracket'];
 type FamilyStatus = QuestionnaireAnswers['familyStatus'];
@@ -139,6 +141,9 @@ export default function SubsidyNavigator() {
     urlParams.krok ?? DEFAULTS.currentStep,
   );
 
+  const [showResults, setShowResults] = useState(false);
+  const [eligibilityResult, setEligibilityResult] = useState<EligibilityResult | null>(null);
+
   // Sync to URL
   useEffect(() => {
     setParamsToURL({
@@ -190,30 +195,63 @@ export default function SubsidyNavigator() {
     }
   };
 
+  const handleShowResults = () => {
+    const answers: QuestionnaireAnswers = {
+      age,
+      incomeBracket,
+      familyStatus,
+      propertyType,
+      region,
+      isCooperativeMember,
+      isFirstTimeBuyer,
+      vulnerabilityFactors,
+    };
+
+    const result = evaluateEligibility(answers);
+    setEligibilityResult(result);
+    setShowResults(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleStartOver = () => {
+    setShowResults(false);
+    setCurrentStep(1);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Get contact point for the user's region
+  const contactPoint = getNearestContactPoint(region);
+
   return (
     <div className="space-y-8">
-      {/* Progress indicator */}
-      <div className="card bg-base-100 border border-base-200 shadow-sm">
-        <div className="card-body">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="card-title">Průvodce dotacemi a podporami</h2>
-            <span className="text-sm text-base-content/60">
-              Krok {currentStep} z {totalSteps}
-            </span>
-          </div>
+      {!showResults && (
+        <>
+          {/* Progress indicator */}
+          <div className="card bg-base-100 border border-base-200 shadow-sm">
+            <div className="card-body">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="card-title">Průvodce dotacemi a podporami</h2>
+                <span className="text-sm text-base-content/60">
+                  Krok {currentStep} z {totalSteps}
+                </span>
+              </div>
 
-          {/* Progress bar */}
-          <div className="w-full bg-base-200 rounded-full h-2">
-            <div
-              className="bg-primary h-2 rounded-full transition-all duration-300"
-              style={{ width: `${(currentStep / totalSteps) * 100}%` }}
-            />
+              {/* Progress bar */}
+              <div className="w-full bg-base-200 rounded-full h-2">
+                <div
+                  className="bg-primary h-2 rounded-full transition-all duration-300"
+                  style={{ width: `${(currentStep / totalSteps) * 100}%` }}
+                />
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
+        </>
+      )}
 
-      {/* Question cards */}
-      <div className="card bg-base-100 border border-base-200 shadow-sm">
+      {!showResults && (
+        <>
+          {/* Question cards */}
+          <div className="card bg-base-100 border border-base-200 shadow-sm">
         <div className="card-body space-y-6">
           {/* Step 1: Basic Information */}
           {currentStep === 1 && (
@@ -548,9 +586,7 @@ export default function SubsidyNavigator() {
               </button>
             ) : (
               <button
-                onClick={() => {
-                  // TODO: Show results in next subtask
-                }}
+                onClick={handleShowResults}
                 className="btn btn-primary"
               >
                 Zobrazit výsledky
@@ -559,6 +595,333 @@ export default function SubsidyNavigator() {
           </div>
         </div>
       </div>
+        </>
+      )}
+
+      {/* Results Display */}
+      {showResults && eligibilityResult && (
+        <>
+          {/* Results Header */}
+          <div className="card bg-gradient-to-br from-primary/5 via-base-100 to-secondary/5 border border-base-200 shadow-sm">
+            <div className="card-body">
+              <h2 className="card-title text-2xl mb-2">Vaše výsledky</h2>
+              <p className="text-base-content/70">
+                Na základě vašich odpovědí jsme identifikovali programy podpory, na které máte nárok.
+              </p>
+            </div>
+          </div>
+
+          {/* Summary Stats */}
+          <div className="stats stats-vertical lg:stats-horizontal shadow border border-base-200 w-full">
+            <ResultCard
+              label="Programy podpory"
+              value={eligibilityResult.eligiblePrograms.length}
+              description="Způsobilých programů"
+              color="primary"
+            />
+            <ResultCard
+              label="Odhadovaná výhoda"
+              value={`${eligibilityResult.totalEstimatedBenefit.toLocaleString('cs-CZ')} Kč`}
+              description="Ročně (orientačně)"
+              color="success"
+            />
+            <ResultCard
+              label="Kontaktní místo"
+              value={contactPoint?.city || region}
+              description={REGION_NAMES[region]}
+              color="primary"
+            />
+          </div>
+
+          {/* Eligible Programs */}
+          {eligibilityResult.eligiblePrograms.length > 0 ? (
+            <div className="space-y-6">
+              <h3 className="text-xl font-bold">Programy, na které máte nárok</h3>
+
+              {eligibilityResult.eligiblePrograms.map((program) => (
+                <div
+                  key={program.id}
+                  className="card bg-base-100 border border-base-200 shadow-sm"
+                >
+                  <div className="card-body">
+                    <div className="flex items-start gap-4">
+                      {/* Icon */}
+                      <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center shrink-0">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          strokeWidth="1.5"
+                          stroke="currentColor"
+                          className="w-6 h-6 text-accent"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                          />
+                        </svg>
+                      </div>
+
+                      <div className="flex-1">
+                        <h4 className="text-lg font-semibold mb-2">{program.name}</h4>
+                        <p className="text-base-content/70 mb-4">{program.description}</p>
+
+                        {/* Estimated Benefit */}
+                        {program.estimatedBenefit !== undefined && program.estimatedBenefit > 0 && (
+                          <div className="alert alert-success mb-4">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              strokeWidth="1.5"
+                              stroke="currentColor"
+                              className="w-5 h-5"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z"
+                              />
+                            </svg>
+                            <span>
+                              <strong>Odhadovaná výhoda:</strong> {program.estimatedBenefit.toLocaleString('cs-CZ')} Kč/rok
+                            </span>
+                          </div>
+                        )}
+
+                        {/* Application Steps */}
+                        <div className="mb-4">
+                          <h5 className="font-semibold mb-2">Jak požádat:</h5>
+                          <ol className="list-decimal list-inside space-y-1 text-sm text-base-content/70">
+                            {program.applicationSteps.map((step, idx) => (
+                              <li key={idx}>{step}</li>
+                            ))}
+                          </ol>
+                        </div>
+
+                        {/* Required Documents */}
+                        <div className="mb-4">
+                          <h5 className="font-semibold mb-2">Potřebné dokumenty:</h5>
+                          <ul className="list-disc list-inside space-y-1 text-sm text-base-content/70">
+                            {program.requiredDocuments.map((doc, idx) => (
+                              <li key={idx}>{doc}</li>
+                            ))}
+                          </ul>
+                        </div>
+
+                        {/* Official Links */}
+                        <div className="flex flex-wrap gap-2">
+                          {program.officialLinks.map((link, idx) => (
+                            <a
+                              key={idx}
+                              href={link.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="btn btn-sm btn-outline no-underline"
+                            >
+                              {link.title}
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                strokeWidth="1.5"
+                                stroke="currentColor"
+                                className="w-4 h-4"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"
+                                />
+                              </svg>
+                            </a>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="alert alert-info">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth="1.5"
+                stroke="currentColor"
+                className="w-6 h-6"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"
+                />
+              </svg>
+              <span>
+                Na základě vašich odpovědí jsme nenašli žádné programy, na které byste měli
+                automatický nárok. Doporučujeme kontaktovat Kontaktní místo pro bydlení ve vašem
+                regionu pro osobní konzultaci.
+              </span>
+            </div>
+          )}
+
+          {/* Contact Point Information */}
+          {contactPoint && (
+            <div className="card bg-base-100 border border-base-200 shadow-sm">
+              <div className="card-body">
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth="1.5"
+                      stroke="currentColor"
+                      className="w-6 h-6 text-primary"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"
+                      />
+                    </svg>
+                  </div>
+
+                  <div className="flex-1">
+                    <h3 className="text-lg font-semibold mb-2">
+                      Kontaktní místo pro bydlení – {contactPoint.city}
+                    </h3>
+                    <p className="text-base-content/70 mb-4">
+                      Bezplatné právní a sociální poradenství v oblasti bydlení ve vašem regionu.
+                    </p>
+
+                    <div className="grid gap-3 text-sm">
+                      <div className="flex items-start gap-2">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          strokeWidth="1.5"
+                          stroke="currentColor"
+                          className="w-5 h-5 text-base-content/50 shrink-0"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"
+                          />
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"
+                          />
+                        </svg>
+                        <div>
+                          <strong>Adresa:</strong> {contactPoint.address}, {contactPoint.postalCode} {contactPoint.city}
+                        </div>
+                      </div>
+
+                      <div className="flex items-start gap-2">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          strokeWidth="1.5"
+                          stroke="currentColor"
+                          className="w-5 h-5 text-base-content/50 shrink-0"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z"
+                          />
+                        </svg>
+                        <div>
+                          <strong>Telefon:</strong> {contactPoint.phone}
+                        </div>
+                      </div>
+
+                      <div className="flex items-start gap-2">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          strokeWidth="1.5"
+                          stroke="currentColor"
+                          className="w-5 h-5 text-base-content/50 shrink-0"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"
+                          />
+                        </svg>
+                        <div>
+                          <strong>Email:</strong> {contactPoint.email}
+                        </div>
+                      </div>
+
+                      {contactPoint.openingHours && (
+                        <div className="flex items-start gap-2">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            strokeWidth="1.5"
+                            stroke="currentColor"
+                            className="w-5 h-5 text-base-content/50 shrink-0"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"
+                            />
+                          </svg>
+                          <div>
+                            <strong>Otevírací doba:</strong> {contactPoint.openingHours}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Actions */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <button onClick={handleStartOver} className="btn btn-outline">
+              ← Vyplnit znovu
+            </button>
+            <a href="/clanky" className="btn btn-primary no-underline">
+              Zjistit více o dotacích
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth="1.5"
+                stroke="currentColor"
+                className="w-4 h-4"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
+                />
+              </svg>
+            </a>
+          </div>
+        </>
+      )}
     </div>
   );
 }
