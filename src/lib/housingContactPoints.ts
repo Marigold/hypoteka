@@ -61,7 +61,7 @@ export const REGION_NAMES: Record<CzechRegion, string> = {
  * Distribution reflects population and municipality count per region.
  */
 export const HOUSING_CONTACT_POINTS: HousingContactPoint[] = [
-  // Praha (12 points)
+  // Praha (10 points)
   {
     id: 'hcp-pra-01',
     city: 'Praha 1',
@@ -162,28 +162,8 @@ export const HOUSING_CONTACT_POINTS: HousingContactPoint[] = [
     region: 'praha',
     openingHours: 'Po-Pá 8:00-16:00',
   },
-  {
-    id: 'hcp-pra-11',
-    city: 'Praha 11',
-    address: 'Ocelíkova 672',
-    postalCode: '149 00',
-    phone: '+420 221 012 355',
-    email: 'kontakt.p11@bydleni.gov.cz',
-    region: 'praha',
-    openingHours: 'Po-Pá 8:00-16:00',
-  },
-  {
-    id: 'hcp-pra-12',
-    city: 'Praha 13',
-    address: 'Sluneční náměstí 13',
-    postalCode: '158 00',
-    phone: '+420 221 012 356',
-    email: 'kontakt.p13@bydleni.gov.cz',
-    region: 'praha',
-    openingHours: 'Po-Pá 8:00-16:00',
-  },
 
-  // Středočeský kraj (10 points)
+  // Středočeský kraj (9 points)
   {
     id: 'hcp-stc-01',
     city: 'Kladno',
@@ -274,18 +254,8 @@ export const HOUSING_CONTACT_POINTS: HousingContactPoint[] = [
     region: 'stredocesky',
     openingHours: 'Po-Pá 8:00-15:00',
   },
-  {
-    id: 'hcp-stc-10',
-    city: 'Rakovník',
-    address: 'Vysoká 115',
-    postalCode: '269 01',
-    phone: '+420 313 513 111',
-    email: 'kontakt.rakovnik@bydleni.gov.cz',
-    region: 'stredocesky',
-    openingHours: 'Po-Pá 8:00-15:00',
-  },
 
-  // Jihočeský kraj (9 points)
+  // Jihočeský kraj (8 points)
   {
     id: 'hcp-jhc-01',
     city: 'České Budějovice',
@@ -363,16 +333,6 @@ export const HOUSING_CONTACT_POINTS: HousingContactPoint[] = [
     postalCode: '379 01',
     phone: '+420 384 754 111',
     email: 'kontakt.trebon@bydleni.gov.cz',
-    region: 'jihocesky',
-    openingHours: 'Po-Pá 8:00-15:00',
-  },
-  {
-    id: 'hcp-jhc-09',
-    city: 'Vimperk',
-    address: 'Steinbrenerova 6',
-    postalCode: '385 01',
-    phone: '+420 388 459 111',
-    email: 'kontakt.vimperk@bydleni.gov.cz',
     region: 'jihocesky',
     openingHours: 'Po-Pá 8:00-15:00',
   },
@@ -931,7 +891,7 @@ export const HOUSING_CONTACT_POINTS: HousingContactPoint[] = [
     openingHours: 'Po-Pá 8:00-15:00',
   },
 
-  // Jihomoravský kraj (11 points)
+  // Jihomoravský kraj (9 points)
   {
     id: 'hcp-jhm-01',
     city: 'Brno',
@@ -1019,26 +979,6 @@ export const HOUSING_CONTACT_POINTS: HousingContactPoint[] = [
     postalCode: '680 01',
     phone: '+420 516 488 111',
     email: 'kontakt.boskovice@bydleni.gov.cz',
-    region: 'jihomoravsky',
-    openingHours: 'Po-Pá 8:00-15:00',
-  },
-  {
-    id: 'hcp-jhm-10',
-    city: 'Veselí nad Moravou',
-    address: 'Palackého nám. 1',
-    postalCode: '698 01',
-    phone: '+420 518 322 111',
-    email: 'kontakt.veseli@bydleni.gov.cz',
-    region: 'jihomoravsky',
-    openingHours: 'Po-Pá 8:00-15:00',
-  },
-  {
-    id: 'hcp-jhm-11',
-    city: 'Hustopeče',
-    address: 'Dukelské náměstí 2',
-    postalCode: '693 01',
-    phone: '+420 519 441 111',
-    email: 'kontakt.hustopece@bydleni.gov.cz',
     region: 'jihomoravsky',
     openingHours: 'Po-Pá 8:00-15:00',
   },
