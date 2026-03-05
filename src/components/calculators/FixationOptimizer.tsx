@@ -2,11 +2,14 @@ import { useState, useEffect, useMemo } from 'react';
 import {
   LineChart,
   Line,
+  BarChart,
+  Bar,
   XAxis,
   YAxis,
   Tooltip,
   ResponsiveContainer,
   Legend,
+  Cell,
 } from 'recharts';
 import Slider from '../ui/Slider';
 import ResultCard from '../ui/ResultCard';
@@ -215,6 +218,75 @@ export default function FixationOptimizer() {
 
     return groups;
   }, [results.scenarios]);
+
+  // Sensitivity analysis: how does recommendation change with rate shifts?
+  const sensitivityData = useMemo(() => {
+    const rateShifts = [-1.0, -0.5, 0, 0.5, 1.0];
+    const data: {
+      shift: number;
+      label: string;
+      recommendedFixation: number;
+      totalCost: number;
+      costDifference: number;
+    }[] = [];
+
+    const baselineCost = results.scenarios.find(
+      (s) =>
+        s.fixationYears === results.recommendation.fixationYears && s.rateScenario === 'base',
+    )?.totalPaid ?? 0;
+
+    for (const shift of rateShifts) {
+      // Apply rate shift to all fixation rates
+      const shiftedRates: FixationRateMap = {
+        1: rate1y + shift,
+        3: rate3y + shift,
+        5: rate5y + shift,
+        7: rate7y + shift,
+        10: rate10y + shift,
+        15: rate15y + shift,
+        20: rate20y + shift,
+      };
+
+      // Calculate with shifted rates
+      const shiftedResults = calculateFixationScenarios({
+        loanAmount,
+        remainingYears,
+        fixationRates: shiftedRates,
+        holdingPeriod,
+        riskTolerance,
+      });
+
+      const recommendedScenario = shiftedResults.scenarios.find(
+        (s) =>
+          s.fixationYears === shiftedResults.recommendation.fixationYears &&
+          s.rateScenario === 'base',
+      );
+
+      data.push({
+        shift,
+        label: shift === 0 ? 'Aktuální' : `${shift > 0 ? '+' : ''}${shift.toFixed(1)} %`,
+        recommendedFixation: shiftedResults.recommendation.fixationYears,
+        totalCost: recommendedScenario?.totalPaid ?? 0,
+        costDifference: (recommendedScenario?.totalPaid ?? 0) - baselineCost,
+      });
+    }
+
+    return data;
+  }, [
+    loanAmount,
+    remainingYears,
+    holdingPeriod,
+    riskTolerance,
+    rate1y,
+    rate3y,
+    rate5y,
+    rate7y,
+    rate10y,
+    rate15y,
+    rate20y,
+    results.recommendation.fixationYears,
+    results.scenarios,
+  ]);
 
   // State for table visibility
   const [tableOpen, setTableOpen] = useState(false);
@@ -436,6 +508,156 @@ export default function FixationOptimizer() {
               description={`Mezi nejlepším a nejhorším scénářem`}
               color="warning"
             />
+          </div>
+        </div>
+      </div>
+
+      {/* Sensitivity Analysis */}
+      <div className="card bg-base-100 border border-base-200 shadow-sm">
+        <div className="card-body">
+          <h3 className="card-title">Analýza citlivosti na změnu sazeb</h3>
+          <p className="text-sm text-base-content/60 mb-4">
+            Tento graf ukazuje, jak by se změnilo doporučení, kdyby všechny úrokové sazby vzrostly
+            nebo klesly. Pomáhá vám pochopit, jak robustní je aktuální doporučení.
+          </p>
+
+          <ResponsiveContainer width="100%" height={350}>
+            <BarChart
+              data={sensitivityData}
+              margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+            >
+              <XAxis
+                dataKey="label"
+                tick={{ fontSize: 12 }}
+                label={{ value: 'Posun všech úrokových sazeb', position: 'insideBottom', offset: -5, fontSize: 14 }}
+              />
+              <YAxis
+                yAxisId="left"
+                orientation="left"
+                tick={{ fontSize: 12 }}
+                label={{ value: 'Doporučená fixace (roky)', angle: -90, position: 'insideLeft', fontSize: 14 }}
+                domain={[0, 'auto']}
+              />
+              <YAxis
+                yAxisId="right"
+                orientation="right"
+                tick={{ fontSize: 12 }}
+                tickFormatter={(value) => formatCurrencyCompact(value)}
+                label={{ value: 'Rozdíl nákladů', angle: 90, position: 'insideRight', fontSize: 14 }}
+              />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: 'hsl(var(--b1))',
+                  border: '1px solid hsl(var(--b3))',
+                  borderRadius: '0.5rem',
+                }}
+                formatter={(value: number, name: string) => {
+                  if (name === 'Doporučená fixace') {
+                    const years = value;
+                    return [
+                      `${value} ${years === 1 ? 'rok' : years < 5 ? 'roky' : 'let'}`,
+                      name,
+                    ];
+                  }
+                  return [formatCurrency(value), name];
+                }}
+              />
+              <Legend wrapperStyle={{ fontSize: '14px', paddingTop: '10px' }} />
+              <Bar
+                yAxisId="left"
+                dataKey="recommendedFixation"
+                fill="hsl(var(--p))"
+                name="Doporučená fixace"
+                radius={[4, 4, 0, 0]}
+              >
+                {sensitivityData.map((entry, index) => (
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={entry.shift === 0 ? 'hsl(var(--s))' : 'hsl(var(--p))'}
+                  />
+                ))}
+              </Bar>
+              <Bar
+                yAxisId="right"
+                dataKey="costDifference"
+                fill="hsl(var(--a))"
+                name="Rozdíl nákladů"
+                radius={[4, 4, 0, 0]}
+                opacity={0.6}
+              />
+            </BarChart>
+          </ResponsiveContainer>
+
+          <div className="mt-4 space-y-3">
+            <div className="overflow-x-auto">
+              <table className="table table-sm">
+                <thead>
+                  <tr>
+                    <th className="bg-base-200">Posun sazeb</th>
+                    <th className="bg-base-200">Doporučená fixace</th>
+                    <th className="bg-base-200 text-right">Celkové náklady</th>
+                    <th className="bg-base-200 text-right">Rozdíl oproti aktuálnímu</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sensitivityData.map((item) => (
+                    <tr
+                      key={item.shift}
+                      className={item.shift === 0 ? 'bg-secondary/10' : ''}
+                    >
+                      <td className="font-medium">{item.label}</td>
+                      <td>
+                        <span className="badge badge-primary">
+                          {item.recommendedFixation}{' '}
+                          {item.recommendedFixation === 1
+                            ? 'rok'
+                            : item.recommendedFixation < 5
+                              ? 'roky'
+                              : 'let'}
+                        </span>
+                      </td>
+                      <td className="text-right font-mono">
+                        {formatCurrency(item.totalCost)}
+                      </td>
+                      <td className="text-right font-mono">
+                        {item.costDifference === 0 ? (
+                          <span className="text-base-content/50">—</span>
+                        ) : (
+                          <span
+                            className={
+                              item.costDifference > 0 ? 'text-error' : 'text-success'
+                            }
+                          >
+                            {item.costDifference > 0 ? '+' : ''}
+                            {formatCurrency(item.costDifference)}
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="text-sm text-base-content/60">
+              <p>
+                <strong>Jak číst analýzu citlivosti:</strong>
+              </p>
+              <ul className="list-disc list-inside space-y-1 mt-2">
+                <li>
+                  <strong>Stabilní doporučení:</strong> Pokud je doporučená fixace stejná napříč
+                  různými scénáři, je volba robustní.
+                </li>
+                <li>
+                  <strong>Měnící se doporučení:</strong> Pokud se doporučení mění s malými posuny
+                  sazeb, znamená to, že více fixací je velmi blízko.
+                </li>
+                <li>
+                  <strong>Rozdíl nákladů:</strong> Ukazuje, jak by se změnily celkové náklady při
+                  posunu sazeb oproti aktuální situaci.
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
       </div>
