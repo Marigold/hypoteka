@@ -290,6 +290,7 @@ export default function FixationOptimizer() {
 
   // State for table visibility
   const [tableOpen, setTableOpen] = useState(false);
+  const [educationOpen, setEducationOpen] = useState(false);
 
   return (
     <div className="space-y-8">
@@ -479,6 +480,151 @@ export default function FixationOptimizer() {
             showInput
             suffix="%"
           />
+        </div>
+      </div>
+
+      {/* Educational Section */}
+      <div className="collapse collapse-arrow bg-base-100 border border-base-200">
+        <input
+          type="checkbox"
+          checked={educationOpen}
+          onChange={() => setEducationOpen(!educationOpen)}
+        />
+        <div className="collapse-title font-medium">
+          Co je fixace a jak refixace funguje v České republice?
+        </div>
+        <div className="collapse-content">
+          <div className="space-y-4 text-sm">
+            {/* What is fixation */}
+            <div>
+              <h4 className="font-semibold text-base mb-2">Co je fixace úrokové sazby?</h4>
+              <p className="text-base-content/80 mb-2">
+                Fixace je doba, po kterou máte garantovanou konkrétní úrokovou sazbu hypotéky. V
+                České republice je možné fixovat úrokovou sazbu na 1, 3, 5, 7, 10, 15 nebo 20 let.
+                Po skončení fixovaného období dochází k <strong>refixaci</strong> – dohodě na nové
+                úrokové sazbě na další období.
+              </p>
+              <p className="text-base-content/80">
+                Fixace vás chrání před nárůstem úrokových sazeb – pokud sazby na trhu vzrostou,
+                vy stále platíte původní sazbu. Na druhou stranu, pokud sazby klesnou, nemůžete z
+                toho těžit až do konce fixace (bez zaplacení smluvní pokuty).
+              </p>
+            </div>
+
+            {/* How refixation works */}
+            <div className="divider"></div>
+            <div>
+              <h4 className="font-semibold text-base mb-2">Jak funguje refixace u českých bank?</h4>
+              <ul className="list-disc list-inside space-y-2 text-base-content/80">
+                <li>
+                  <strong>Automatické oznámení:</strong> Banka vás kontaktuje 3-6 měsíců před
+                  koncem fixace a nabídne novou úrokovou sazbu
+                </li>
+                <li>
+                  <strong>Vyjednávání:</strong> Máte právo vyjednat lepší sazbu nebo přejít k jiné
+                  bance (často bez poplatku)
+                </li>
+                <li>
+                  <strong>Změna podmínek:</strong> Při refixaci můžete změnit délku nové fixace,
+                  případně upravit výši měsíční splátky nebo dobu splatnosti
+                </li>
+                <li>
+                  <strong>Refinancování:</strong> Pokud nabídka vaší banky není konkurenceschopná,
+                  můžete refinancovat hypotéku u jiné banky (obvykle bez poplatku při refixaci)
+                </li>
+                <li>
+                  <strong>Nová sazba:</strong> Úroková sazba po refixaci závisí na aktuální situaci
+                  na trhu, repo sazbě ČNB a vašem vyjednávacím postavení
+                </li>
+              </ul>
+            </div>
+
+            {/* Pros and cons */}
+            <div className="divider"></div>
+            <div>
+              <h4 className="font-semibold text-base mb-2">Výhody a nevýhody různých délek fixace</h4>
+
+              <div className="grid md:grid-cols-2 gap-4 mt-3">
+                {/* Short fixation */}
+                <div className="card bg-info/5 border border-info/20">
+                  <div className="card-body p-4">
+                    <h5 className="font-semibold text-info">Krátká fixace (1-3 roky)</h5>
+                    <div className="mt-2">
+                      <p className="font-medium text-success mb-1">✓ Výhody:</p>
+                      <ul className="list-disc list-inside space-y-1 text-xs text-base-content/80">
+                        <li>Nižší úroková sazba (obvykle o 0,1-0,3 % nižší než dlouhá fixace)</li>
+                        <li>Flexibilita – můžete rychleji reagovat na pokles sazeb</li>
+                        <li>Vhodné, pokud očekáváte pokles úrokových sazeb</li>
+                        <li>Možnost brzy změnit podmínky nebo refinancovat</li>
+                      </ul>
+                      <p className="font-medium text-error mt-2 mb-1">✗ Nevýhody:</p>
+                      <ul className="list-disc list-inside space-y-1 text-xs text-base-content/80">
+                        <li>Riziko růstu sazeb – splátka může výrazně vzrůst</li>
+                        <li>Nejistota – nevíte, kolik budete platit za 2-3 roky</li>
+                        <li>Častější administrativa (častější refixace)</li>
+                        <li>Ztížené dlouhodobé finanční plánování</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Long fixation */}
+                <div className="card bg-warning/5 border border-warning/20">
+                  <div className="card-body p-4">
+                    <h5 className="font-semibold text-warning">Dlouhá fixace (7-20 let)</h5>
+                    <div className="mt-2">
+                      <p className="font-medium text-success mb-1">✓ Výhody:</p>
+                      <ul className="list-disc list-inside space-y-1 text-xs text-base-content/80">
+                        <li>Jistota – známe výši splátky na mnoho let dopředu</li>
+                        <li>Ochrana před růstem úrokových sazeb</li>
+                        <li>Vhodné při vysoké inflaci nebo očekávaném růstu sazeb</li>
+                        <li>Psychický klid a snadnější rozpočtování</li>
+                      </ul>
+                      <p className="font-medium text-error mt-2 mb-1">✗ Nevýhody:</p>
+                      <ul className="list-disc list-inside space-y-1 text-xs text-base-content/80">
+                        <li>Vyšší úroková sazba (o 0,3-0,7 % vyšší než krátká fixace)</li>
+                        <li>Nemožnost těžit z poklesu sazeb bez pokuty</li>
+                        <li>Vysoká sankcní smluvní pokuta při předčasném splacení (1-5 % dluhu)</li>
+                        <li>Nevýhodné, pokud plánujete byt brzy prodat</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Practical tips */}
+            <div className="divider"></div>
+            <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
+              <h4 className="font-semibold text-base mb-2">💡 Praktické rady pro volbu fixace</h4>
+              <ul className="list-disc list-inside space-y-1 text-base-content/80">
+                <li>
+                  <strong>V období nízkých sazeb</strong> (2-3 %) volte dlouhou fixaci – zajistíte
+                  si výhodnou sazbu na dlouho
+                </li>
+                <li>
+                  <strong>V období vysokých sazeb</strong> (5-6 %+) zvažte kratší fixaci – sazby
+                  mají větší prostor klesnout
+                </li>
+                <li>
+                  <strong>Kompromis:</strong> Střední fixace (5-7 let) nabízí rovnováhu mezi cenou
+                  a jistotou
+                </li>
+                <li>
+                  <strong>Pokud plánujete brzy prodat nebo splatit:</strong> volte kratší fixaci
+                  (1-3 roky)
+                </li>
+                <li>
+                  <strong>Konzervativní přístup:</strong> Pokud nemůžete risknúť růst splátky,
+                  volte dlouhou fixaci bez ohledu na sazbu
+                </li>
+                <li>
+                  <strong>Před koncem fixace:</strong> Začněte vyjednávat s bankou 6 měsíců předem
+                  a porovnejte nabídky jiných bank
+                </li>
+              </ul>
+            </div>
+          </div>
         </div>
       </div>
 
