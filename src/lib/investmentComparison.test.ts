@@ -245,6 +245,77 @@ describe("compareInvestments", () => {
   });
 });
 
+describe("stock cost basis and yield accuracy", () => {
+    it("0% stock yield means portfolio equals total invested", () => {
+      const params: InvestmentComparisonParams = {
+        ...DEFAULT_PARAMS,
+        stockReturnRate: 0,
+        holdingPeriod: 5,
+      };
+      const results = compareInvestments(params);
+      for (const r of results) {
+        expect(r.stockPortfolioValue).toBe(r.stockTotalInvested);
+      }
+    });
+
+    it("cost basis tracks initial capital plus contributions", () => {
+      const params: InvestmentComparisonParams = {
+        ...DEFAULT_PARAMS,
+        holdingPeriod: 1,
+        stockReturnRate: 0,
+      };
+      const results = compareInvestments(params);
+      const downPayment = params.propertyPrice * (params.downPaymentPercent / 100);
+      const transactionCost = params.propertyPrice * (params.propertyTransactionCost / 100);
+      const initialCapital = downPayment + transactionCost;
+      // With 0% return, portfolio = cost basis = total invested
+      // Total invested must be >= initial capital (contributions add to it)
+      expect(results[0].stockTotalInvested).toBeGreaterThanOrEqual(initialCapital);
+      expect(results[0].stockPortfolioValue).toBe(results[0].stockTotalInvested);
+    });
+
+    it("7% yield produces approximately 7% return after 1 year", () => {
+      // Use 100% down payment to eliminate mortgage contributions and isolate return
+      const params: InvestmentComparisonParams = {
+        ...DEFAULT_PARAMS,
+        downPaymentPercent: 100,
+        propertyTransactionCost: 0,
+        stockReturnRate: 7,
+        holdingPeriod: 1,
+        monthlyRentalIncome: 0,
+        propertyMaintenanceRate: 0,
+      };
+      const results = compareInvestments(params);
+      const initialCapital = params.propertyPrice; // 100% down, 0% transaction
+      // With monthly compounding, effective annual return is (1+0.07/12)^12 - 1 ≈ 7.23%
+      const expectedValue = initialCapital * Math.pow(1 + 0.07 / 12, 12);
+      expect(results[0].stockPortfolioValue).toBeCloseTo(expectedValue, -2);
+      // Return should be approximately 7% (within 0.5% due to compounding)
+      const actualReturn = (results[0].stockPortfolioValue - initialCapital) / initialCapital * 100;
+      expect(actualReturn).toBeGreaterThan(6.5);
+      expect(actualReturn).toBeLessThan(7.5);
+    });
+
+    it("stock tax uses correct cost basis (not full portfolio value)", () => {
+      // With 100% down and no contributions, cost basis = initial capital
+      const params: InvestmentComparisonParams = {
+        ...DEFAULT_PARAMS,
+        downPaymentPercent: 100,
+        propertyTransactionCost: 0,
+        stockReturnRate: 10,
+        holdingPeriod: 2, // < 3 years, so tax applies
+        monthlyRentalIncome: 0,
+        propertyMaintenanceRate: 0,
+      };
+      const results = compareInvestments(params);
+      const r = results[1]; // year 2
+      const expectedGain = r.stockPortfolioValue - r.stockTotalInvested;
+      const expectedTax = expectedGain * 0.15;
+      const expectedAfterTax = r.stockPortfolioValue - expectedTax;
+      expect(r.stockNetWorthAfterTax).toBe(Math.round(expectedAfterTax));
+    });
+});
+
 describe("calculateStockTax", () => {
   it("applies 15% tax for holding < 3 years", () => {
     expect(calculateStockTax(100_000, 2)).toBe(15_000);
