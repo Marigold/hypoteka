@@ -1,0 +1,10 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import InvestmentComparison from '../../components/calculators/InvestmentComparison.tsx';
+---
+
+<BaseLayout title="Nemovitost vs. akcie – Kalkulačka – Hypotéka.cz" description="Porovnejte investici do nemovitosti s investicí na akciovém trhu. Kalkulačka zohlední hypotéku, nájem, daně, poplatky i historické výnosy.">
+	<h1 class="text-3xl font-bold mb-4">Nemovitost vs. akcie</h1>
+	<p class="text-gray-600 mb-8">Vyplatí se více investovat do nemovitosti na pronájem, nebo vložit peníze do akciového trhu? Kalkulačka porovná celkový výnos obou variant včetně hypoték, nájmů, daní, poplatků a zhodnocení v čase.</p>
+	<InvestmentComparison client:visible />
+</BaseLayout>
