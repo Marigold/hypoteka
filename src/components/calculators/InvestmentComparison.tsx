@@ -13,6 +13,7 @@ import Slider from '../ui/Slider';
 import ResultCard from '../ui/ResultCard';
 import {
   compareInvestments,
+  calculateDownsideScenario,
   getLeverageRiskLevel,
   type LeverageRiskLevel,
 } from '../../lib/investmentComparison';
@@ -154,6 +155,14 @@ export default function InvestmentComparison() {
   // Leverage risk based on LTV
   const riskLevel = useMemo(() => getLeverageRiskLevel(downPaymentPercent), [downPaymentPercent]);
   const ltv = 100 - downPaymentPercent;
+
+  const downsideScenarios = useMemo(() => {
+    if (!lastResult) return [];
+    return [10, 20, 30].map((drop) => ({
+      drop,
+      ...calculateDownsideScenario(lastResult.propertyValue, lastResult.mortgageBalance, drop),
+    }));
+  }, [lastResult]);
 
   const tooltipFormatter = useCallback(
     (value: number | undefined) => formatCurrency(Math.round(value ?? 0)),
@@ -382,6 +391,54 @@ export default function InvestmentComparison() {
           </p>
         </div>
       </div>
+
+      {/* Downside Scenario */}
+      {lastResult && (
+        <div className="card bg-base-100 border border-base-200 shadow-sm">
+          <div className="card-body">
+            <h2 className="card-title">Scénáře poklesu cen nemovitosti</h2>
+            <p className="text-sm text-base-content/70 mb-4">
+              Co se stane s vaším vlastním kapitálem po {holdingPeriod} letech, pokud cena nemovitosti náhle klesne?
+            </p>
+            <div className="overflow-x-auto">
+              <table className="table table-sm">
+                <thead>
+                  <tr>
+                    <th>Pokles ceny</th>
+                    <th>Nová hodnota nemovitosti</th>
+                    <th>Zbývající vlastní kapitál</th>
+                    <th>Změna kapitálu</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {downsideScenarios.map((s) => (
+                    <tr key={s.drop}>
+                      <td className="font-semibold">−{s.drop} %</td>
+                      <td>{formatCurrency(s.newPropertyValue)}</td>
+                      <td className={s.remainingEquity < 0 ? 'text-error font-semibold' : ''}>
+                        {formatCurrency(s.remainingEquity)}
+                      </td>
+                      <td className={s.equityChangePercent < 0 ? 'text-error' : ''}>
+                        {s.equityChangePercent > 0 ? '+' : ''}{formatPercent(s.equityChangePercent)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            {downsideScenarios.some((s) => s.remainingEquity < 0) && (
+              <div className="alert alert-error mt-4">
+                <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-5 w-5" fill="none" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                <span className="text-sm">
+                  Záporný vlastní kapitál znamená, že dlužíte bance více, než je nemovitost hodnota (tzv. &quot;underwater&quot;).
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Chart */}
       <div className="card bg-base-100 border border-base-200 shadow-sm">
