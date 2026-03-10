@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useStore } from '@nanostores/react';
 import {
   AreaChart,
   Area,
@@ -22,6 +23,7 @@ import {
   formatPercent,
   formatNumber,
 } from '../../lib/formatters';
+import { $mortgageAmount, DEFAULT_MORTGAGE_AMOUNT } from '../../stores/mortgage';
 
 interface Params {
   principal: number;
@@ -52,13 +54,14 @@ function setParamsToURL(params: Params) {
   window.history.replaceState(null, '', url);
 }
 
-const DEFAULTS: Params = { principal: 4_000_000, rate: 4.5, years: 30 };
+const DEFAULTS: Params = { principal: DEFAULT_MORTGAGE_AMOUNT, rate: 4.5, years: 30 };
 
 type AmortizationView = 'monthly' | 'yearly';
 
 export default function MortgagePayment() {
   const urlParams = useMemo(() => getParamsFromURL(), []);
-  const [principal, setPrincipal] = useState(urlParams.principal ?? DEFAULTS.principal);
+  const storeAmount = useStore($mortgageAmount);
+  const [principal, setPrincipal] = useState(urlParams.principal ?? storeAmount ?? DEFAULT_MORTGAGE_AMOUNT);
   const [rate, setRate] = useState(urlParams.rate ?? DEFAULTS.rate);
   const [years, setYears] = useState(urlParams.years ?? DEFAULTS.years);
   const [tableView, setTableView] = useState<AmortizationView>('yearly');
@@ -68,6 +71,11 @@ export default function MortgagePayment() {
   useEffect(() => {
     setParamsToURL({ principal, rate, years });
   }, [principal, rate, years]);
+
+  // Sync principal to global store
+  useEffect(() => {
+    $mortgageAmount.set(principal);
+  }, [principal]);
 
   const monthly = useMemo(
     () => calculateMonthlyPayment(principal, rate, years),
