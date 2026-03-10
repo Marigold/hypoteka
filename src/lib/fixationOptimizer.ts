@@ -215,12 +215,18 @@ export function calculateFixationScenarios(
     };
   }
 
+  // Cap holding period to remaining loan term
+  const effectiveHoldingPeriod = Math.min(holdingPeriod, remainingYears);
+
   const rateAssumptions = getRateChangeAssumptions(riskTolerance);
   const scenarios: FixationPeriodResult[] = [];
 
   // Calculate scenarios for each available fixation period under each rate assumption
   for (const [fixationYearsStr, initialRate] of Object.entries(fixationRates)) {
     const fixationYears = Number(fixationYearsStr);
+
+    // Skip fixation periods longer than remaining loan term
+    if (fixationYears > remainingYears) continue;
 
     // Base scenario (most likely)
     scenarios.push(
@@ -229,7 +235,7 @@ export function calculateFixationScenarios(
         remainingYears,
         fixationYears,
         initialRate,
-        holdingPeriod,
+        effectiveHoldingPeriod,
         rateAssumptions.base,
         "base",
       ),
@@ -242,7 +248,7 @@ export function calculateFixationScenarios(
         remainingYears,
         fixationYears,
         initialRate,
-        holdingPeriod,
+        effectiveHoldingPeriod,
         rateAssumptions.pessimistic,
         "pessimistic",
       ),
@@ -255,7 +261,7 @@ export function calculateFixationScenarios(
         remainingYears,
         fixationYears,
         initialRate,
-        holdingPeriod,
+        effectiveHoldingPeriod,
         rateAssumptions.optimistic,
         "optimistic",
       ),
@@ -267,6 +273,38 @@ export function calculateFixationScenarios(
 
   // Generate recommendation
   const baseScenarios = scenarios.filter((s) => s.rateScenario === "base");
+
+  // Guard against empty base scenarios (e.g. all fixation periods were filtered out)
+  if (baseScenarios.length === 0) {
+    const fallback = scenarios[0];
+    if (!fallback) {
+      return {
+        scenarios: [],
+        recommendation: {
+          fixationYears: 0,
+          reason: "Žádná fixační období nejsou dostupná pro zadané parametry",
+        },
+        summary: {
+          lowestCost: 0,
+          highestCost: 0,
+          costSpread: 0,
+        },
+      };
+    }
+    return {
+      scenarios,
+      recommendation: {
+        fixationYears: fallback.fixationYears,
+        reason: `Doporučujeme fixaci na ${fallback.fixationYears} ${fallback.fixationYears === 1 ? "rok" : fallback.fixationYears < 5 ? "roky" : "let"} jako nejlepší dostupnou variantu.`,
+      },
+      summary: {
+        lowestCost: scenarios[0].totalInterest,
+        highestCost: scenarios[scenarios.length - 1].totalInterest,
+        costSpread: scenarios[scenarios.length - 1].totalInterest - scenarios[0].totalInterest,
+      },
+    };
+  }
+
   const bestBaseScenario = baseScenarios.reduce((best, current) =>
     current.totalInterest < best.totalInterest ? current : best
   );
@@ -275,10 +313,10 @@ export function calculateFixationScenarios(
 
   if (bestBaseScenario.refixationCount === 0) {
     reason +=
-      ` Po dobu ${holdingPeriod} ${holdingPeriod === 1 ? "roku" : holdingPeriod < 5 ? "let" : "let"} nebudete muset řešit refixaci.`;
+      ` Po dobu ${effectiveHoldingPeriod} ${effectiveHoldingPeriod === 1 ? "roku" : effectiveHoldingPeriod < 5 ? "let" : "let"} nebudete muset řešit refixaci.`;
   } else {
     reason +=
-      ` Během ${holdingPeriod} ${holdingPeriod === 1 ? "roku" : holdingPeriod < 5 ? "let" : "let"} budete refixovat ${bestBaseScenario.refixationCount}× s celkovými úroky ${Math.round(bestBaseScenario.totalInterest).toLocaleString("cs-CZ")} Kč.`;
+      ` Během ${effectiveHoldingPeriod} ${effectiveHoldingPeriod === 1 ? "roku" : effectiveHoldingPeriod < 5 ? "let" : "let"} budete refixovat ${bestBaseScenario.refixationCount}× s celkovými úroky ${Math.round(bestBaseScenario.totalInterest).toLocaleString("cs-CZ")} Kč.`;
   }
 
   const lowestCost = scenarios[0].totalInterest;
