@@ -94,6 +94,7 @@ function calculateFixationPeriodCost(
   initialRate: number,
   holdingPeriod: number,
   rateChangeAtRefixation: number,
+  rateScenario: "optimistic" | "base" | "pessimistic",
 ): FixationPeriodResult {
   let totalInterest = 0;
   let totalPrincipalPaid = 0;
@@ -162,11 +163,7 @@ function calculateFixationPeriodCost(
     totalPaid: totalPrincipalPaid + totalInterest,
     averageMonthlyPayment,
     refixationCount,
-    rateScenario: rateChangeAtRefixation < 0
-      ? "optimistic"
-      : rateChangeAtRefixation === 0
-      ? "base"
-      : "pessimistic",
+    rateScenario,
     rateChangeAtRefixation,
   };
 }
@@ -234,6 +231,7 @@ export function calculateFixationScenarios(
         initialRate,
         holdingPeriod,
         rateAssumptions.base,
+        "base",
       ),
     );
 
@@ -246,6 +244,7 @@ export function calculateFixationScenarios(
         initialRate,
         holdingPeriod,
         rateAssumptions.pessimistic,
+        "pessimistic",
       ),
     );
 
@@ -258,6 +257,7 @@ export function calculateFixationScenarios(
         initialRate,
         holdingPeriod,
         rateAssumptions.optimistic,
+        "optimistic",
       ),
     );
   }
