@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useStore } from '@nanostores/react';
 import {
   PieChart,
   Pie,
@@ -18,6 +19,7 @@ import {
   formatCurrencyCompact,
   formatPercent,
 } from '../../lib/formatters';
+import { $mortgageAmount, DEFAULT_MORTGAGE_AMOUNT } from '../../stores/mortgage';
 
 type Region = 'prague' | 'regional';
 
@@ -149,13 +151,18 @@ export default function TotalCostOfOwnership() {
   const urlRegion = useMemo(() => getRegionFromURL(), []);
   const urlParams = useMemo(() => getParamsFromURL(), []);
   const initialDefaults = useMemo(() => getDefaults(urlRegion), [urlRegion]);
+  const storeAmount = useStore($mortgageAmount);
+
+  // Reverse-derive propertyPrice from store: propertyPrice = mortgageAmount + downPayment
+  const defaultDownPayment = urlParams.downPayment ?? initialDefaults.downPayment;
+  const derivedPropertyPrice = (storeAmount ?? DEFAULT_MORTGAGE_AMOUNT) + defaultDownPayment;
 
   // Region selection
   const [region, setRegion] = useState<Region>(urlRegion);
 
   // Mortgage parameters
   const [propertyPrice, setPropertyPrice] = useState(
-    urlParams.propertyPrice ?? initialDefaults.propertyPrice
+    urlParams.propertyPrice ?? derivedPropertyPrice
   );
   const [downPayment, setDownPayment] = useState(
     urlParams.downPayment ?? initialDefaults.downPayment
@@ -260,6 +267,12 @@ export default function TotalCostOfOwnership() {
     bankFee,
     agentCommission,
   ]);
+
+  // Sync mortgage amount to global store
+  useEffect(() => {
+    const mortgageAmount = Math.round(propertyPrice - downPayment);
+    $mortgageAmount.set(mortgageAmount);
+  }, [propertyPrice, downPayment]);
 
   // Calculate TCO
   const tcoResult = useMemo(() => {
