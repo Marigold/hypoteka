@@ -20,7 +20,7 @@ import {
   formatPercent,
   formatNumber,
 } from '../../lib/formatters';
-import { $mortgageAmount, DEFAULT_MORTGAGE_AMOUNT } from '../../stores/mortgage';
+import { $mortgageAmount, DEFAULT_MORTGAGE_AMOUNT, $mortgageRate, DEFAULT_MORTGAGE_RATE, $mortgageYears, DEFAULT_MORTGAGE_YEARS } from '../../stores/mortgage';
 
 interface Params {
   principal: number;
@@ -57,8 +57,8 @@ function setParamsToURL(params: Params) {
 
 const DEFAULTS: Params = {
   principal: DEFAULT_MORTGAGE_AMOUNT,
-  rate: 4.5,
-  years: 30,
+  rate: DEFAULT_MORTGAGE_RATE,
+  years: DEFAULT_MORTGAGE_YEARS,
   income: 60_000,
 };
 
@@ -83,9 +83,11 @@ const RISK_STYLES: Record<RiskLevel, { border: string; badge: string; badgeLabel
 export default function StressTest() {
   const urlParams = useMemo(() => getParamsFromURL(), []);
   const storeAmount = useStore($mortgageAmount);
+  const storeRate = useStore($mortgageRate);
+  const storeYears = useStore($mortgageYears);
   const [principal, setPrincipal] = useState(urlParams.principal ?? storeAmount ?? DEFAULT_MORTGAGE_AMOUNT);
-  const [rate, setRate] = useState(urlParams.rate ?? DEFAULTS.rate);
-  const [years, setYears] = useState(urlParams.years ?? DEFAULTS.years);
+  const [rate, setRate] = useState(urlParams.rate ?? storeRate ?? DEFAULT_MORTGAGE_RATE);
+  const [years, setYears] = useState(urlParams.years ?? storeYears ?? DEFAULT_MORTGAGE_YEARS);
   const [income, setIncome] = useState(urlParams.income ?? DEFAULTS.income);
 
   // Sync to URL
@@ -93,10 +95,18 @@ export default function StressTest() {
     setParamsToURL({ principal, rate, years, income });
   }, [principal, rate, years, income]);
 
-  // Sync principal to global store
+  // Sync to global store
   useEffect(() => {
     $mortgageAmount.set(principal);
   }, [principal]);
+
+  useEffect(() => {
+    $mortgageRate.set(rate);
+  }, [rate]);
+
+  useEffect(() => {
+    $mortgageYears.set(years);
+  }, [years]);
 
   const results = useMemo(
     () =>

@@ -23,7 +23,7 @@ import {
   formatCurrencyCompact,
   formatPercent,
 } from '../../lib/formatters';
-import { $mortgageAmount, DEFAULT_MORTGAGE_AMOUNT } from '../../stores/mortgage';
+import { $mortgageAmount, DEFAULT_MORTGAGE_AMOUNT, $mortgageRate, DEFAULT_MORTGAGE_RATE, $mortgageYears, DEFAULT_MORTGAGE_YEARS } from '../../stores/mortgage';
 
 interface Params {
   propertyPrice: number;
@@ -71,7 +71,7 @@ function setParamsToURL(params: Params) {
 const DEFAULTS: Params = {
   propertyPrice: 5_000_000,
   downPaymentPercent: 20,
-  mortgageRate: 4.5,
+  mortgageRate: DEFAULT_MORTGAGE_RATE,
   mortgageYears: 25,
   propertyAppreciation: 3,
   monthlyRentalIncome: 15_000,
@@ -82,13 +82,15 @@ const DEFAULTS: Params = {
 export default function InvestmentComparison() {
   const urlParams = useMemo(() => getParamsFromURL(), []);
   const storeAmount = useStore($mortgageAmount);
+  const storeRate = useStore($mortgageRate);
+  const storeYears = useStore($mortgageYears);
   // Reverse-derive propertyPrice from store mortgage amount: propertyPrice = mortgageAmount / (1 - dp/100)
   const defaultDp = urlParams.downPaymentPercent ?? DEFAULTS.downPaymentPercent;
   const derivedPropertyPrice = Math.round((storeAmount ?? DEFAULT_MORTGAGE_AMOUNT) / (1 - defaultDp / 100));
   const [propertyPrice, setPropertyPrice] = useState(urlParams.propertyPrice ?? derivedPropertyPrice);
   const [downPaymentPercent, setDownPaymentPercent] = useState(urlParams.downPaymentPercent ?? DEFAULTS.downPaymentPercent);
-  const [mortgageRate, setMortgageRate] = useState(urlParams.mortgageRate ?? DEFAULTS.mortgageRate);
-  const [mortgageYears, setMortgageYears] = useState(urlParams.mortgageYears ?? DEFAULTS.mortgageYears);
+  const [mortgageRate, setMortgageRate] = useState(urlParams.mortgageRate ?? storeRate ?? DEFAULTS.mortgageRate);
+  const [mortgageYears, setMortgageYears] = useState(urlParams.mortgageYears ?? storeYears ?? DEFAULTS.mortgageYears);
   const [propertyAppreciation, setPropertyAppreciation] = useState(urlParams.propertyAppreciation ?? DEFAULTS.propertyAppreciation);
   const [monthlyRentalIncome, setMonthlyRentalIncome] = useState(urlParams.monthlyRentalIncome ?? DEFAULTS.monthlyRentalIncome);
   const [holdingPeriod, setHoldingPeriod] = useState(urlParams.holdingPeriod ?? DEFAULTS.holdingPeriod);
@@ -110,11 +112,19 @@ export default function InvestmentComparison() {
     setParamsToURL(params);
   }, [propertyPrice, downPaymentPercent, mortgageRate, mortgageYears, propertyAppreciation, monthlyRentalIncome, holdingPeriod, stockReturnRate]);
 
-  // Sync mortgage amount to global store
+  // Sync to global store
   useEffect(() => {
     const mortgageAmount = Math.round(propertyPrice * (1 - downPaymentPercent / 100));
     $mortgageAmount.set(mortgageAmount);
   }, [propertyPrice, downPaymentPercent]);
+
+  useEffect(() => {
+    $mortgageRate.set(mortgageRate);
+  }, [mortgageRate]);
+
+  useEffect(() => {
+    $mortgageYears.set(mortgageYears);
+  }, [mortgageYears]);
 
   const downPayment = Math.round(propertyPrice * (downPaymentPercent / 100));
   const investmentAmount = useMemo(() => {

@@ -24,7 +24,7 @@ import {
   formatPercent,
   formatNumber,
 } from '../../lib/formatters';
-import { $mortgageAmount, DEFAULT_MORTGAGE_AMOUNT } from '../../stores/mortgage';
+import { $mortgageAmount, DEFAULT_MORTGAGE_AMOUNT, $mortgageRate, DEFAULT_MORTGAGE_RATE, $mortgageYears, DEFAULT_MORTGAGE_YEARS } from '../../stores/mortgage';
 
 interface Params {
   principal: number;
@@ -55,16 +55,18 @@ function setParamsToURL(params: Params) {
   window.history.replaceState(null, '', url);
 }
 
-const DEFAULTS: Params = { principal: DEFAULT_MORTGAGE_AMOUNT, rate: 4.5, years: 30 };
+const DEFAULTS: Params = { principal: DEFAULT_MORTGAGE_AMOUNT, rate: DEFAULT_MORTGAGE_RATE, years: DEFAULT_MORTGAGE_YEARS };
 
 type AmortizationView = 'monthly' | 'yearly';
 
 export default function MortgagePayment() {
   const urlParams = useMemo(() => getParamsFromURL(), []);
   const storeAmount = useStore($mortgageAmount);
+  const storeRate = useStore($mortgageRate);
+  const storeYears = useStore($mortgageYears);
   const [principal, setPrincipal] = useState(urlParams.principal ?? storeAmount ?? DEFAULT_MORTGAGE_AMOUNT);
-  const [rate, setRate] = useState(urlParams.rate ?? DEFAULTS.rate);
-  const [years, setYears] = useState(urlParams.years ?? DEFAULTS.years);
+  const [rate, setRate] = useState(urlParams.rate ?? storeRate ?? DEFAULT_MORTGAGE_RATE);
+  const [years, setYears] = useState(urlParams.years ?? storeYears ?? DEFAULT_MORTGAGE_YEARS);
   const [tableView, setTableView] = useState<AmortizationView>('yearly');
   const [tableOpen, setTableOpen] = useState(false);
 
@@ -73,10 +75,18 @@ export default function MortgagePayment() {
     setParamsToURL({ principal, rate, years });
   }, [principal, rate, years]);
 
-  // Sync principal to global store
+  // Sync to global store
   useEffect(() => {
     $mortgageAmount.set(principal);
   }, [principal]);
+
+  useEffect(() => {
+    $mortgageRate.set(rate);
+  }, [rate]);
+
+  useEffect(() => {
+    $mortgageYears.set(years);
+  }, [years]);
 
   const monthly = useMemo(
     () => calculateMonthlyPayment(principal, rate, years),

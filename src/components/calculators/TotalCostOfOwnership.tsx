@@ -20,7 +20,7 @@ import {
   formatCurrencyCompact,
   formatPercent,
 } from '../../lib/formatters';
-import { $mortgageAmount, DEFAULT_MORTGAGE_AMOUNT } from '../../stores/mortgage';
+import { $mortgageAmount, DEFAULT_MORTGAGE_AMOUNT, $mortgageRate, DEFAULT_MORTGAGE_RATE, $mortgageYears, DEFAULT_MORTGAGE_YEARS } from '../../stores/mortgage';
 
 type Region = 'prague' | 'regional';
 
@@ -153,6 +153,8 @@ export default function TotalCostOfOwnership() {
   const urlParams = useMemo(() => getParamsFromURL(), []);
   const initialDefaults = useMemo(() => getDefaults(urlRegion), [urlRegion]);
   const storeAmount = useStore($mortgageAmount);
+  const storeRate = useStore($mortgageRate);
+  const storeYears = useStore($mortgageYears);
 
   // Reverse-derive propertyPrice from store: propertyPrice = mortgageAmount + downPayment
   const defaultDownPayment = urlParams.downPayment ?? initialDefaults.downPayment;
@@ -169,10 +171,10 @@ export default function TotalCostOfOwnership() {
     urlParams.downPayment ?? initialDefaults.downPayment
   );
   const [mortgageRate, setMortgageRate] = useState(
-    urlParams.mortgageRate ?? initialDefaults.mortgageRate
+    urlParams.mortgageRate ?? storeRate ?? initialDefaults.mortgageRate
   );
   const [mortgageYears, setMortgageYears] = useState(
-    urlParams.mortgageYears ?? initialDefaults.mortgageYears
+    urlParams.mortgageYears ?? storeYears ?? initialDefaults.mortgageYears
   );
 
   // Property parameters
@@ -269,11 +271,19 @@ export default function TotalCostOfOwnership() {
     agentCommission,
   ]);
 
-  // Sync mortgage amount to global store
+  // Sync to global store
   useEffect(() => {
     const mortgageAmount = Math.round(propertyPrice - downPayment);
     $mortgageAmount.set(mortgageAmount);
   }, [propertyPrice, downPayment]);
+
+  useEffect(() => {
+    $mortgageRate.set(mortgageRate);
+  }, [mortgageRate]);
+
+  useEffect(() => {
+    $mortgageYears.set(mortgageYears);
+  }, [mortgageYears]);
 
   // Calculate TCO
   const tcoResult = useMemo(() => {

@@ -18,7 +18,7 @@ import {
   formatCurrencyCompact,
   formatPercent,
 } from '../../lib/formatters';
-import { $mortgageAmount, DEFAULT_MORTGAGE_AMOUNT } from '../../stores/mortgage';
+import { $mortgageAmount, DEFAULT_MORTGAGE_AMOUNT, $mortgageRate, DEFAULT_MORTGAGE_RATE, $mortgageYears, DEFAULT_MORTGAGE_YEARS } from '../../stores/mortgage';
 
 interface Params {
   propertyPrice: number;
@@ -66,8 +66,8 @@ function setParamsToURL(params: Params) {
 const DEFAULTS: Params = {
   propertyPrice: 5_000_000,
   downPaymentPercent: 20,
-  mortgageRate: 4.5,
-  mortgageYears: 30,
+  mortgageRate: DEFAULT_MORTGAGE_RATE,
+  mortgageYears: DEFAULT_MORTGAGE_YEARS,
   monthlyRent: 18_000,
   rentGrowthRate: 4,
   propertyAppreciation: 5,
@@ -77,13 +77,15 @@ const DEFAULTS: Params = {
 export default function RentVsBuy() {
   const urlParams = useMemo(() => getParamsFromURL(), []);
   const storeAmount = useStore($mortgageAmount);
+  const storeRate = useStore($mortgageRate);
+  const storeYears = useStore($mortgageYears);
   // Reverse-derive propertyPrice from store mortgage amount: propertyPrice = mortgageAmount / (1 - dp/100)
   const defaultDp = urlParams.downPaymentPercent ?? DEFAULTS.downPaymentPercent;
   const derivedPropertyPrice = Math.round((storeAmount ?? DEFAULT_MORTGAGE_AMOUNT) / (1 - defaultDp / 100));
   const [propertyPrice, setPropertyPrice] = useState(urlParams.propertyPrice ?? derivedPropertyPrice);
   const [downPaymentPercent, setDownPaymentPercent] = useState(urlParams.downPaymentPercent ?? DEFAULTS.downPaymentPercent);
-  const [mortgageRate, setMortgageRate] = useState(urlParams.mortgageRate ?? DEFAULTS.mortgageRate);
-  const [mortgageYears, setMortgageYears] = useState(urlParams.mortgageYears ?? DEFAULTS.mortgageYears);
+  const [mortgageRate, setMortgageRate] = useState(urlParams.mortgageRate ?? storeRate ?? DEFAULT_MORTGAGE_RATE);
+  const [mortgageYears, setMortgageYears] = useState(urlParams.mortgageYears ?? storeYears ?? DEFAULT_MORTGAGE_YEARS);
   const [monthlyRent, setMonthlyRent] = useState(urlParams.monthlyRent ?? DEFAULTS.monthlyRent);
   const [rentGrowthRate, setRentGrowthRate] = useState(urlParams.rentGrowthRate ?? DEFAULTS.rentGrowthRate);
   const [propertyAppreciation, setPropertyAppreciation] = useState(urlParams.propertyAppreciation ?? DEFAULTS.propertyAppreciation);
@@ -105,11 +107,19 @@ export default function RentVsBuy() {
     setParamsToURL(params);
   }, [propertyPrice, downPaymentPercent, mortgageRate, mortgageYears, monthlyRent, rentGrowthRate, propertyAppreciation, investmentReturnRate]);
 
-  // Sync mortgage amount to global store
+  // Sync to global store
   useEffect(() => {
     const mortgageAmount = Math.round(propertyPrice * (1 - downPaymentPercent / 100));
     $mortgageAmount.set(mortgageAmount);
   }, [propertyPrice, downPaymentPercent]);
+
+  useEffect(() => {
+    $mortgageRate.set(mortgageRate);
+  }, [mortgageRate]);
+
+  useEffect(() => {
+    $mortgageYears.set(mortgageYears);
+  }, [mortgageYears]);
 
   const downPayment = Math.round(propertyPrice * (downPaymentPercent / 100));
 

@@ -24,7 +24,7 @@ import {
   calculateFixationScenarios,
   type FixationRateMap,
 } from '../../lib/fixationOptimizer';
-import { $mortgageAmount, DEFAULT_MORTGAGE_AMOUNT } from '../../stores/mortgage';
+import { $mortgageAmount, DEFAULT_MORTGAGE_AMOUNT, $mortgageYears, DEFAULT_MORTGAGE_YEARS } from '../../stores/mortgage';
 
 interface Params {
   loanAmount: number;
@@ -129,9 +129,10 @@ const HISTORICAL_HYPOINDEX_DATA = [
 export default function FixationOptimizer() {
   const urlParams = useMemo(() => getParamsFromURL(), []);
   const storeAmount = useStore($mortgageAmount);
+  const storeYears = useStore($mortgageYears);
   const [loanAmount, setLoanAmount] = useState(urlParams.loanAmount ?? storeAmount ?? DEFAULT_MORTGAGE_AMOUNT);
   const [remainingYears, setRemainingYears] = useState(
-    urlParams.remainingYears ?? DEFAULTS.remainingYears,
+    urlParams.remainingYears ?? storeYears ?? DEFAULT_MORTGAGE_YEARS,
   );
   const [holdingPeriod, setHoldingPeriod] = useState(
     urlParams.holdingPeriod ?? DEFAULTS.holdingPeriod,
@@ -176,10 +177,14 @@ export default function FixationOptimizer() {
     rate20y,
   ]);
 
-  // Sync loanAmount to global store
+  // Sync to global store
   useEffect(() => {
     $mortgageAmount.set(loanAmount);
   }, [loanAmount]);
+
+  useEffect(() => {
+    $mortgageYears.set(remainingYears);
+  }, [remainingYears]);
 
   // Build fixation rates map
   const fixationRates: FixationRateMap = useMemo(
