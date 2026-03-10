@@ -364,20 +364,24 @@ export default function InvestmentComparison() {
         </span>
       </div>
 
-      {/* Leverage risk warning */}
-      {riskLevel !== 'safe' && (
-        <div className={`alert ${RISK_STYLES[riskLevel].alert}`}>
-          <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-          </svg>
-          <span>
-            <strong>{RISK_STYLES[riskLevel].label}:</strong>{' '}
-            {ltv > 90
-              ? `LTV ${ltv} % je velmi vysoké. Pokles cen nemovitostí o pouhých ${Math.round(100 - (100 * downPaymentPercent) / ltv)} % by vymazal veškerý vlastní kapitál.`
-              : `LTV ${ltv} % zvyšuje riziko. Finanční páka zesiluje jak zisky, tak ztráty.`}
-          </span>
+      {/* Leverage Warning - Always Visible */}
+      <div className={`alert ${RISK_STYLES[riskLevel].alert}`}>
+        <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <div className="text-sm">
+          <p className="font-semibold">
+            Finanční páka: {(propertyPrice / downPayment).toFixed(1)}× · LTV: {ltv} % · Riziko: {RISK_STYLES[riskLevel].label}
+          </p>
+          <p>
+            {riskLevel === 'safe'
+              ? `S akontací ${downPaymentPercent} % máte zdravý poměr vlastního kapitálu. Finanční páka ${(propertyPrice / downPayment).toFixed(1)}× umírněně zesiluje výnosy i ztráty.`
+              : riskLevel === 'warning'
+                ? `LTV ${ltv} % znamená vyšší zadlužení. Páka ${(propertyPrice / downPayment).toFixed(1)}× výrazně zesiluje jak zisky, tak ztráty. Pokles cen o ${downPaymentPercent} % by vymazal veškerý vlastní kapitál.`
+                : `LTV ${ltv} % je velmi vysoké. Páka ${(propertyPrice / downPayment).toFixed(1)}× dramaticky zesiluje riziko. I mírný pokles cen nemovitostí může vést k situaci, kdy dlužíte více, než je nemovitost hodnota.`}
+          </p>
         </div>
-      )}
+      </div>
 
       {/* Chart */}
       <div className="card bg-base-100 border border-base-200 shadow-sm">
