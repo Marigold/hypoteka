@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useStore } from '@nanostores/react';
 import {
   AreaChart,
   Area,
@@ -21,6 +22,7 @@ import {
   formatCurrencyCompact,
   formatPercent,
 } from '../../lib/formatters';
+import { $mortgageAmount, DEFAULT_MORTGAGE_AMOUNT } from '../../stores/mortgage';
 
 interface Params {
   propertyPrice: number;
@@ -78,7 +80,11 @@ const DEFAULTS: Params = {
 
 export default function InvestmentComparison() {
   const urlParams = useMemo(() => getParamsFromURL(), []);
-  const [propertyPrice, setPropertyPrice] = useState(urlParams.propertyPrice ?? DEFAULTS.propertyPrice);
+  const storeAmount = useStore($mortgageAmount);
+  // Reverse-derive propertyPrice from store mortgage amount: propertyPrice = mortgageAmount / (1 - dp/100)
+  const defaultDp = urlParams.downPaymentPercent ?? DEFAULTS.downPaymentPercent;
+  const derivedPropertyPrice = Math.round((storeAmount ?? DEFAULT_MORTGAGE_AMOUNT) / (1 - defaultDp / 100));
+  const [propertyPrice, setPropertyPrice] = useState(urlParams.propertyPrice ?? derivedPropertyPrice);
   const [downPaymentPercent, setDownPaymentPercent] = useState(urlParams.downPaymentPercent ?? DEFAULTS.downPaymentPercent);
   const [mortgageRate, setMortgageRate] = useState(urlParams.mortgageRate ?? DEFAULTS.mortgageRate);
   const [mortgageYears, setMortgageYears] = useState(urlParams.mortgageYears ?? DEFAULTS.mortgageYears);
@@ -102,6 +108,12 @@ export default function InvestmentComparison() {
   useEffect(() => {
     setParamsToURL(params);
   }, [propertyPrice, downPaymentPercent, mortgageRate, mortgageYears, propertyAppreciation, monthlyRentalIncome, holdingPeriod, stockReturnRate]);
+
+  // Sync mortgage amount to global store
+  useEffect(() => {
+    const mortgageAmount = Math.round(propertyPrice * (1 - downPaymentPercent / 100));
+    $mortgageAmount.set(mortgageAmount);
+  }, [propertyPrice, downPaymentPercent]);
 
   const downPayment = Math.round(propertyPrice * (downPaymentPercent / 100));
   const investmentAmount = useMemo(() => {
