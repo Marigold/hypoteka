@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useStore } from '@nanostores/react';
 import {
   LineChart,
   Line,
@@ -18,6 +19,7 @@ import {
   formatPercent,
   formatNumber,
 } from '../../lib/formatters';
+import { $mortgageAmount, DEFAULT_MORTGAGE_AMOUNT } from '../../stores/mortgage';
 
 interface Params {
   principal: number;
@@ -53,7 +55,7 @@ function setParamsToURL(params: Params) {
 }
 
 const DEFAULTS: Params = {
-  principal: 4_000_000,
+  principal: DEFAULT_MORTGAGE_AMOUNT,
   rate: 4.5,
   years: 30,
   income: 60_000,
@@ -79,7 +81,8 @@ const RISK_STYLES: Record<RiskLevel, { border: string; badge: string; badgeLabel
 
 export default function StressTest() {
   const urlParams = useMemo(() => getParamsFromURL(), []);
-  const [principal, setPrincipal] = useState(urlParams.principal ?? DEFAULTS.principal);
+  const storeAmount = useStore($mortgageAmount);
+  const [principal, setPrincipal] = useState(urlParams.principal ?? storeAmount ?? DEFAULT_MORTGAGE_AMOUNT);
   const [rate, setRate] = useState(urlParams.rate ?? DEFAULTS.rate);
   const [years, setYears] = useState(urlParams.years ?? DEFAULTS.years);
   const [income, setIncome] = useState(urlParams.income ?? DEFAULTS.income);
@@ -88,6 +91,11 @@ export default function StressTest() {
   useEffect(() => {
     setParamsToURL({ principal, rate, years, income });
   }, [principal, rate, years, income]);
+
+  // Sync principal to global store
+  useEffect(() => {
+    $mortgageAmount.set(principal);
+  }, [principal]);
 
   const results = useMemo(
     () =>
