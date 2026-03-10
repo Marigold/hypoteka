@@ -10,6 +10,7 @@ import {
   Legend,
   ReferenceLine,
 } from 'recharts';
+import GlobalMortgageBanner from '../ui/GlobalMortgageBanner';
 import Slider from '../ui/Slider';
 import ResultCard from '../ui/ResultCard';
 import {
@@ -180,6 +181,11 @@ export default function InvestmentComparison() {
 
   return (
     <div className="space-y-8">
+      <GlobalMortgageBanner
+        currentValue={Math.round(propertyPrice * (1 - downPaymentPercent / 100))}
+        onApply={(v) => setPropertyPrice(Math.round(v / (1 - downPaymentPercent / 100)))}
+      />
+
       {/* Input Panel */}
       <div className="card bg-base-100 border border-base-200 shadow-sm">
         <div className="card-body space-y-4">

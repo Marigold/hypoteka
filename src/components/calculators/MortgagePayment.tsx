@@ -9,6 +9,7 @@ import {
   ResponsiveContainer,
   Legend,
 } from 'recharts';
+import GlobalMortgageBanner from '../ui/GlobalMortgageBanner';
 import Slider from '../ui/Slider';
 import ResultCard from '../ui/ResultCard';
 import {
@@ -176,6 +177,11 @@ export default function MortgagePayment() {
 
   return (
     <div className="space-y-8">
+      <GlobalMortgageBanner
+        currentValue={principal}
+        onApply={(v) => setPrincipal(v)}
+      />
+
       {/* Input Panel */}
       <div className="card bg-base-100 border border-base-200 shadow-sm">
         <div className="card-body space-y-4">
