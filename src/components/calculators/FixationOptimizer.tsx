@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { useStore } from '@nanostores/react';
 import {
   LineChart,
   Line,
@@ -22,6 +23,7 @@ import {
   calculateFixationScenarios,
   type FixationRateMap,
 } from '../../lib/fixationOptimizer';
+import { $mortgageAmount, DEFAULT_MORTGAGE_AMOUNT } from '../../stores/mortgage';
 
 interface Params {
   loanAmount: number;
@@ -87,7 +89,7 @@ function setParamsToURL(params: Params) {
 }
 
 const DEFAULTS: Params = {
-  loanAmount: 3_000_000,
+  loanAmount: DEFAULT_MORTGAGE_AMOUNT,
   remainingYears: 25,
   holdingPeriod: 5,
   riskTolerance: 'moderate',
@@ -125,7 +127,8 @@ const HISTORICAL_HYPOINDEX_DATA = [
 
 export default function FixationOptimizer() {
   const urlParams = useMemo(() => getParamsFromURL(), []);
-  const [loanAmount, setLoanAmount] = useState(urlParams.loanAmount ?? DEFAULTS.loanAmount);
+  const storeAmount = useStore($mortgageAmount);
+  const [loanAmount, setLoanAmount] = useState(urlParams.loanAmount ?? storeAmount ?? DEFAULT_MORTGAGE_AMOUNT);
   const [remainingYears, setRemainingYears] = useState(
     urlParams.remainingYears ?? DEFAULTS.remainingYears,
   );
@@ -171,6 +174,11 @@ export default function FixationOptimizer() {
     rate15y,
     rate20y,
   ]);
+
+  // Sync loanAmount to global store
+  useEffect(() => {
+    $mortgageAmount.set(loanAmount);
+  }, [loanAmount]);
 
   // Build fixation rates map
   const fixationRates: FixationRateMap = useMemo(
