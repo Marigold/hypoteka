@@ -52,6 +52,8 @@ export interface InvestmentYearResult {
   stockPortfolioValue: number;
   /** Stock portfolio value after capital gains tax */
   stockNetWorthAfterTax: number;
+  /** Total amount invested into stock portfolio (initial capital + all contributions) */
+  stockTotalInvested: number;
   /** Property value / equity ratio */
   leverageRatio: number;
 }
@@ -165,7 +167,7 @@ export function compareInvestments(
 
   // Stock state: investor starts with the same initial capital
   let stockPortfolio = initialCapital;
-  const stockCostBasis = initialCapital;
+  let stockCostBasis = initialCapital;
 
   for (let year = 1; year <= holdingPeriod; year++) {
     let yearlyRentalGross = 0;
@@ -189,7 +191,9 @@ export function compareInvestments(
       // net of rental income. If property generates positive cashflow, stock
       // investor contributes nothing extra (they don't receive rental income).
       if (propertyNetCashflow < 0) {
-        stockPortfolio += Math.abs(propertyNetCashflow);
+        const contribution = Math.abs(propertyNetCashflow);
+        stockPortfolio += contribution;
+        stockCostBasis += contribution;
       }
 
       // Stock portfolio grows monthly
@@ -233,6 +237,7 @@ export function compareInvestments(
       realEstateNetWorth: Math.round(realEstateNetWorth),
       realEstateNetWorthAfterTax: Math.round(realEstateNetWorthAfterTax),
       stockPortfolioValue: Math.round(stockPortfolio),
+      stockTotalInvested: Math.round(stockCostBasis),
       stockNetWorthAfterTax: Math.round(stockNetWorthAfterTax),
       leverageRatio: Math.round(leverageRatio * 100) / 100,
     });

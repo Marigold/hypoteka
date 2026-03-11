@@ -64,13 +64,17 @@ function getParamsFromURL(): Partial<Params> {
   if (rt && ['conservative', 'moderate', 'aggressive'].includes(rt)) {
     result.riskTolerance = rt as 'conservative' | 'moderate' | 'aggressive';
   }
-  if (r1) result.rate1y = Number(r1);
-  if (r3) result.rate3y = Number(r3);
-  if (r5) result.rate5y = Number(r5);
-  if (r7) result.rate7y = Number(r7);
-  if (r10) result.rate10y = Number(r10);
-  if (r15) result.rate15y = Number(r15);
-  if (r20) result.rate20y = Number(r20);
+  const clampRate = (v: number) => (isNaN(v) ? undefined : Math.min(10, Math.max(1, v)));
+  if (r1) result.rate1y = clampRate(Number(r1));
+  if (r3) result.rate3y = clampRate(Number(r3));
+  if (r5) result.rate5y = clampRate(Number(r5));
+  if (r7) result.rate7y = clampRate(Number(r7));
+  if (r10) result.rate10y = clampRate(Number(r10));
+  if (r15) result.rate15y = clampRate(Number(r15));
+  if (r20) result.rate20y = clampRate(Number(r20));
+  if (la && isNaN(Number(la))) delete result.loanAmount;
+  if (ry && isNaN(Number(ry))) delete result.remainingYears;
+  if (hp && isNaN(Number(hp))) delete result.holdingPeriod;
   return result;
 }
 
@@ -147,6 +151,13 @@ export default function FixationOptimizer() {
   const [rate10y, setRate10y] = useState(urlParams.rate10y ?? DEFAULTS.rate10y);
   const [rate15y, setRate15y] = useState(urlParams.rate15y ?? DEFAULTS.rate15y);
   const [rate20y, setRate20y] = useState(urlParams.rate20y ?? DEFAULTS.rate20y);
+
+  // Auto-adjust holdingPeriod when remainingYears decreases below it
+  useEffect(() => {
+    if (holdingPeriod > remainingYears) {
+      setHoldingPeriod(remainingYears);
+    }
+  }, [remainingYears, holdingPeriod]);
 
   // Initialize store from URL params (once on mount)
   useEffect(() => {
@@ -247,7 +258,7 @@ export default function FixationOptimizer() {
     const baselineCost = results.scenarios.find(
       (s) =>
         s.fixationYears === results.recommendation.fixationYears && s.rateScenario === 'base',
-    )?.totalPaid ?? 0;
+    )?.totalPaid ?? results.scenarios[0]?.totalPaid ?? 0;
 
     for (const shift of rateShifts) {
       // Apply rate shift to all fixation rates
@@ -319,12 +330,12 @@ export default function FixationOptimizer() {
             label="Plánované období držení"
             value={holdingPeriod}
             min={1}
-            max={20}
+            max={Math.min(20, remainingYears)}
             step={1}
             onChange={setHoldingPeriod}
             formatValue={(v) => `${v} let`}
             minLabel="1 rok"
-            maxLabel="20 let"
+            maxLabel={`${Math.min(20, remainingYears)} let`}
             showInput
             suffix="let"
           />
