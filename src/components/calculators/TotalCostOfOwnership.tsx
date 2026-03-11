@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useStore } from '@nanostores/react';
 import {
   PieChart,
   Pie,
@@ -7,6 +8,7 @@ import {
   Tooltip,
   Legend,
 } from 'recharts';
+import SharedMortgageInputs from '../ui/SharedMortgageInputs';
 import Slider from '../ui/Slider';
 import ResultCard from '../ui/ResultCard';
 import {
@@ -18,12 +20,13 @@ import {
   formatCurrencyCompact,
   formatPercent,
 } from '../../lib/formatters';
+import { $propertyPrice, $downPaymentPercent, $mortgageRate, $mortgageYears } from '../../stores/mortgage';
 
 type Region = 'prague' | 'regional';
 
 interface Params {
   propertyPrice: number;
-  downPayment: number;
+  downPaymentPercent: number;
   mortgageRate: number;
   mortgageYears: number;
   propertyArea: number;
@@ -51,7 +54,7 @@ function getParamsFromURL(): Partial<Params> {
   const result: Partial<Params> = {};
 
   const propertyPrice = sp.get('cena');
-  const downPayment = sp.get('hotovost');
+  const downPaymentPercent = sp.get('akontace');
   const mortgageRate = sp.get('urok');
   const mortgageYears = sp.get('roky');
   const propertyArea = sp.get('plocha');
@@ -66,7 +69,7 @@ function getParamsFromURL(): Partial<Params> {
   const agentCommission = sp.get('provize');
 
   if (propertyPrice) result.propertyPrice = Number(propertyPrice);
-  if (downPayment) result.downPayment = Number(downPayment);
+  if (downPaymentPercent) result.downPaymentPercent = Number(downPaymentPercent);
   if (mortgageRate) result.mortgageRate = Number(mortgageRate);
   if (mortgageYears) result.mortgageYears = Number(mortgageYears);
   if (propertyArea) result.propertyArea = Number(propertyArea);
@@ -89,7 +92,7 @@ function setParamsToURL(params: Params, region: Region) {
 
   sp.set('oblast', region === 'prague' ? 'praha' : 'regionalni');
   sp.set('cena', String(params.propertyPrice));
-  sp.set('hotovost', String(params.downPayment));
+  sp.set('akontace', String(params.downPaymentPercent));
   sp.set('urok', String(params.mortgageRate));
   sp.set('roky', String(params.mortgageYears));
   sp.set('plocha', String(params.propertyArea));
@@ -107,9 +110,26 @@ function setParamsToURL(params: Params, region: Region) {
   window.history.replaceState(null, '', url);
 }
 
-const PRAGUE_DEFAULTS: Params = {
+interface RegionDefaults {
+  propertyPrice: number;
+  downPaymentPercent: number;
+  mortgageRate: number;
+  mortgageYears: number;
+  propertyArea: number;
+  fondOprav: number;
+  insurance: number;
+  tax: number;
+  maintenanceRate: number;
+  energy: number;
+  notary: number;
+  valuation: number;
+  bankFee: number;
+  agentCommission: number;
+}
+
+const PRAGUE_DEFAULTS: RegionDefaults = {
   propertyPrice: 8_000_000,
-  downPayment: 1_600_000,
+  downPaymentPercent: 20,
   mortgageRate: 4.5,
   mortgageYears: 30,
   propertyArea: 60,
@@ -124,9 +144,9 @@ const PRAGUE_DEFAULTS: Params = {
   agentCommission: 0,
 };
 
-const REGIONAL_DEFAULTS: Params = {
+const REGIONAL_DEFAULTS: RegionDefaults = {
   propertyPrice: 4_000_000,
-  downPayment: 800_000,
+  downPaymentPercent: 20,
   mortgageRate: 4.5,
   mortgageYears: 30,
   propertyArea: 70,
@@ -141,7 +161,7 @@ const REGIONAL_DEFAULTS: Params = {
   agentCommission: 0,
 };
 
-function getDefaults(region: Region): Params {
+function getDefaults(region: Region): RegionDefaults {
   return region === 'prague' ? PRAGUE_DEFAULTS : REGIONAL_DEFAULTS;
 }
 
@@ -149,23 +169,21 @@ export default function TotalCostOfOwnership() {
   const urlRegion = useMemo(() => getRegionFromURL(), []);
   const urlParams = useMemo(() => getParamsFromURL(), []);
   const initialDefaults = useMemo(() => getDefaults(urlRegion), [urlRegion]);
+  const propertyPrice = useStore($propertyPrice);
+  const downPaymentPercent = useStore($downPaymentPercent);
+  const mortgageRate = useStore($mortgageRate);
+  const mortgageYears = useStore($mortgageYears);
 
   // Region selection
   const [region, setRegion] = useState<Region>(urlRegion);
 
-  // Mortgage parameters
-  const [propertyPrice, setPropertyPrice] = useState(
-    urlParams.propertyPrice ?? initialDefaults.propertyPrice
-  );
-  const [downPayment, setDownPayment] = useState(
-    urlParams.downPayment ?? initialDefaults.downPayment
-  );
-  const [mortgageRate, setMortgageRate] = useState(
-    urlParams.mortgageRate ?? initialDefaults.mortgageRate
-  );
-  const [mortgageYears, setMortgageYears] = useState(
-    urlParams.mortgageYears ?? initialDefaults.mortgageYears
-  );
+  // Initialize store from URL params (once on mount)
+  useEffect(() => {
+    if (urlParams.propertyPrice != null) $propertyPrice.set(urlParams.propertyPrice);
+    if (urlParams.downPaymentPercent != null) $downPaymentPercent.set(urlParams.downPaymentPercent);
+    if (urlParams.mortgageRate != null) $mortgageRate.set(urlParams.mortgageRate);
+    if (urlParams.mortgageYears != null) $mortgageYears.set(urlParams.mortgageYears);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Property parameters
   const [propertyArea, setPropertyArea] = useState(
@@ -209,10 +227,10 @@ export default function TotalCostOfOwnership() {
   const handleRegionChange = useCallback((newRegion: Region) => {
     setRegion(newRegion);
     const defaults = getDefaults(newRegion);
-    setPropertyPrice(defaults.propertyPrice);
-    setDownPayment(defaults.downPayment);
-    setMortgageRate(defaults.mortgageRate);
-    setMortgageYears(defaults.mortgageYears);
+    $propertyPrice.set(defaults.propertyPrice);
+    $downPaymentPercent.set(defaults.downPaymentPercent);
+    $mortgageRate.set(defaults.mortgageRate);
+    $mortgageYears.set(defaults.mortgageYears);
     setPropertyArea(defaults.propertyArea);
     setFondOprav(defaults.fondOprav);
     setInsurance(defaults.insurance);
@@ -225,11 +243,14 @@ export default function TotalCostOfOwnership() {
     setAgentCommission(defaults.agentCommission);
   }, []);
 
+  // Derive absolute downPayment from percent
+  const downPayment = Math.round(propertyPrice * (downPaymentPercent / 100));
+
   // Sync to URL
   useEffect(() => {
     setParamsToURL({
       propertyPrice,
-      downPayment,
+      downPaymentPercent,
       mortgageRate,
       mortgageYears,
       propertyArea,
@@ -246,7 +267,7 @@ export default function TotalCostOfOwnership() {
   }, [
     region,
     propertyPrice,
-    downPayment,
+    downPaymentPercent,
     mortgageRate,
     mortgageYears,
     propertyArea,
@@ -343,6 +364,8 @@ export default function TotalCostOfOwnership() {
 
   return (
     <div className="space-y-8">
+      <SharedMortgageInputs yearsMax={40} />
+
       {/* Input Panel */}
       <div className="card bg-base-100 border border-base-200 shadow-sm">
         <div className="card-body space-y-6">
@@ -370,65 +393,9 @@ export default function TotalCostOfOwnership() {
             </div>
           </div>
 
-          {/* Property & Mortgage Parameters */}
+          {/* Property Parameters */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Nemovitost a hypotéka</h3>
-
-            <Slider
-              label="Cena nemovitosti"
-              value={propertyPrice}
-              min={1_000_000}
-              max={20_000_000}
-              step={100_000}
-              onChange={setPropertyPrice}
-              formatValue={(v) => formatCurrencyCompact(v)}
-              minLabel="1 mil. Kč"
-              maxLabel="20 mil. Kč"
-              showInput
-              suffix="Kč"
-            />
-
-            <Slider
-              label="Vlastní hotovost"
-              value={downPayment}
-              min={0}
-              max={propertyPrice}
-              step={50_000}
-              onChange={setDownPayment}
-              formatValue={(v) => formatCurrencyCompact(v)}
-              minLabel="0 Kč"
-              maxLabel={formatCurrencyCompact(propertyPrice)}
-              showInput
-              suffix="Kč"
-            />
-
-            <Slider
-              label="Úroková sazba"
-              value={mortgageRate}
-              min={1}
-              max={10}
-              step={0.1}
-              onChange={setMortgageRate}
-              formatValue={(v) => formatPercent(v)}
-              minLabel="1 %"
-              maxLabel="10 %"
-              showInput
-              suffix="%"
-            />
-
-            <Slider
-              label="Doba splácení"
-              value={mortgageYears}
-              min={5}
-              max={40}
-              step={1}
-              onChange={setMortgageYears}
-              formatValue={(v) => `${v} let`}
-              minLabel="5 let"
-              maxLabel="40 let"
-              showInput
-              suffix="let"
-            />
+            <h3 className="text-lg font-semibold">Nemovitost</h3>
 
             <Slider
               label="Plocha bytu"
