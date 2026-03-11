@@ -12,7 +12,7 @@ import {
   Legend,
   Cell,
 } from 'recharts';
-import GlobalMortgageBanner from '../ui/GlobalMortgageBanner';
+import SharedMortgageInputs from '../ui/SharedMortgageInputs';
 import Slider from '../ui/Slider';
 import ResultCard from '../ui/ResultCard';
 import {
@@ -24,10 +24,11 @@ import {
   calculateFixationScenarios,
   type FixationRateMap,
 } from '../../lib/fixationOptimizer';
-import { $mortgageAmount, DEFAULT_MORTGAGE_AMOUNT, $mortgageYears, DEFAULT_MORTGAGE_YEARS } from '../../stores/mortgage';
+import { $propertyPrice, $downPaymentPercent, $mortgageAmount, $mortgageYears } from '../../stores/mortgage';
 
 interface Params {
-  loanAmount: number;
+  propertyPrice: number;
+  downPaymentPercent: number;
   remainingYears: number;
   holdingPeriod: number;
   riskTolerance: 'conservative' | 'moderate' | 'aggressive';
@@ -44,7 +45,8 @@ function getParamsFromURL(): Partial<Params> {
   if (typeof window === 'undefined') return {};
   const sp = new URLSearchParams(window.location.search);
   const result: Partial<Params> = {};
-  const la = sp.get('castka');
+  const pp = sp.get('cena');
+  const dp = sp.get('akontace');
   const ry = sp.get('zbyvajici');
   const hp = sp.get('drzeni');
   const rt = sp.get('riziko');
@@ -55,7 +57,8 @@ function getParamsFromURL(): Partial<Params> {
   const r10 = sp.get('fixace10');
   const r15 = sp.get('fixace15');
   const r20 = sp.get('fixace20');
-  if (la) result.loanAmount = Number(la);
+  if (pp) result.propertyPrice = Number(pp);
+  if (dp) result.downPaymentPercent = Number(dp);
   if (ry) result.remainingYears = Number(ry);
   if (hp) result.holdingPeriod = Number(hp);
   if (rt && ['conservative', 'moderate', 'aggressive'].includes(rt)) {
@@ -74,7 +77,8 @@ function getParamsFromURL(): Partial<Params> {
 function setParamsToURL(params: Params) {
   if (typeof window === 'undefined') return;
   const sp = new URLSearchParams();
-  sp.set('castka', String(params.loanAmount));
+  sp.set('cena', String(params.propertyPrice));
+  sp.set('akontace', String(params.downPaymentPercent));
   sp.set('zbyvajici', String(params.remainingYears));
   sp.set('drzeni', String(params.holdingPeriod));
   sp.set('riziko', params.riskTolerance);
@@ -89,11 +93,9 @@ function setParamsToURL(params: Params) {
   window.history.replaceState(null, '', url);
 }
 
-const DEFAULTS: Params = {
-  loanAmount: DEFAULT_MORTGAGE_AMOUNT,
-  remainingYears: 25,
+const DEFAULTS = {
   holdingPeriod: 5,
-  riskTolerance: 'moderate',
+  riskTolerance: 'moderate' as const,
   rate1y: 4.2,
   rate3y: 4.4,
   rate5y: 4.5,
@@ -128,12 +130,10 @@ const HISTORICAL_HYPOINDEX_DATA = [
 
 export default function FixationOptimizer() {
   const urlParams = useMemo(() => getParamsFromURL(), []);
-  const storeAmount = useStore($mortgageAmount);
-  const storeYears = useStore($mortgageYears);
-  const [loanAmount, setLoanAmount] = useState(urlParams.loanAmount ?? storeAmount ?? DEFAULT_MORTGAGE_AMOUNT);
-  const [remainingYears, setRemainingYears] = useState(
-    urlParams.remainingYears ?? storeYears ?? DEFAULT_MORTGAGE_YEARS,
-  );
+  const propertyPrice = useStore($propertyPrice);
+  const downPaymentPercent = useStore($downPaymentPercent);
+  const loanAmount = useStore($mortgageAmount);
+  const remainingYears = useStore($mortgageYears);
   const [holdingPeriod, setHoldingPeriod] = useState(
     urlParams.holdingPeriod ?? DEFAULTS.holdingPeriod,
   );
@@ -148,10 +148,18 @@ export default function FixationOptimizer() {
   const [rate15y, setRate15y] = useState(urlParams.rate15y ?? DEFAULTS.rate15y);
   const [rate20y, setRate20y] = useState(urlParams.rate20y ?? DEFAULTS.rate20y);
 
+  // Initialize store from URL params (once on mount)
+  useEffect(() => {
+    if (urlParams.propertyPrice != null) $propertyPrice.set(urlParams.propertyPrice);
+    if (urlParams.downPaymentPercent != null) $downPaymentPercent.set(urlParams.downPaymentPercent);
+    if (urlParams.remainingYears != null) $mortgageYears.set(urlParams.remainingYears);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   // Sync to URL
   useEffect(() => {
     setParamsToURL({
-      loanAmount,
+      propertyPrice,
+      downPaymentPercent,
       remainingYears,
       holdingPeriod,
       riskTolerance,
@@ -164,7 +172,8 @@ export default function FixationOptimizer() {
       rate20y,
     });
   }, [
-    loanAmount,
+    propertyPrice,
+    downPaymentPercent,
     remainingYears,
     holdingPeriod,
     riskTolerance,
@@ -176,15 +185,6 @@ export default function FixationOptimizer() {
     rate15y,
     rate20y,
   ]);
-
-  // Sync to global store
-  useEffect(() => {
-    $mortgageAmount.set(loanAmount);
-  }, [loanAmount]);
-
-  useEffect(() => {
-    $mortgageYears.set(remainingYears);
-  }, [remainingYears]);
 
   // Build fixation rates map
   const fixationRates: FixationRateMap = useMemo(
@@ -308,43 +308,12 @@ export default function FixationOptimizer() {
 
   return (
     <div className="space-y-8">
-      <GlobalMortgageBanner
-        currentValue={loanAmount}
-        onApply={(v) => setLoanAmount(v)}
-      />
+      <SharedMortgageInputs showRate={false} yearsMin={1} yearsLabel="Zbývající doba splatnosti" />
 
-      {/* Input Panel - Loan Parameters */}
+      {/* Additional Parameters */}
       <div className="card bg-base-100 border border-base-200 shadow-sm">
         <div className="card-body space-y-4">
-          <h2 className="card-title">Parametry hypotéky</h2>
-
-          <Slider
-            label="Výše úvěru"
-            value={loanAmount}
-            min={500_000}
-            max={15_000_000}
-            step={100_000}
-            onChange={setLoanAmount}
-            formatValue={(v) => formatCurrencyCompact(v)}
-            minLabel="500 tis. Kč"
-            maxLabel="15 mil. Kč"
-            showInput
-            suffix="Kč"
-          />
-
-          <Slider
-            label="Zbývající doba splatnosti"
-            value={remainingYears}
-            min={1}
-            max={30}
-            step={1}
-            onChange={setRemainingYears}
-            formatValue={(v) => `${v} let`}
-            minLabel="1 rok"
-            maxLabel="30 let"
-            showInput
-            suffix="let"
-          />
+          <h2 className="card-title">Parametry optimalizace</h2>
 
           <Slider
             label="Plánované období držení"

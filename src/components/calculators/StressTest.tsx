@@ -10,20 +10,20 @@ import {
   Legend,
   ReferenceLine,
 } from 'recharts';
-import GlobalMortgageBanner from '../ui/GlobalMortgageBanner';
+import SharedMortgageInputs from '../ui/SharedMortgageInputs';
 import Slider from '../ui/Slider';
 import ResultCard from '../ui/ResultCard';
 import { stressTest, type RiskLevel } from '../../lib/stressTest';
 import {
   formatCurrency,
   formatCurrencyCompact,
-  formatPercent,
   formatNumber,
 } from '../../lib/formatters';
-import { $mortgageAmount, DEFAULT_MORTGAGE_AMOUNT, $mortgageRate, DEFAULT_MORTGAGE_RATE, $mortgageYears, DEFAULT_MORTGAGE_YEARS } from '../../stores/mortgage';
+import { $propertyPrice, $downPaymentPercent, $mortgageAmount, $mortgageRate, $mortgageYears } from '../../stores/mortgage';
 
 interface Params {
-  principal: number;
+  propertyPrice: number;
+  downPaymentPercent: number;
   rate: number;
   years: number;
   income: number;
@@ -33,11 +33,13 @@ function getParamsFromURL(): Partial<Params> {
   if (typeof window === 'undefined') return {};
   const sp = new URLSearchParams(window.location.search);
   const result: Partial<Params> = {};
-  const p = sp.get('castka');
+  const pp = sp.get('cena');
+  const dp = sp.get('akontace');
   const r = sp.get('urok');
   const y = sp.get('roky');
   const i = sp.get('prijem');
-  if (p) result.principal = Number(p);
+  if (pp) result.propertyPrice = Number(pp);
+  if (dp) result.downPaymentPercent = Number(dp);
   if (r) result.rate = Number(r);
   if (y) result.years = Number(y);
   if (i) result.income = Number(i);
@@ -47,7 +49,8 @@ function getParamsFromURL(): Partial<Params> {
 function setParamsToURL(params: Params) {
   if (typeof window === 'undefined') return;
   const sp = new URLSearchParams();
-  sp.set('castka', String(params.principal));
+  sp.set('cena', String(params.propertyPrice));
+  sp.set('akontace', String(params.downPaymentPercent));
   sp.set('urok', String(params.rate));
   sp.set('roky', String(params.years));
   sp.set('prijem', String(params.income));
@@ -55,12 +58,7 @@ function setParamsToURL(params: Params) {
   window.history.replaceState(null, '', url);
 }
 
-const DEFAULTS: Params = {
-  principal: DEFAULT_MORTGAGE_AMOUNT,
-  rate: DEFAULT_MORTGAGE_RATE,
-  years: DEFAULT_MORTGAGE_YEARS,
-  income: 60_000,
-};
+const DEFAULT_INCOME = 60_000;
 
 const RISK_STYLES: Record<RiskLevel, { border: string; badge: string; badgeLabel: string }> = {
   safe: {
@@ -82,31 +80,25 @@ const RISK_STYLES: Record<RiskLevel, { border: string; badge: string; badgeLabel
 
 export default function StressTest() {
   const urlParams = useMemo(() => getParamsFromURL(), []);
-  const storeAmount = useStore($mortgageAmount);
-  const storeRate = useStore($mortgageRate);
-  const storeYears = useStore($mortgageYears);
-  const [principal, setPrincipal] = useState(urlParams.principal ?? storeAmount ?? DEFAULT_MORTGAGE_AMOUNT);
-  const [rate, setRate] = useState(urlParams.rate ?? storeRate ?? DEFAULT_MORTGAGE_RATE);
-  const [years, setYears] = useState(urlParams.years ?? storeYears ?? DEFAULT_MORTGAGE_YEARS);
-  const [income, setIncome] = useState(urlParams.income ?? DEFAULTS.income);
+  const propertyPrice = useStore($propertyPrice);
+  const downPaymentPercent = useStore($downPaymentPercent);
+  const principal = useStore($mortgageAmount);
+  const rate = useStore($mortgageRate);
+  const years = useStore($mortgageYears);
+  const [income, setIncome] = useState(urlParams.income ?? DEFAULT_INCOME);
+
+  // Initialize store from URL params (once on mount)
+  useEffect(() => {
+    if (urlParams.propertyPrice != null) $propertyPrice.set(urlParams.propertyPrice);
+    if (urlParams.downPaymentPercent != null) $downPaymentPercent.set(urlParams.downPaymentPercent);
+    if (urlParams.rate != null) $mortgageRate.set(urlParams.rate);
+    if (urlParams.years != null) $mortgageYears.set(urlParams.years);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Sync to URL
   useEffect(() => {
-    setParamsToURL({ principal, rate, years, income });
-  }, [principal, rate, years, income]);
-
-  // Sync to global store
-  useEffect(() => {
-    $mortgageAmount.set(principal);
-  }, [principal]);
-
-  useEffect(() => {
-    $mortgageRate.set(rate);
-  }, [rate]);
-
-  useEffect(() => {
-    $mortgageYears.set(years);
-  }, [years]);
+    setParamsToURL({ propertyPrice, downPaymentPercent, rate, years, income });
+  }, [propertyPrice, downPaymentPercent, rate, years, income]);
 
   const results = useMemo(
     () =>
@@ -128,7 +120,6 @@ export default function StressTest() {
   // Chart data: rate increase scenarios for the line chart
   const chartData = useMemo(() => {
     const points: { rate: string; payment: number }[] = [];
-    // Show payments for rate from current to current+5 in 0.5 steps
     for (let r = rate; r <= rate + 5; r += 0.5) {
       const rRounded = Math.round(r * 10) / 10;
       const { basePayment } = stressTest({
@@ -152,57 +143,12 @@ export default function StressTest() {
 
   return (
     <div className="space-y-8">
-      <GlobalMortgageBanner
-        currentValue={principal}
-        onApply={(v) => setPrincipal(v)}
-      />
+      <SharedMortgageInputs />
 
-      {/* Input Panel */}
+      {/* Additional Parameters */}
       <div className="card bg-base-100 border border-base-200 shadow-sm">
         <div className="card-body space-y-4">
           <h2 className="card-title">Parametry stresového testu</h2>
-
-          <Slider
-            label="Výše úvěru"
-            value={principal}
-            min={500_000}
-            max={15_000_000}
-            step={100_000}
-            onChange={setPrincipal}
-            formatValue={(v) => formatCurrencyCompact(v)}
-            minLabel="500 tis. Kč"
-            maxLabel="15 mil. Kč"
-            showInput
-            suffix="Kč"
-          />
-
-          <Slider
-            label="Úroková sazba"
-            value={rate}
-            min={1}
-            max={10}
-            step={0.1}
-            onChange={setRate}
-            formatValue={(v) => formatPercent(v)}
-            minLabel="1 %"
-            maxLabel="10 %"
-            showInput
-            suffix="%"
-          />
-
-          <Slider
-            label="Doba splácení"
-            value={years}
-            min={5}
-            max={30}
-            step={1}
-            onChange={setYears}
-            formatValue={(v) => `${v} let`}
-            minLabel="5 let"
-            maxLabel="30 let"
-            showInput
-            suffix="let"
-          />
 
           <Slider
             label="Měsíční příjem domácnosti"

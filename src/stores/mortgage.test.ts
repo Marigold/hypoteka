@@ -13,67 +13,75 @@ const localStorageMock = {
 Object.defineProperty(globalThis, "localStorage", { value: localStorageMock, writable: true });
 
 // Now import the store (it reads localStorage on init)
-const { $mortgageAmount, DEFAULT_MORTGAGE_AMOUNT, $mortgageRate, DEFAULT_MORTGAGE_RATE, $mortgageYears, DEFAULT_MORTGAGE_YEARS } = await import("./mortgage");
+const {
+  $propertyPrice, DEFAULT_PROPERTY_PRICE,
+  $downPaymentPercent, DEFAULT_DOWN_PAYMENT_PERCENT,
+  $mortgageAmount,
+  $mortgageRate, DEFAULT_MORTGAGE_RATE,
+  $mortgageYears, DEFAULT_MORTGAGE_YEARS,
+} = await import("./mortgage");
 
-describe("$mortgageAmount store", () => {
+describe("$propertyPrice store", () => {
   beforeEach(() => {
     storage.clear();
-    $mortgageAmount.set(DEFAULT_MORTGAGE_AMOUNT);
+    $propertyPrice.set(DEFAULT_PROPERTY_PRICE);
   });
 
-  describe("default value", () => {
-    it("initializes with DEFAULT_MORTGAGE_AMOUNT", () => {
-      expect($mortgageAmount.get()).toBe(DEFAULT_MORTGAGE_AMOUNT);
-    });
-
-    it("DEFAULT_MORTGAGE_AMOUNT is 4_000_000", () => {
-      expect(DEFAULT_MORTGAGE_AMOUNT).toBe(4_000_000);
-    });
+  it("initializes with DEFAULT_PROPERTY_PRICE (5_000_000)", () => {
+    expect($propertyPrice.get()).toBe(5_000_000);
+    expect(DEFAULT_PROPERTY_PRICE).toBe(5_000_000);
   });
 
-  describe("set/get roundtrip", () => {
-    it("returns the value that was set", () => {
-      $mortgageAmount.set(5_500_000);
-      expect($mortgageAmount.get()).toBe(5_500_000);
-    });
+  it("set/get roundtrip works", () => {
+    $propertyPrice.set(8_000_000);
+    expect($propertyPrice.get()).toBe(8_000_000);
+  });
+});
 
-    it("handles zero", () => {
-      $mortgageAmount.set(0);
-      expect($mortgageAmount.get()).toBe(0);
-    });
-
-    it("handles large values", () => {
-      $mortgageAmount.set(50_000_000);
-      expect($mortgageAmount.get()).toBe(50_000_000);
-    });
+describe("$downPaymentPercent store", () => {
+  beforeEach(() => {
+    storage.clear();
+    $downPaymentPercent.set(DEFAULT_DOWN_PAYMENT_PERCENT);
   });
 
-  describe("reset helper", () => {
-    it("can reset to default", () => {
-      $mortgageAmount.set(9_000_000);
-      $mortgageAmount.set(DEFAULT_MORTGAGE_AMOUNT);
-      expect($mortgageAmount.get()).toBe(DEFAULT_MORTGAGE_AMOUNT);
-    });
+  it("initializes with DEFAULT_DOWN_PAYMENT_PERCENT (20)", () => {
+    expect($downPaymentPercent.get()).toBe(20);
+    expect(DEFAULT_DOWN_PAYMENT_PERCENT).toBe(20);
   });
 
-  describe("JSON encode/decode", () => {
-    it("encode produces valid JSON number string", () => {
-      const encoded = JSON.stringify(3_000_000);
-      expect(encoded).toBe("3000000");
-    });
+  it("set/get roundtrip works", () => {
+    $downPaymentPercent.set(30);
+    expect($downPaymentPercent.get()).toBe(30);
+  });
+});
 
-    it("decode produces number type, not string", () => {
-      const decoded = JSON.parse("3000000");
-      expect(typeof decoded).toBe("number");
-      expect(decoded).toBe(3_000_000);
-    });
+describe("$mortgageAmount computed store", () => {
+  beforeEach(() => {
+    storage.clear();
+    $propertyPrice.set(DEFAULT_PROPERTY_PRICE);
+    $downPaymentPercent.set(DEFAULT_DOWN_PAYMENT_PERCENT);
+  });
 
-    it("roundtrip through JSON preserves number type", () => {
-      const original = 2_750_000;
-      const decoded = JSON.parse(JSON.stringify(original));
-      expect(typeof decoded).toBe("number");
-      expect(decoded).toBe(original);
-    });
+  it("computes from propertyPrice and downPaymentPercent", () => {
+    // 5_000_000 * (1 - 20/100) = 4_000_000
+    expect($mortgageAmount.get()).toBe(4_000_000);
+  });
+
+  it("updates when propertyPrice changes", () => {
+    $propertyPrice.set(10_000_000);
+    // 10_000_000 * (1 - 20/100) = 8_000_000
+    expect($mortgageAmount.get()).toBe(8_000_000);
+  });
+
+  it("updates when downPaymentPercent changes", () => {
+    $downPaymentPercent.set(10);
+    // 5_000_000 * (1 - 10/100) = 4_500_000
+    expect($mortgageAmount.get()).toBe(4_500_000);
+  });
+
+  it("handles 50% down payment", () => {
+    $downPaymentPercent.set(50);
+    expect($mortgageAmount.get()).toBe(2_500_000);
   });
 });
 

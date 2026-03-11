@@ -9,8 +9,7 @@ import {
   ResponsiveContainer,
   Legend,
 } from 'recharts';
-import GlobalMortgageBanner from '../ui/GlobalMortgageBanner';
-import Slider from '../ui/Slider';
+import SharedMortgageInputs from '../ui/SharedMortgageInputs';
 import ResultCard from '../ui/ResultCard';
 import {
   calculateMonthlyPayment,
@@ -21,13 +20,13 @@ import {
 import {
   formatCurrency,
   formatCurrencyCompact,
-  formatPercent,
   formatNumber,
 } from '../../lib/formatters';
-import { $mortgageAmount, DEFAULT_MORTGAGE_AMOUNT, $mortgageRate, DEFAULT_MORTGAGE_RATE, $mortgageYears, DEFAULT_MORTGAGE_YEARS } from '../../stores/mortgage';
+import { $propertyPrice, $downPaymentPercent, $mortgageAmount, $mortgageRate, $mortgageYears } from '../../stores/mortgage';
 
 interface Params {
-  principal: number;
+  propertyPrice: number;
+  downPaymentPercent: number;
   rate: number;
   years: number;
 }
@@ -36,10 +35,12 @@ function getParamsFromURL(): Partial<Params> {
   if (typeof window === 'undefined') return {};
   const sp = new URLSearchParams(window.location.search);
   const result: Partial<Params> = {};
-  const p = sp.get('castka');
+  const pp = sp.get('cena');
+  const dp = sp.get('akontace');
   const r = sp.get('urok');
   const y = sp.get('roky');
-  if (p) result.principal = Number(p);
+  if (pp) result.propertyPrice = Number(pp);
+  if (dp) result.downPaymentPercent = Number(dp);
   if (r) result.rate = Number(r);
   if (y) result.years = Number(y);
   return result;
@@ -48,45 +49,38 @@ function getParamsFromURL(): Partial<Params> {
 function setParamsToURL(params: Params) {
   if (typeof window === 'undefined') return;
   const sp = new URLSearchParams();
-  sp.set('castka', String(params.principal));
+  sp.set('cena', String(params.propertyPrice));
+  sp.set('akontace', String(params.downPaymentPercent));
   sp.set('urok', String(params.rate));
   sp.set('roky', String(params.years));
   const url = `${window.location.pathname}?${sp.toString()}`;
   window.history.replaceState(null, '', url);
 }
 
-const DEFAULTS: Params = { principal: DEFAULT_MORTGAGE_AMOUNT, rate: DEFAULT_MORTGAGE_RATE, years: DEFAULT_MORTGAGE_YEARS };
-
 type AmortizationView = 'monthly' | 'yearly';
 
 export default function MortgagePayment() {
   const urlParams = useMemo(() => getParamsFromURL(), []);
-  const storeAmount = useStore($mortgageAmount);
-  const storeRate = useStore($mortgageRate);
-  const storeYears = useStore($mortgageYears);
-  const [principal, setPrincipal] = useState(urlParams.principal ?? storeAmount ?? DEFAULT_MORTGAGE_AMOUNT);
-  const [rate, setRate] = useState(urlParams.rate ?? storeRate ?? DEFAULT_MORTGAGE_RATE);
-  const [years, setYears] = useState(urlParams.years ?? storeYears ?? DEFAULT_MORTGAGE_YEARS);
+  const propertyPrice = useStore($propertyPrice);
+  const downPaymentPercent = useStore($downPaymentPercent);
+  const principal = useStore($mortgageAmount);
+  const rate = useStore($mortgageRate);
+  const years = useStore($mortgageYears);
   const [tableView, setTableView] = useState<AmortizationView>('yearly');
   const [tableOpen, setTableOpen] = useState(false);
 
+  // Initialize store from URL params (once on mount)
+  useEffect(() => {
+    if (urlParams.propertyPrice != null) $propertyPrice.set(urlParams.propertyPrice);
+    if (urlParams.downPaymentPercent != null) $downPaymentPercent.set(urlParams.downPaymentPercent);
+    if (urlParams.rate != null) $mortgageRate.set(urlParams.rate);
+    if (urlParams.years != null) $mortgageYears.set(urlParams.years);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   // Sync to URL
   useEffect(() => {
-    setParamsToURL({ principal, rate, years });
-  }, [principal, rate, years]);
-
-  // Sync to global store
-  useEffect(() => {
-    $mortgageAmount.set(principal);
-  }, [principal]);
-
-  useEffect(() => {
-    $mortgageRate.set(rate);
-  }, [rate]);
-
-  useEffect(() => {
-    $mortgageYears.set(years);
-  }, [years]);
+    setParamsToURL({ propertyPrice, downPaymentPercent, rate, years });
+  }, [propertyPrice, downPaymentPercent, rate, years]);
 
   const monthly = useMemo(
     () => calculateMonthlyPayment(principal, rate, years),
@@ -187,59 +181,7 @@ export default function MortgagePayment() {
 
   return (
     <div className="space-y-8">
-      <GlobalMortgageBanner
-        currentValue={principal}
-        onApply={(v) => setPrincipal(v)}
-      />
-
-      {/* Input Panel */}
-      <div className="card bg-base-100 border border-base-200 shadow-sm">
-        <div className="card-body space-y-4">
-          <h2 className="card-title">Parametry hypotéky</h2>
-
-          <Slider
-            label="Výše úvěru"
-            value={principal}
-            min={500_000}
-            max={15_000_000}
-            step={100_000}
-            onChange={setPrincipal}
-            formatValue={(v) => formatCurrencyCompact(v)}
-            minLabel="500 tis. Kč"
-            maxLabel="15 mil. Kč"
-            showInput
-            suffix="Kč"
-          />
-
-          <Slider
-            label="Úroková sazba"
-            value={rate}
-            min={1}
-            max={10}
-            step={0.1}
-            onChange={setRate}
-            formatValue={(v) => formatPercent(v)}
-            minLabel="1 %"
-            maxLabel="10 %"
-            showInput
-            suffix="%"
-          />
-
-          <Slider
-            label="Doba splácení"
-            value={years}
-            min={5}
-            max={30}
-            step={1}
-            onChange={setYears}
-            formatValue={(v) => `${v} let`}
-            minLabel="5 let"
-            maxLabel="30 let"
-            showInput
-            suffix="let"
-          />
-        </div>
-      </div>
+      <SharedMortgageInputs />
 
       {/* Results */}
       <div className="stats stats-vertical sm:stats-horizontal shadow w-full">

@@ -9,7 +9,7 @@ import {
   ResponsiveContainer,
   Legend,
 } from 'recharts';
-import GlobalMortgageBanner from '../ui/GlobalMortgageBanner';
+import SharedMortgageInputs from '../ui/SharedMortgageInputs';
 import Slider from '../ui/Slider';
 import ResultCard from '../ui/ResultCard';
 import { compareRentVsBuy } from '../../lib/rentVsBuy';
@@ -18,7 +18,7 @@ import {
   formatCurrencyCompact,
   formatPercent,
 } from '../../lib/formatters';
-import { $mortgageAmount, DEFAULT_MORTGAGE_AMOUNT, $mortgageRate, DEFAULT_MORTGAGE_RATE, $mortgageYears, DEFAULT_MORTGAGE_YEARS } from '../../stores/mortgage';
+import { $propertyPrice, $downPaymentPercent, $mortgageRate, $mortgageYears } from '../../stores/mortgage';
 
 interface Params {
   propertyPrice: number;
@@ -63,11 +63,7 @@ function setParamsToURL(params: Params) {
   window.history.replaceState(null, '', url);
 }
 
-const DEFAULTS: Params = {
-  propertyPrice: 5_000_000,
-  downPaymentPercent: 20,
-  mortgageRate: DEFAULT_MORTGAGE_RATE,
-  mortgageYears: DEFAULT_MORTGAGE_YEARS,
+const DEFAULTS = {
   monthlyRent: 18_000,
   rentGrowthRate: 4,
   propertyAppreciation: 5,
@@ -76,20 +72,22 @@ const DEFAULTS: Params = {
 
 export default function RentVsBuy() {
   const urlParams = useMemo(() => getParamsFromURL(), []);
-  const storeAmount = useStore($mortgageAmount);
-  const storeRate = useStore($mortgageRate);
-  const storeYears = useStore($mortgageYears);
-  // Reverse-derive propertyPrice from store mortgage amount: propertyPrice = mortgageAmount / (1 - dp/100)
-  const defaultDp = urlParams.downPaymentPercent ?? DEFAULTS.downPaymentPercent;
-  const derivedPropertyPrice = Math.round((storeAmount ?? DEFAULT_MORTGAGE_AMOUNT) / (1 - defaultDp / 100));
-  const [propertyPrice, setPropertyPrice] = useState(urlParams.propertyPrice ?? derivedPropertyPrice);
-  const [downPaymentPercent, setDownPaymentPercent] = useState(urlParams.downPaymentPercent ?? DEFAULTS.downPaymentPercent);
-  const [mortgageRate, setMortgageRate] = useState(urlParams.mortgageRate ?? storeRate ?? DEFAULT_MORTGAGE_RATE);
-  const [mortgageYears, setMortgageYears] = useState(urlParams.mortgageYears ?? storeYears ?? DEFAULT_MORTGAGE_YEARS);
+  const propertyPrice = useStore($propertyPrice);
+  const downPaymentPercent = useStore($downPaymentPercent);
+  const mortgageRate = useStore($mortgageRate);
+  const mortgageYears = useStore($mortgageYears);
   const [monthlyRent, setMonthlyRent] = useState(urlParams.monthlyRent ?? DEFAULTS.monthlyRent);
   const [rentGrowthRate, setRentGrowthRate] = useState(urlParams.rentGrowthRate ?? DEFAULTS.rentGrowthRate);
   const [propertyAppreciation, setPropertyAppreciation] = useState(urlParams.propertyAppreciation ?? DEFAULTS.propertyAppreciation);
   const [investmentReturnRate, setInvestmentReturnRate] = useState(urlParams.investmentReturnRate ?? DEFAULTS.investmentReturnRate);
+
+  // Initialize store from URL params (once on mount)
+  useEffect(() => {
+    if (urlParams.propertyPrice != null) $propertyPrice.set(urlParams.propertyPrice);
+    if (urlParams.downPaymentPercent != null) $downPaymentPercent.set(urlParams.downPaymentPercent);
+    if (urlParams.mortgageRate != null) $mortgageRate.set(urlParams.mortgageRate);
+    if (urlParams.mortgageYears != null) $mortgageYears.set(urlParams.mortgageYears);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const params: Params = {
     propertyPrice,
@@ -106,20 +104,6 @@ export default function RentVsBuy() {
   useEffect(() => {
     setParamsToURL(params);
   }, [propertyPrice, downPaymentPercent, mortgageRate, mortgageYears, monthlyRent, rentGrowthRate, propertyAppreciation, investmentReturnRate]);
-
-  // Sync to global store
-  useEffect(() => {
-    const mortgageAmount = Math.round(propertyPrice * (1 - downPaymentPercent / 100));
-    $mortgageAmount.set(mortgageAmount);
-  }, [propertyPrice, downPaymentPercent]);
-
-  useEffect(() => {
-    $mortgageRate.set(mortgageRate);
-  }, [mortgageRate]);
-
-  useEffect(() => {
-    $mortgageYears.set(mortgageYears);
-  }, [mortgageYears]);
 
   const downPayment = Math.round(propertyPrice * (downPaymentPercent / 100));
 
@@ -175,10 +159,7 @@ export default function RentVsBuy() {
 
   return (
     <div className="space-y-8">
-      <GlobalMortgageBanner
-        currentValue={Math.round(propertyPrice * (1 - downPaymentPercent / 100))}
-        onApply={(v) => setPropertyPrice(Math.round(v / (1 - downPaymentPercent / 100)))}
-      />
+      <SharedMortgageInputs />
 
       {/* Input Panel */}
       <div className="card bg-base-100 border border-base-200 shadow-sm">
@@ -191,59 +172,17 @@ export default function RentVsBuy() {
               <h3 className="font-semibold text-sm text-base-content/70 uppercase tracking-wide">Koupě</h3>
 
               <Slider
-                label="Cena nemovitosti"
-                value={propertyPrice}
-                min={1_000_000}
-                max={15_000_000}
-                step={100_000}
-                onChange={setPropertyPrice}
-                formatValue={(v) => formatCurrencyCompact(v)}
-                minLabel="1 mil. Kč"
-                maxLabel="15 mil. Kč"
-                showInput
-                suffix="Kč"
-              />
-
-              <Slider
-                label="Vlastní prostředky"
-                value={downPaymentPercent}
-                min={10}
-                max={50}
-                step={1}
-                onChange={setDownPaymentPercent}
-                formatValue={(v) => `${v} % (${formatCurrencyCompact(Math.round(propertyPrice * v / 100))})`}
-                minLabel="10 %"
-                maxLabel="50 %"
-                showInput
-                suffix="%"
-              />
-
-              <Slider
-                label="Úroková sazba"
-                value={mortgageRate}
-                min={1}
+                label="Roční růst ceny nemovitosti"
+                value={propertyAppreciation}
+                min={0}
                 max={10}
-                step={0.1}
-                onChange={setMortgageRate}
+                step={0.5}
+                onChange={setPropertyAppreciation}
                 formatValue={(v) => formatPercent(v)}
-                minLabel="1 %"
+                minLabel="0 %"
                 maxLabel="10 %"
                 showInput
                 suffix="%"
-              />
-
-              <Slider
-                label="Doba splácení"
-                value={mortgageYears}
-                min={10}
-                max={30}
-                step={1}
-                onChange={setMortgageYears}
-                formatValue={(v) => `${v} let`}
-                minLabel="10 let"
-                maxLabel="30 let"
-                showInput
-                suffix="let"
               />
             </div>
 
@@ -272,20 +211,6 @@ export default function RentVsBuy() {
                 max={10}
                 step={0.5}
                 onChange={setRentGrowthRate}
-                formatValue={(v) => formatPercent(v)}
-                minLabel="0 %"
-                maxLabel="10 %"
-                showInput
-                suffix="%"
-              />
-
-              <Slider
-                label="Roční růst ceny nemovitosti"
-                value={propertyAppreciation}
-                min={0}
-                max={10}
-                step={0.5}
-                onChange={setPropertyAppreciation}
                 formatValue={(v) => formatPercent(v)}
                 minLabel="0 %"
                 maxLabel="10 %"
