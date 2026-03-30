@@ -1,29 +1,18 @@
 ---
 const year = new Date().getFullYear();
 
-const linkGroups = [
-	{
-		title: 'Kalkulačky',
-		links: [
-			{ href: '/kalkulacky', label: 'Všechny kalkulačky' },
-			{ href: '/kalkulacky/splatka-hypoteky', label: 'Splátka hypotéky' },
-			{ href: '/kalkulacky/najem-vs-vlastni', label: 'Nájem vs. vlastní' },
-		],
-	},
-	{
-		title: 'Články',
-		links: [
-			{ href: '/clanky', label: 'Všechny články' },
-		],
-	},
-	{
-		title: 'O projektu',
-		links: [
-			{ href: '/o-projektu', label: 'O nás' },
-			{ href: '/o-projektu#metodika', label: 'Metodika' },
-			{ href: '/o-projektu#kontakt', label: 'Kontakt' },
-		],
-	},
+const toolLinks = [
+	{ href: '/kalkulacky', label: 'Všechny kalkulačky' },
+	{ href: '/kalkulacky/splatka-hypoteky', label: 'Splátka hypotéky' },
+	{ href: '/kalkulacky/najem-vs-vlastni', label: 'Nájem vs. vlastní' },
+	{ href: '/kalkulacky/stresovy-test', label: 'Stresový test' },
+];
+
+const infoLinks = [
+	{ href: '/clanky', label: 'Články' },
+	{ href: '/o-projektu', label: 'O projektu' },
+	{ href: '/o-projektu#metodika', label: 'Metodika výpočtů' },
+	{ href: '/o-projektu#kontakt', label: 'Kontakt' },
 ];
 
 const dataSources = [
@@ -33,18 +22,14 @@ const dataSources = [
 ];
 ---
 
-<footer class="bg-base-200 text-base-content mt-auto">
-	<div class="footer max-w-6xl mx-auto px-6 py-10 grid grid-cols-2 md:grid-cols-4 gap-8">
-		{linkGroups.map(({ title, links }) => (
-			<nav>
-				<h6 class="footer-title">{title}</h6>
-				{links.map(({ href, label }) => (
-					<a href={href} class="link link-hover text-sm">{label}</a>
-				))}
-			</nav>
-		))}
-		<nav>
-			<h6 class="footer-title">Zdroje dat</h6>
+<footer class="w-full rounded-t-3xl mt-20 bg-surface-container-low border-t border-outline-variant/10">
+	<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 px-8 py-12 max-w-7xl mx-auto">
+		<!-- About -->
+		<div class="space-y-6">
+			<div class="text-lg font-bold text-on-background">Hypotéka.cz</div>
+			<p class="text-sm text-on-surface-variant leading-relaxed max-w-xs">
+				Nezávislý vzdělávací projekt o&nbsp;financování bydlení. Nejsme banka ani zprostředkovatel.
+			</p>
 			<div class="flex flex-wrap gap-2">
 				{dataSources.map(({ label, href, title }) => (
 					<a
@@ -52,21 +37,56 @@ const dataSources = [
 						target="_blank"
 						rel="noopener noreferrer"
 						title={title}
-						class="badge badge-outline badge-sm hover:badge-primary transition-colors duration-200"
+						class="text-xs px-3 py-1 rounded-full border border-outline-variant/30 text-on-surface-variant hover:border-primary-deep hover:text-primary-deep transition-colors no-underline"
 					>
 						{label}
 					</a>
 				))}
 			</div>
-			<p class="text-xs opacity-60 mt-2">Data aktualizujeme průběžně z&nbsp;veřejných zdrojů.</p>
-		</nav>
-	</div>
-	<div class="border-t border-base-300">
-		<div class="max-w-6xl mx-auto px-6 py-4 text-center text-sm">
-			<p class="font-semibold">&copy; {year} Hypotéka.cz &middot; Neziskovka, ne banka.</p>
-			<p class="opacity-70 mt-1">
-				Tohle není finanční poradenství. Před velkým rozhodnutím se poraď s&nbsp;odborníkem.
+		</div>
+
+		<!-- Tools -->
+		<div class="space-y-6">
+			<h6 class="font-bold text-on-background">Nástroje</h6>
+			<ul class="space-y-4 text-sm">
+				{toolLinks.map(({ href, label }) => (
+					<li>
+						<a href={href} class="text-on-surface-variant hover:text-primary-deep transition-colors no-underline">{label}</a>
+					</li>
+				))}
+			</ul>
+		</div>
+
+		<!-- Info -->
+		<div class="space-y-6">
+			<h6 class="font-bold text-on-background">Informace</h6>
+			<ul class="space-y-4 text-sm">
+				{infoLinks.map(({ href, label }) => (
+					<li>
+						<a href={href} class="text-on-surface-variant hover:text-primary-deep transition-colors no-underline">{label}</a>
+					</li>
+				))}
+			</ul>
+		</div>
+
+		<!-- Note -->
+		<div class="space-y-6">
+			<h6 class="font-bold text-on-background">Důležité upozornění</h6>
+			<p class="text-sm text-on-surface-variant leading-relaxed">
+				Tohle není finanční poradenství. Před velkým rozhodnutím se poraď s&nbsp;odborníkem. Data aktualizujeme průběžně z&nbsp;veřejných zdrojů.
 			</p>
+		</div>
+	</div>
+
+	<div class="max-w-7xl mx-auto px-8 py-8 border-t border-outline-variant/10 flex flex-col md:flex-row justify-between items-center gap-4">
+		<p class="text-sm text-on-surface-variant">
+			&copy; {year} Hypotéka.cz · Neziskovka, ne banka.
+		</p>
+		<div class="flex gap-6 text-sm text-on-surface-variant">
+			<a href="/o-projektu#metodika" class="flex items-center gap-1 hover:text-primary-deep transition-colors no-underline">
+				<span class="material-symbols-outlined text-[14px]">history_edu</span>
+				Metodika výpočtů
+			</a>
 		</div>
 	</div>
 </footer>

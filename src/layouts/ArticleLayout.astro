@@ -24,15 +24,16 @@ const breadcrumbs = [
 ---
 
 <BaseLayout title={`${title} – Hypotéka.cz`} description={description}>
-	<nav aria-label="breadcrumbs" class="text-sm text-gray-500 mb-6">
+	<!-- Breadcrumbs -->
+	<nav aria-label="breadcrumbs" class="text-sm text-on-surface-variant mb-8">
 		<ol class="flex flex-wrap items-center gap-1">
 			{breadcrumbs.map((crumb, i) => (
 				<li class="flex items-center gap-1">
-					{i > 0 && <span aria-hidden="true">/</span>}
+					{i > 0 && <span aria-hidden="true" class="text-outline-variant">/</span>}
 					{crumb.href ? (
-						<a href={crumb.href} class="hover:text-blue-600 underline">{crumb.label}</a>
+						<a href={crumb.href} class="hover:text-primary-deep transition-colors no-underline">{crumb.label}</a>
 					) : (
-						<span class="text-gray-900 font-medium">{crumb.label}</span>
+						<span class="text-on-background font-medium">{crumb.label}</span>
 					)}
 				</li>
 			))}
@@ -40,32 +41,41 @@ const breadcrumbs = [
 	</nav>
 
 	<article>
-		<header class="mb-8">
-			<p class="text-sm font-medium text-blue-600 mb-2">{category}</p>
-			<h1 class="text-3xl font-bold mb-3">{title}</h1>
-			<p class="text-gray-600 mb-4">{description}</p>
-			<div class="flex flex-wrap items-center gap-4 text-sm text-gray-500">
-				<span>{author}</span>
+		<!-- Header -->
+		<header class="mb-10">
+			<span class="text-xs font-bold uppercase tracking-wider text-primary-deep bg-primary-deep/10 px-3 py-1 rounded-full">
+				{category}
+			</span>
+			<h1 class="text-3xl md:text-4xl font-black tracking-tight text-on-background mt-4 mb-3">{title}</h1>
+			<p class="text-on-surface-variant text-lg leading-relaxed mb-4">{description}</p>
+			<div class="flex flex-wrap items-center gap-4 text-sm text-on-surface-variant">
+				<span class="font-medium">{author}</span>
+				<span class="text-outline-variant">·</span>
 				<time datetime={pubDate.toISOString()}>{formatDate(pubDate)}</time>
 				{lastUpdated && (
-					<span>
-						Aktualizováno: <time datetime={lastUpdated.toISOString()}>{formatDate(lastUpdated)}</time>
-					</span>
+					<>
+						<span class="text-outline-variant">·</span>
+						<span>
+							Aktualizováno: <time datetime={lastUpdated.toISOString()}>{formatDate(lastUpdated)}</time>
+						</span>
+					</>
 				)}
 			</div>
 		</header>
 
-		<div class="prose prose-gray max-w-none">
+		<!-- Content -->
+		<div class="prose prose-lg max-w-none prose-headings:font-bold prose-headings:tracking-tight prose-a:text-primary-deep prose-a:no-underline hover:prose-a:underline">
 			<slot />
 		</div>
 
+		<!-- Disclaimer -->
 		{disclaimer && (
-			<div role="alert" class="mt-10 p-4 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800">
-				<p class="font-semibold mb-1">Právní upozornění</p>
-				<p>
-					Tento článek slouží pouze k vzdělávacím účelům a nepředstavuje finanční poradenství.
-					Před důležitým finančním rozhodnutím se vždy poraďte s licencovaným odborníkem.
-					Data jsou platná k datu publikace a mohou se změnit.
+			<div class="mt-10 p-5 bg-tertiary-fixed/30 rounded-xl border border-tertiary-fixed text-sm text-on-background">
+				<p class="font-bold mb-1">Právní upozornění</p>
+				<p class="text-on-surface-variant">
+					Tento článek slouží pouze k&nbsp;vzdělávacím účelům a&nbsp;nepředstavuje finanční poradenství.
+					Před důležitým finančním rozhodnutím se poraď s&nbsp;odborníkem.
+					Data jsou platná k&nbsp;datu publikace a&nbsp;mohou se změnit.
 				</p>
 			</div>
 		)}

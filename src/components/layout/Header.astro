@@ -8,23 +8,43 @@ const navLinks = [
 const currentPath = Astro.url.pathname;
 ---
 
-<header class="sticky top-0 z-50 bg-base-100/95 backdrop-blur-sm shadow-sm border-b border-base-200">
-	<div class="navbar max-w-6xl mx-auto">
-		<div class="navbar-start">
-			<div class="dropdown">
-				<div tabindex="0" role="button" class="btn btn-ghost lg:hidden" aria-label="Menu">
-					<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h8m-8 6h16" />
-					</svg>
+<nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl shadow-sm">
+	<div class="flex justify-between items-center px-6 py-4 max-w-7xl mx-auto">
+		<a href="/" class="text-2xl font-black tracking-tighter text-primary-deep no-underline">
+			Hypotéka.cz
+		</a>
+
+		<!-- Desktop nav -->
+		<div class="hidden md:flex items-center gap-8 font-medium tracking-tight">
+			{navLinks.map(({ href, label }) => (
+				<a
+					href={href}
+					class:list={[
+						'transition-colors no-underline',
+						currentPath === href
+							? 'text-primary-deep font-semibold'
+							: 'text-on-surface-variant hover:text-primary-deep',
+					]}
+				>
+					{label}
+				</a>
+			))}
+		</div>
+
+		<div class="flex items-center gap-4">
+			<!-- Mobile menu button -->
+			<div class="dropdown dropdown-end md:hidden">
+				<div tabindex="0" role="button" class="btn btn-ghost btn-sm" aria-label="Menu">
+					<span class="material-symbols-outlined">menu</span>
 				</div>
-				<ul tabindex="0" class="menu menu-sm dropdown-content bg-base-100 rounded-box z-50 mt-3 w-56 p-3 shadow-lg border border-base-200 gap-1">
+				<ul tabindex="0" class="menu menu-sm dropdown-content bg-white rounded-xl z-50 mt-3 w-56 p-3 shadow-lg border border-outline-variant/20 gap-1">
 					{navLinks.map(({ href, label }) => (
 						<li>
 							<a
 								href={href}
 								class:list={[
-									'rounded-lg py-3 px-4 text-base transition-colors duration-200',
-									currentPath === href ? 'bg-primary/10 text-primary font-semibold' : 'hover:bg-base-200',
+									'rounded-lg py-3 px-4 text-base transition-colors',
+									currentPath === href ? 'bg-primary-deep/10 text-primary-deep font-semibold' : 'hover:bg-surface-container',
 								]}
 							>
 								{label}
@@ -33,24 +53,10 @@ const currentPath = Astro.url.pathname;
 					))}
 				</ul>
 			</div>
-			<a href="/" class="btn btn-ghost text-xl font-bold text-primary hover:text-primary/80">Hypotéka.cz</a>
-		</div>
-		<div class="navbar-end hidden lg:flex">
-			<ul class="menu menu-horizontal px-1 gap-1">
-				{navLinks.map(({ href, label }) => (
-					<li>
-						<a
-							href={href}
-							class:list={[
-								'rounded-lg transition-colors duration-200',
-								currentPath === href ? 'bg-primary/10 text-primary font-semibold border-b-2 border-primary' : '',
-							]}
-						>
-							{label}
-						</a>
-					</li>
-				))}
-			</ul>
+
+			<a href="/kalkulacky/splatka-hypoteky" class="bg-gradient-primary text-white px-6 py-2.5 rounded-lg font-bold hover:opacity-90 active:scale-95 transition-all no-underline hidden sm:inline-flex">
+				Spočítat hypotéku
+			</a>
 		</div>
 	</div>
-</header>
+</nav>

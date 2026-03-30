@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useStore } from '@nanostores/react';
 import {
   AreaChart,
@@ -8,6 +8,7 @@ import {
   Tooltip,
   ResponsiveContainer,
   Legend,
+  ReferenceLine,
 } from 'recharts';
 import SharedMortgageInputs from '../ui/SharedMortgageInputs';
 import Slider from '../ui/Slider';
@@ -19,93 +20,47 @@ import {
   formatPercent,
 } from '../../lib/formatters';
 import { $propertyPrice, $downPaymentPercent, $mortgageRate, $mortgageYears } from '../../stores/mortgage';
-
-interface Params {
-  propertyPrice: number;
-  downPaymentPercent: number;
-  mortgageRate: number;
-  mortgageYears: number;
-  monthlyRent: number;
-  rentGrowthRate: number;
-  propertyAppreciation: number;
-  investmentReturnRate: number;
-}
-
-const URL_KEYS: Record<keyof Params, string> = {
-  propertyPrice: 'cena',
-  downPaymentPercent: 'akontace',
-  mortgageRate: 'urok',
-  mortgageYears: 'roky',
-  monthlyRent: 'najem',
-  rentGrowthRate: 'rust_najmu',
-  propertyAppreciation: 'rust_ceny',
-  investmentReturnRate: 'vynosy',
-};
-
-function getParamsFromURL(): Partial<Params> {
-  if (typeof window === 'undefined') return {};
-  const sp = new URLSearchParams(window.location.search);
-  const result: Partial<Params> = {};
-  for (const [key, urlKey] of Object.entries(URL_KEYS)) {
-    const val = sp.get(urlKey);
-    if (val) (result as Record<string, number>)[key] = Number(val);
-  }
-  return result;
-}
-
-function setParamsToURL(params: Params) {
-  if (typeof window === 'undefined') return;
-  const sp = new URLSearchParams();
-  for (const [key, urlKey] of Object.entries(URL_KEYS)) {
-    sp.set(urlKey, String(params[key as keyof Params]));
-  }
-  const url = `${window.location.pathname}?${sp.toString()}`;
-  window.history.replaceState(null, '', url);
-}
+import {
+  $ownershipCostPercent,
+  $notary,
+  $valuation,
+  $bankFee,
+  $agentCommission,
+} from '../../stores/ownershipCosts';
 
 const DEFAULTS = {
-  monthlyRent: 18_000,
-  rentGrowthRate: 4,
+  rentalYield: 4,
   propertyAppreciation: 5,
   investmentReturnRate: 7,
 };
 
 export default function RentVsBuy() {
-  const urlParams = useMemo(() => getParamsFromURL(), []);
   const propertyPrice = useStore($propertyPrice);
   const downPaymentPercent = useStore($downPaymentPercent);
   const mortgageRate = useStore($mortgageRate);
   const mortgageYears = useStore($mortgageYears);
-  const [monthlyRent, setMonthlyRent] = useState(urlParams.monthlyRent ?? DEFAULTS.monthlyRent);
-  const [rentGrowthRate, setRentGrowthRate] = useState(urlParams.rentGrowthRate ?? DEFAULTS.rentGrowthRate);
-  const [propertyAppreciation, setPropertyAppreciation] = useState(urlParams.propertyAppreciation ?? DEFAULTS.propertyAppreciation);
-  const [investmentReturnRate, setInvestmentReturnRate] = useState(urlParams.investmentReturnRate ?? DEFAULTS.investmentReturnRate);
 
-  // Initialize store from URL params (once on mount)
-  useEffect(() => {
-    if (urlParams.propertyPrice != null) $propertyPrice.set(urlParams.propertyPrice);
-    if (urlParams.downPaymentPercent != null) $downPaymentPercent.set(urlParams.downPaymentPercent);
-    if (urlParams.mortgageRate != null) $mortgageRate.set(urlParams.mortgageRate);
-    if (urlParams.mortgageYears != null) $mortgageYears.set(urlParams.mortgageYears);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  // Derived ownership cost % from TCO stores
+  const derivedOwnershipPercent = useStore($ownershipCostPercent);
 
-  const params: Params = {
-    propertyPrice,
-    downPaymentPercent,
-    mortgageRate,
-    mortgageYears,
-    monthlyRent,
-    rentGrowthRate,
-    propertyAppreciation,
-    investmentReturnRate,
-  };
+  // Local override — initialized from the computed store value
+  const [ownershipPercentOverride, setOwnershipPercentOverride] = useState<number | null>(null);
+  const ownershipPercent = ownershipPercentOverride ?? derivedOwnershipPercent;
 
-  // Sync to URL
-  useEffect(() => {
-    setParamsToURL(params);
-  }, [propertyPrice, downPaymentPercent, mortgageRate, mortgageYears, monthlyRent, rentGrowthRate, propertyAppreciation, investmentReturnRate]);
+  // Transaction costs from shared stores
+  const notary = useStore($notary);
+  const valuationFee = useStore($valuation);
+  const bankFee = useStore($bankFee);
+  const agentCommission = useStore($agentCommission);
 
+  // Comparison-specific params (local state)
+  const [rentalYield, setRentalYield] = useState(DEFAULTS.rentalYield);
+  const [propertyAppreciation, setPropertyAppreciation] = useState(DEFAULTS.propertyAppreciation);
+  const [investmentReturnRate, setInvestmentReturnRate] = useState(DEFAULTS.investmentReturnRate);
+
+  const monthlyRent = Math.round(propertyPrice * (rentalYield / 100) / 12);
   const downPayment = Math.round(propertyPrice * (downPaymentPercent / 100));
+  const monthlyOwnershipCost = Math.round((propertyPrice * (ownershipPercent / 100)) / 12);
 
   const results = useMemo(
     () =>
@@ -115,14 +70,22 @@ export default function RentVsBuy() {
         mortgageRate,
         mortgageYears,
         monthlyRent,
-        rentGrowthRate,
         propertyAppreciation,
         investmentReturnRate,
-        maintenanceRate: 1,
-        transactionCosts: 4,
+        ownershipCostPercent: ownershipPercent,
+        transactionCosts: {
+          notary,
+          valuation: valuationFee,
+          bankFee,
+          agentCommission,
+        },
         taxDeductionCap: 150_000,
       }),
-    [propertyPrice, downPayment, mortgageRate, mortgageYears, monthlyRent, rentGrowthRate, propertyAppreciation, investmentReturnRate],
+    [
+      propertyPrice, downPayment, mortgageRate, mortgageYears, monthlyRent,
+      propertyAppreciation, investmentReturnRate, ownershipPercent,
+      notary, valuationFee, bankFee, agentCommission,
+    ],
   );
 
   // Find breakeven year
@@ -157,11 +120,12 @@ export default function RentVsBuy() {
     [],
   );
 
+
   return (
     <div className="space-y-8">
       <SharedMortgageInputs />
 
-      {/* Input Panel */}
+      {/* Comparison params */}
       <div className="card bg-base-100 border border-base-200 shadow-sm">
         <div className="card-body space-y-4">
           <h2 className="card-title">Parametry srovnání</h2>
@@ -184,6 +148,26 @@ export default function RentVsBuy() {
                 showInput
                 suffix="%"
               />
+
+              <Slider
+                label="Náklady na vlastnictví (% z ceny ročně)"
+                value={ownershipPercent}
+                min={0}
+                max={5}
+                step={0.05}
+                onChange={setOwnershipPercentOverride}
+                formatValue={(v) => `${formatPercent(v)} → ${formatCurrency(Math.round((propertyPrice * (v / 100)) / 12))}/měs.`}
+                minLabel="0 %"
+                maxLabel="5 %"
+                showInput
+                suffix="%"
+              />
+              <div className="text-xs text-base-content/50 -mt-2">
+                Fond oprav, pojištění, daň, údržba.{' '}
+                <a href="/kalkulacky/celkove-naklady-vlastnictvi" className="link link-primary">
+                  Upřesnit v kalkulačce nákladů →
+                </a>
+              </div>
             </div>
 
             {/* Renting params */}
@@ -191,32 +175,21 @@ export default function RentVsBuy() {
               <h3 className="font-semibold text-sm text-base-content/70 uppercase tracking-wide">Nájem + investice</h3>
 
               <Slider
-                label="Měsíční nájem"
-                value={monthlyRent}
-                min={5_000}
-                max={40_000}
-                step={500}
-                onChange={setMonthlyRent}
-                formatValue={(v) => formatCurrency(v)}
-                minLabel="5 000 Kč"
-                maxLabel="40 000 Kč"
-                showInput
-                suffix="Kč"
-              />
-
-              <Slider
-                label="Roční růst nájmu"
-                value={rentGrowthRate}
-                min={0}
-                max={10}
-                step={0.5}
-                onChange={setRentGrowthRate}
+                label="Výnos z pronájmu (roční)"
+                value={rentalYield}
+                min={1}
+                max={8}
+                step={0.25}
+                onChange={setRentalYield}
                 formatValue={(v) => formatPercent(v)}
-                minLabel="0 %"
-                maxLabel="10 %"
+                minLabel="1 %"
+                maxLabel="8 %"
                 showInput
                 suffix="%"
               />
+              <div className="text-sm text-base-content/60">
+                Měsíční nájem: <strong>{formatCurrency(monthlyRent)}</strong>
+              </div>
 
               <Slider
                 label="Roční výnos investic"
@@ -294,7 +267,7 @@ export default function RentVsBuy() {
         )}
       </div>
 
-      {/* Chart */}
+      {/* Chart: Net worth comparison */}
       <div className="card bg-base-100 border border-base-200 shadow-sm">
         <div className="card-body">
           <h2 className="card-title">Vývoj čistého jmění v čase</h2>
@@ -321,6 +294,14 @@ export default function RentVsBuy() {
                   labelFormatter={(v) => `${v}. rok`}
                 />
                 <Legend />
+                {breakevenYear && (
+                  <ReferenceLine
+                    x={breakevenYear}
+                    stroke="#666"
+                    strokeDasharray="3 3"
+                    label={{ value: 'Bod zvratu', position: 'top', fontSize: 12 }}
+                  />
+                )}
                 <Area
                   type="monotone"
                   dataKey="buyingNetWorth"
@@ -343,14 +324,124 @@ export default function RentVsBuy() {
         </div>
       </div>
 
+      {/* Detail table */}
+      <div className="collapse collapse-arrow bg-base-100 border border-base-200 shadow-sm">
+        <input type="checkbox" />
+        <div className="collapse-title font-semibold">
+          📊 Detailní srovnání po letech
+        </div>
+        <div className="collapse-content overflow-x-auto">
+          <table className="table table-xs table-zebra">
+            <thead>
+              <tr>
+                <th rowSpan={2} className="align-bottom">Rok</th>
+                <th colSpan={4} className="text-center border-b-0 text-success">🏠 Koupě</th>
+                <th colSpan={2} className="text-center border-b-0 text-info">🏢 Nájem</th>
+                <th rowSpan={2} className="text-right align-bottom font-bold">Rozdíl</th>
+              </tr>
+              <tr>
+                <th className="text-right">Hodnota</th>
+                <th className="text-right">Hypotéka</th>
+                <th className="text-right">Měs. náklady</th>
+                <th className="text-right font-bold">Čisté jmění</th>
+                <th className="text-right">Měs. nájem</th>
+                <th className="text-right font-bold">Čisté jmění</th>
+              </tr>
+            </thead>
+            <tbody>
+              {results.map((r) => {
+                const diff = r.buyingNetWorth - r.rentingNetWorth;
+                return (
+                  <tr key={r.year}>
+                    <td>{r.year}</td>
+                    <td className="text-right">{formatCurrencyCompact(r.propertyValue)}</td>
+                    <td className="text-right text-error">{formatCurrencyCompact(r.mortgageBalance)}</td>
+                    <td className="text-right">{formatCurrency(r.buyingMonthlyCost)}</td>
+                    <td className="text-right font-bold text-success">{formatCurrencyCompact(r.buyingNetWorth)}</td>
+                    <td className="text-right">{formatCurrency(r.rentingMonthlyCost)}</td>
+                    <td className="text-right font-bold text-info">{formatCurrencyCompact(r.rentingNetWorth)}</td>
+                    <td className={`text-right font-bold ${diff > 0 ? 'text-success' : 'text-warning'}`}>
+                      {diff > 0 ? '+' : ''}{formatCurrencyCompact(diff)}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Model explanation */}
+      <div className="collapse collapse-arrow bg-base-100 border border-base-200 shadow-sm">
+        <input type="checkbox" />
+        <div className="collapse-title font-semibold">
+          📐 Jak výpočet funguje
+        </div>
+        <div className="collapse-content prose prose-sm max-w-none">
+          <p>
+            Kalkulačka porovnává dvě strategie pro člověka, který má naspořenou
+            určitou částku (vlastní prostředky) a rozhoduje se, jak s ní naložit:
+          </p>
+
+          <h4>Varianta A – Koupě</h4>
+          <ol>
+            <li>Zaplatí <strong>akontaci</strong> a <strong>transakční náklady</strong> (notář, odhad, poplatek bance).</li>
+            <li>Zbytek financuje <strong>hypotékou</strong> s anuitní splátkou.</li>
+            <li>
+              Každý měsíc platí splátku hypotéky + <strong>náklady na vlastnictví</strong>{' '}
+              (fond oprav, pojištění, daň z nemovitosti, údržba) jako procento z aktuální hodnoty nemovitosti.
+              Toto procento si můžete upřesnit v{' '}
+              <a href="/kalkulacky/celkove-naklady-vlastnictvi" className="link link-primary">kalkulačce celkových nákladů</a>.
+            </li>
+            <li>Nemovitost každý rok <strong>zhodnocuje</strong> o zadané procento (růst ceny již zahrnuje vliv údržby a rekonstrukcí).</li>
+            <li>
+              <strong>Daňový odpočet:</strong> zaplacené úroky z hypotéky (max. 150 000 Kč/rok)
+              snižují základ daně. Úspora 15 % z odečtené částky se připočítává k jmění kupujícího.
+            </li>
+            <li><strong>Čisté jmění kupujícího</strong> = hodnota nemovitosti − zbývající hypotéka + naspořený přebytek.</li>
+          </ol>
+
+          <h4>Varianta B – Nájem + investice</h4>
+          <ol>
+            <li>
+              Naspořenou částku (akontaci + transakční náklady) <strong>investuje</strong> na
+              kapitálovém trhu se zadaným ročním výnosem.
+            </li>
+            <li>Každý měsíc platí <strong>nájem</strong>, který roste stejným tempem jako ceny nemovitostí.</li>
+            <li><strong>Čisté jmění nájemce</strong> = hodnota investičního portfolia.</li>
+          </ol>
+
+          <h4>Srovnání – stejný rozpočet</h4>
+          <p>
+            Klíčový princip: obě varianty mají <strong>stejný měsíční rozpočet</strong>.
+            Ten se rovná té dražší z obou variant v daném měsíci. Kdo utratí méně,
+            rozdíl investuje. Díky tomu je srovnání férové — nikdo nemá „peníze navíc."
+          </p>
+          <p>
+            Typicky je koupě zpočátku dražší (splátka + náklady {'>'} nájem), takže nájemce
+            investuje rozdíl. Pokud by nájem časem přerostl náklady na koupě, kupující
+            by naopak investoval svůj přebytek.
+          </p>
+
+          <h4>Co model nezahrnuje</h4>
+          <ul>
+            <li>Energie a služby — platí je obě strany přibližně stejně.</li>
+            <li>Emocionální hodnotu vlastního bydlení.</li>
+            <li>Riziko ztráty zaměstnání, rozvodu, stěhování.</li>
+            <li>Změny úrokové sazby po refixaci (pro to máme <a href="/kalkulacky/stresovy-test" className="link link-primary">stresový test</a>).</li>
+            <li>Daň z příjmu při prodeji investic (u ETF po 3 letech osvobozeno).</li>
+          </ul>
+        </div>
+      </div>
+
       {/* Disclaimer */}
       <div className="text-xs text-base-content/50 border-t border-base-200 pt-4">
         <p>
           <strong>Právní upozornění:</strong> Tato kalkulačka slouží pouze k orientačním výpočtům
-          a nepředstavuje finanční poradenství. Výpočet zohledňuje náklady na údržbu (1 % ročně z
-          hodnoty nemovitosti), transakční náklady (4 % z ceny nemovitosti) a daňový odpočet úroků
-          (max. 150 000 Kč/rok). Skutečné výsledky se mohou výrazně lišit v závislosti na vývoji
-          trhu, konkrétních podmínkách hypotéky a dalších faktorech. Před rozhodnutím se poraďte
+          a nepředstavuje finanční poradenství. Výpočet zohledňuje náklady na vlastnictví
+          ({formatPercent(ownershipPercent)} z ceny ročně) a transakční náklady.
+          Skutečné výsledky se mohou výrazně lišit v závislosti na vývoji trhu,
+          konkrétních podmínkách hypotéky a dalších faktorech. Před rozhodnutím se poraďte
           s nezávislým finančním poradcem.
         </p>
       </div>

@@ -1,17 +1,58 @@
-# Hypoteka - Czech Mortgage Education Platform
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Project Overview
 Non-profit Czech-language website helping people understand mortgages, compare rent vs. buy, navigate subsidies, and make informed housing decisions. LLM-curated content with human review.
 
-## Tech Stack
-- **Framework:** Astro + React islands (interactive calculators)
-- **Styling:** Tailwind CSS
-- **Language:** TypeScript
-- **Hosting:** Vercel or Cloudflare Pages (free tier)
-- **Language:** Czech only
+## Commands
 
-## Content Workflow
-LLM drafts -> LLM cross-review for accuracy -> human review -> publish
+```bash
+npm run dev      # Start dev server
+npm run build    # Production build
+npm run preview  # Preview production build
+npm test         # Run vitest (all tests)
+npx vitest run src/lib/mortgage.test.ts  # Run a single test file
+```
+
+## Tech Stack
+- **Framework:** Astro 5 + React islands (interactive calculators) + MDX (articles)
+- **Styling:** Tailwind CSS v4 + DaisyUI v5 + @tailwindcss/typography
+- **State:** Nanostores with `@nanostores/persistent` (localStorage-backed)
+- **Charts:** Recharts
+- **Testing:** Vitest + Testing Library
+- **Language:** TypeScript, Czech only content
+
+## Architecture
+
+### Page Structure
+- `src/pages/` — Astro pages. Calculators live under `kalkulacky/`, articles under `clanky/`
+- `src/layouts/BaseLayout.astro` — site-wide layout; `ArticleLayout.astro` — MDX article wrapper
+- `src/components/landing/` — homepage sections (Hero, FeatureCards, HowItWorks, etc.)
+
+### Calculator Pattern
+Each calculator follows a consistent architecture:
+1. **Pure calculation logic** in `src/lib/` (e.g., `mortgage.ts`, `rentVsBuy.ts`, `stressTest.ts`) — no React, easily testable
+2. **React component** in `src/components/calculators/` — uses the lib functions, renders UI with Recharts
+3. **Astro page** in `src/pages/kalkulacky/` — wraps the React component with `client:load`
+
+Calculators: mortgage payment, rent-vs-buy, stress test, fixation optimizer, total cost of ownership, real estate vs stocks.
+
+### Shared State
+`src/stores/mortgage.ts` — persistent nanostores for property price, down payment %, rate, and years. These are shared across calculators via `SharedMortgageInputs` component so users don't re-enter values.
+
+### Content (Articles)
+- MDX files in `src/content/articles/` with schema defined in `src/content.config.ts`
+- Required frontmatter: title, description, author, pubDate, category, keywords
+- Dynamic routing via `src/pages/clanky/[...slug].astro`
+
+### UI Components
+- `src/components/ui/` — shared components: `SharedMortgageInputs`, `ResultCard`, `InfoTooltip`, `Slider`
+- `src/components/subsidy/SubsidyNavigator.tsx` — subsidy eligibility wizard
+
+## Content & Tone
+- **Czech only.** Informal "tykání" style (like Airbank). Direct, no banking jargon.
+- **YMYL topic** — all financial claims must cite Czech sources (CNB, CZSO, Swiss Life Hypoindex)
 
 ## Key Market Data (as of March 2026)
 

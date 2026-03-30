@@ -1,10 +1,65 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import SubsidyNavigator from '../../components/subsidy/SubsidyNavigator.tsx';
+
+const breadcrumbs = [
+	{ label: 'Domů', href: '/' },
+	{ label: 'Státní podpora', href: null },
+];
 ---
 
-<BaseLayout title="Státní podpora bydlení 2026 – Průvodce – Hypotéka.cz" description="Zjistěte, na jakou státní podporu máte nárok při pořízení bydlení. Dotazník vás provede různými programy a najde pro vás tu pravou formu podpory.">
-	<h1 class="text-3xl font-bold mb-4">Státní podpora bydlení</h1>
-	<p class="text-gray-600 mb-8">Odpovězte na několik otázek a my vám ukážeme, na jakou státní podporu máte nárok. Projdeme s vámi dostupné programy, od družstevního bydlení přes dostupné byty až po právní poradny.</p>
-	<SubsidyNavigator client:visible />
+<BaseLayout title="Státní podpora bydlení 2026 – Průvodce – Hypotéka.cz" description="Zjisti, na jakou státní podporu máš nárok při pořízení bydlení.">
+	<!-- Breadcrumbs -->
+	<nav aria-label="breadcrumbs" class="text-sm text-on-surface-variant mb-8">
+		<ol class="flex flex-wrap items-center gap-1">
+			{breadcrumbs.map((crumb, i) => (
+				<li class="flex items-center gap-1">
+					{i > 0 && <span aria-hidden="true" class="text-outline-variant">/</span>}
+					{crumb.href ? (
+						<a href={crumb.href} class="hover:text-primary-deep transition-colors no-underline">{crumb.label}</a>
+					) : (
+						<span class="text-on-background font-medium">{crumb.label}</span>
+					)}
+				</li>
+			))}
+		</ol>
+	</nav>
+
+	<!-- Header -->
+	<div class="flex items-start gap-5 mb-8">
+		<div class="w-14 h-14 rounded-xl flex items-center justify-center shrink-0 bg-gradient-primary">
+			<span class="material-symbols-outlined text-3xl text-white">gavel</span>
+		</div>
+		<div>
+			<h1 class="text-3xl font-black tracking-tight text-on-background mb-2">Státní podpora bydlení</h1>
+			<p class="text-on-surface-variant leading-relaxed">
+				Odpověz na pár otázek a&nbsp;ukážeme ti, na jakou státní podporu máš nárok.
+				Projdeme s&nbsp;tebou dostupné programy od družstevního bydlení po právní poradny.
+			</p>
+		</div>
+	</div>
+
+	<!-- Navigator -->
+	<div class="bg-surface-container-lowest rounded-xl ambient-shadow p-6 md:p-8">
+		<SubsidyNavigator client:visible />
+	</div>
+
+	<!-- Info cards -->
+	<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+		<div class="bg-surface-container-low rounded-xl p-6 border border-outline-variant/10">
+			<span class="material-symbols-outlined text-primary-deep text-2xl mb-3">gavel</span>
+			<h3 class="font-bold text-on-background mb-2">Zákon o podpoře v bydlení</h3>
+			<p class="text-sm text-on-surface-variant">115 kontaktních míst po celé ČR s&nbsp;bezplatným právním poradenstvím.</p>
+		</div>
+		<div class="bg-surface-container-low rounded-xl p-6 border border-outline-variant/10">
+			<span class="material-symbols-outlined text-primary-deep text-2xl mb-3">apartment</span>
+			<h3 class="font-bold text-on-background mb-2">Družstevní bydlení</h3>
+			<p class="text-sm text-on-surface-variant">Úroky z&nbsp;úvěrů nově odečitatelné z&nbsp;daní (max 150 000 Kč/rok).</p>
+		</div>
+		<div class="bg-surface-container-low rounded-xl p-6 border border-outline-variant/10">
+			<span class="material-symbols-outlined text-primary-deep text-2xl mb-3">savings</span>
+			<h3 class="font-bold text-on-background mb-2">Program dostupného bydlení</h3>
+			<p class="text-sm text-on-surface-variant">Rozpočet 2,25 mld. Kč – až 80 % pokrytí s&nbsp;úrokem 1–2 %.</p>
+		</div>
+	</div>
 </BaseLayout>

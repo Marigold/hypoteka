@@ -32,6 +32,10 @@ export interface TCOParams {
   transactionCosts: TransactionCosts;
   /** Annual inflation rate as percentage (e.g. 3.0) for lifetime cost calculations */
   inflationRate?: number;
+  /** Reconstruction interval in years (e.g. 15). Set to 0 to disable. */
+  reconstructionIntervalYears?: number;
+  /** Reconstruction cost as percentage of property value (e.g. 10) */
+  reconstructionCostPercent?: number;
 }
 
 export interface TransactionCosts {
@@ -104,6 +108,8 @@ export interface LifetimeCosts {
   totalMortgagePayments: number;
   /** Total additional ownership costs (non-mortgage) in CZK */
   totalOwnershipCosts: number;
+  /** Total reconstruction costs over mortgage term in CZK */
+  totalReconstructionCosts: number;
 }
 
 export interface RegionalDefaults {
@@ -158,6 +164,8 @@ export function calculateTotalCostOfOwnership(params: TCOParams): TCOResult {
     energyCostsMonthly,
     transactionCosts,
     inflationRate = 0,
+    reconstructionIntervalYears = 0,
+    reconstructionCostPercent = 0,
   } = params;
 
   // Validate inputs
@@ -189,6 +197,7 @@ export function calculateTotalCostOfOwnership(params: TCOParams): TCOResult {
         totalWithInflation: 0,
         totalMortgagePayments: 0,
         totalOwnershipCosts: 0,
+        totalReconstructionCosts: 0,
       },
     };
   }
@@ -232,10 +241,18 @@ export function calculateTotalCostOfOwnership(params: TCOParams): TCOResult {
   const totalMortgagePayments = monthlyMortgage * months;
   const monthlyOwnershipCosts = mandatoryTotal + variableTotal;
 
+  // Calculate reconstruction costs over the mortgage term
+  let totalReconstructionCosts = 0;
+  if (reconstructionIntervalYears > 0 && reconstructionCostPercent > 0) {
+    for (let year = reconstructionIntervalYears; year <= mortgageYears; year += reconstructionIntervalYears) {
+      totalReconstructionCosts += propertyPrice * (reconstructionCostPercent / 100);
+    }
+  }
+
   // Calculate lifetime costs without inflation
   let totalOwnershipCostsWithoutInflation = monthlyOwnershipCosts * months;
   const totalWithoutInflation =
-    totalMortgagePayments + totalOwnershipCostsWithoutInflation + transactionCostsTotal;
+    totalMortgagePayments + totalOwnershipCostsWithoutInflation + transactionCostsTotal + totalReconstructionCosts;
 
   // Calculate lifetime costs with inflation
   let totalOwnershipCostsWithInflation = 0;
@@ -249,8 +266,20 @@ export function calculateTotalCostOfOwnership(params: TCOParams): TCOResult {
     totalOwnershipCostsWithInflation = totalOwnershipCostsWithoutInflation;
   }
 
+  // Add inflation-adjusted reconstruction costs
+  let totalReconstructionCostsInflated = 0;
+  if (reconstructionIntervalYears > 0 && reconstructionCostPercent > 0 && inflationRate > 0) {
+    const annualInflation = inflationRate / 100;
+    for (let year = reconstructionIntervalYears; year <= mortgageYears; year += reconstructionIntervalYears) {
+      const inflationFactor = Math.pow(1 + annualInflation, year);
+      totalReconstructionCostsInflated += propertyPrice * (reconstructionCostPercent / 100) * inflationFactor;
+    }
+  } else {
+    totalReconstructionCostsInflated = totalReconstructionCosts;
+  }
+
   const totalWithInflation =
-    totalMortgagePayments + totalOwnershipCostsWithInflation + transactionCostsTotal;
+    totalMortgagePayments + totalOwnershipCostsWithInflation + transactionCostsTotal + totalReconstructionCostsInflated;
 
   // Calculate percentages for breakdown
   const mandatoryPercentage = totalMonthly > 0 ? (mandatoryTotal / totalMonthly) * 100 : 0;
@@ -283,6 +312,7 @@ export function calculateTotalCostOfOwnership(params: TCOParams): TCOResult {
       totalWithInflation: Math.round(totalWithInflation),
       totalMortgagePayments: Math.round(totalMortgagePayments),
       totalOwnershipCosts: Math.round(totalOwnershipCostsWithoutInflation),
+      totalReconstructionCosts: Math.round(totalReconstructionCosts),
     },
   };
 }
