@@ -1,15 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useStore } from '@nanostores/react';
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  Legend,
-  ReferenceLine,
-} from 'recharts';
+
 import Slider from '../ui/Slider';
 import ResultCard from '../ui/ResultCard';
 import {
@@ -28,10 +19,7 @@ import {
   $mortgageRate,
   $mortgageYears
 } from '../../stores/mortgage';
-import {
-  calculateAffordableSize,
-  getCitiesByPrice,
-} from '../../data/regionalPrices';
+
 
 interface Params {
   monthlyIncome: number;
@@ -175,35 +163,6 @@ export default function AffordabilityCalculator() {
   );
 
   const constraintStyle = CONSTRAINT_STYLES[results.bindingConstraint];
-
-  // Chart data: rate increase scenarios for sensitivity analysis
-  const chartData = useMemo(() => {
-    const points: { rate: string; maxLoan: number }[] = [];
-    for (let r = rate; r <= rate + 5; r += 0.5) {
-      const rRounded = Math.round(r * 10) / 10;
-      const { maxLoan } = calculateAffordability({
-        monthlyIncome,
-        partnerIncome,
-        existingDebts,
-        dependents,
-        lifestyleBuffer,
-        age,
-        buyerType,
-        annualRate: rRounded,
-        years,
-      });
-      points.push({
-        rate: `${formatNumber(rRounded, { decimals: 1 })} %`,
-        maxLoan: Math.round(maxLoan),
-      });
-    }
-    return points;
-  }, [monthlyIncome, partnerIncome, existingDebts, dependents, lifestyleBuffer, age, buyerType, rate, years]);
-
-  const tooltipFormatter = useCallback(
-    (value: number | undefined) => formatCurrency(Math.round(value ?? 0)),
-    [],
-  );
 
   const handleUseInCalculators = useCallback(() => {
     $propertyPrice.set(Math.round(results.maxPropertyPrice));
@@ -449,56 +408,7 @@ export default function AffordabilityCalculator() {
         </div>
       </div>
 
-      {/* Sensitivity Analysis Chart */}
-      <div className="card bg-base-100 border border-base-200 shadow-sm">
-        <div className="card-body">
-          <h3 className="font-semibold">Citlivostní analýza: dopad růstu úrokové sazby</h3>
-          <p className="text-sm text-base-content/70 mb-4">
-            Jak se změní maximální výše úvěru při růstu úrokové sazby
-          </p>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={chartData}>
-                <XAxis
-                  dataKey="rate"
-                  tick={{ fontSize: 12 }}
-                  label={{ value: 'Úroková sazba', position: 'insideBottom', offset: -5, fontSize: 12 }}
-                />
-                <YAxis
-                  tick={{ fontSize: 12 }}
-                  tickFormatter={(value) => formatCurrencyCompact(value)}
-                  label={{ value: 'Maximální úvěr', angle: -90, position: 'insideLeft', fontSize: 12 }}
-                />
-                <Tooltip
-                  formatter={tooltipFormatter}
-                  labelStyle={{ color: 'hsl(var(--bc))' }}
-                  contentStyle={{
-                    backgroundColor: 'hsl(var(--b1))',
-                    border: '1px solid hsl(var(--bc) / 0.2)',
-                    borderRadius: '0.5rem',
-                  }}
-                />
-                <Legend />
-                <ReferenceLine
-                  x={`${formatNumber(rate, { decimals: 1 })} %`}
-                  stroke="hsl(var(--p))"
-                  strokeDasharray="3 3"
-                  label={{ value: 'Aktuální sazba', position: 'top', fontSize: 11 }}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="maxLoan"
-                  stroke="hsl(var(--p))"
-                  strokeWidth={2}
-                  name="Maximální úvěr"
-                  dot={{ fill: 'hsl(var(--p))', r: 3 }}
-                  activeDot={{ r: 5 }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      </div>
+
 
       {/* Income Breakdown */}
       <div className="card bg-base-100 border border-base-200 shadow-sm">
@@ -510,11 +420,15 @@ export default function AffordabilityCalculator() {
               <span className="font-semibold">{formatCurrency(results.totalMonthlyIncome)}</span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-base-content/70">Stávající dluhy:</span>
+              <span className="text-base-content/70">Max. na splátky (DSTI 45 %):</span>
+              <span className="font-semibold">{formatCurrency(Math.round(results.totalMonthlyIncome * 0.45))}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-base-content/70">− Stávající dluhy:</span>
               <span className="font-semibold">{formatCurrency(existingDebts)}</span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-base-content/70">Rezerva na živobytí:</span>
+              <span className="text-base-content/70">− Rezerva na živobytí:</span>
               <span className="font-semibold">{formatCurrency(lifestyleBuffer)}</span>
             </div>
             <div className="divider my-1"></div>
@@ -528,31 +442,7 @@ export default function AffordabilityCalculator() {
         </div>
       </div>
 
-      {/* Regional Price Mapping */}
-      <div className="card bg-base-100 border border-base-200 shadow-sm">
-        <div className="card-body">
-          <h3 className="font-semibold">Co si můžeš dovolit podle města</h3>
-          <p className="text-sm text-base-content/70 mb-4">
-            Velikost bytu, který si můžeš koupit za {formatCurrency(Math.round(results.maxPropertyPrice))} v různých městech:
-          </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {getCitiesByPrice().map(([cityKey, cityData]) => {
-              const affordableSize = calculateAffordableSize(results.maxPropertyPrice, cityKey);
-              return (
-                <div key={cityKey} className="bg-base-200/50 rounded-lg p-3">
-                  <div className="text-sm font-medium">{cityData.city}</div>
-                  <div className="text-lg font-bold text-primary mt-1">
-                    {affordableSize} m²
-                  </div>
-                  <div className="text-xs text-base-content/50 mt-1">
-                    {formatCurrencyCompact(cityData.pricePerSqm)}/m²
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
+
     </div>
   );
 }
