@@ -227,72 +227,174 @@ export default function RegulationGuide() {
   };
 
   if (showResults && regulationResult) {
+    // Get LTV check for display
+    const ltvCheck = regulationResult.checks.find(
+      (c) => c.id === 'investment-ltv' || c.id === 'primary-ltv',
+    );
+    const dstiCheck = regulationResult.checks.find((c) => c.id === 'dsti-ratio');
+    const dtiCheck = regulationResult.checks.find((c) => c.id === 'dti-ratio');
+
     return (
       <div className="space-y-6">
-        {/* Overall Status */}
-        <ResultCard
-          title="Výsledek kontroly"
-          value={regulationResult.summary}
-          variant={
+        {/* Header with Overall Status */}
+        <div className="text-center space-y-2">
+          <h2 className="text-3xl font-bold">Výsledek kontroly</h2>
+          <p className="text-lg text-base-content/70">
+            Zkontrolovali jsme tvoji hypotéku proti pravidlům ČNB platným od dubna 2026.
+          </p>
+        </div>
+
+        {/* Key Metrics Summary */}
+        <div className="stats stats-vertical lg:stats-horizontal shadow w-full bg-base-100">
+          {ltvCheck && (
+            <ResultCard
+              label="LTV (Poměr úvěru k hodnotě)"
+              value={`${ltvCheck.currentValue}%`}
+              description={`Limit: ${ltvCheck.maxAllowed}%`}
+              color={
+                ltvCheck.status === 'compliant'
+                  ? 'success'
+                  : ltvCheck.status === 'warning'
+                    ? 'warning'
+                    : 'error'
+              }
+            />
+          )}
+          {dtiCheck && (
+            <ResultCard
+              label="DTI (Dluh k příjmu)"
+              value={`${dtiCheck.currentValue}×`}
+              description={`Limit: ${dtiCheck.maxAllowed}× roční příjem`}
+              color={
+                dtiCheck.status === 'compliant'
+                  ? 'success'
+                  : dtiCheck.status === 'warning'
+                    ? 'warning'
+                    : 'error'
+              }
+            />
+          )}
+          {dstiCheck && (
+            <ResultCard
+              label="DSTI (Splátka k příjmu)"
+              value={`${dstiCheck.currentValue}%`}
+              description={`Limit: ${dstiCheck.maxAllowed}%`}
+              color={
+                dstiCheck.status === 'compliant'
+                  ? 'success'
+                  : dstiCheck.status === 'warning'
+                    ? 'warning'
+                    : 'error'
+              }
+            />
+          )}
+        </div>
+
+        {/* Overall Status Alert */}
+        <div
+          className={`alert ${
             regulationResult.overallStatus === 'compliant'
-              ? 'success'
+              ? 'alert-success'
+              : regulationResult.overallStatus === 'warning'
+                ? 'alert-warning'
+                : 'alert-error'
+          }`}
+        >
+          <span className="material-icons">
+            {regulationResult.overallStatus === 'compliant'
+              ? 'check_circle'
               : regulationResult.overallStatus === 'warning'
                 ? 'warning'
-                : 'error'
-          }
-        />
+                : 'cancel'}
+          </span>
+          <div>
+            <h4 className="font-bold">
+              {regulationResult.overallStatus === 'compliant'
+                ? 'Skvělé! Splňuješ všechny limity'
+                : regulationResult.overallStatus === 'warning'
+                  ? 'Pozor! Blížíš se k limitům'
+                  : 'Bohužel, překračuješ limity'}
+            </h4>
+            <p className="text-sm">{regulationResult.summary}</p>
+          </div>
+        </div>
 
-        {/* Individual Checks */}
+        {/* Individual Checks - Detailed View */}
         <div className="space-y-4">
-          <h3 className="text-xl font-semibold">Kontrola regulačních limitů</h3>
+          <h3 className="text-2xl font-bold flex items-center gap-2">
+            <span className="material-icons">rule</span>
+            Detailní kontrola limitů
+          </h3>
+          <p className="text-base-content/70">
+            Každá hypotéka musí splňovat několik regulačních limitů. Tady vidíš, jak na tom jsi ty.
+          </p>
           {regulationResult.checks.map((check) => (
             <div
               key={check.id}
-              className={`card ${
+              className={`card border-2 ${
                 check.status === 'compliant'
-                  ? 'bg-success/10'
+                  ? 'bg-success/5 border-success/20'
                   : check.status === 'warning'
-                    ? 'bg-warning/10'
-                    : 'bg-error/10'
+                    ? 'bg-warning/5 border-warning/20'
+                    : 'bg-error/5 border-error/20'
               }`}
             >
               <div className="card-body">
-                <h4 className="card-title text-lg flex items-center gap-2">
-                  {check.status === 'compliant' && (
-                    <span className="material-icons text-success">check_circle</span>
-                  )}
-                  {check.status === 'warning' && (
-                    <span className="material-icons text-warning">warning</span>
-                  )}
-                  {check.status === 'non-compliant' && (
-                    <span className="material-icons text-error">cancel</span>
-                  )}
-                  {check.name}
-                </h4>
-                <p className="text-sm text-base-content/70">{check.description}</p>
-                <div className="flex items-center gap-4 mt-2">
-                  <div>
-                    <span className="font-semibold">Tvoje hodnota: </span>
-                    <span className={
-                      check.status === 'compliant'
-                        ? 'text-success'
-                        : check.status === 'warning'
-                          ? 'text-warning'
-                          : 'text-error'
-                    }>
-                      {check.currentValue}{check.unit}
-                    </span>
+                <div className="flex items-start gap-3">
+                  <div className="shrink-0">
+                    {check.status === 'compliant' && (
+                      <div className="w-10 h-10 rounded-full bg-success/20 flex items-center justify-center">
+                        <span className="material-icons text-success">check_circle</span>
+                      </div>
+                    )}
+                    {check.status === 'warning' && (
+                      <div className="w-10 h-10 rounded-full bg-warning/20 flex items-center justify-center">
+                        <span className="material-icons text-warning">warning</span>
+                      </div>
+                    )}
+                    {check.status === 'non-compliant' && (
+                      <div className="w-10 h-10 rounded-full bg-error/20 flex items-center justify-center">
+                        <span className="material-icons text-error">cancel</span>
+                      </div>
+                    )}
                   </div>
-                  <div>
-                    <span className="font-semibold">Limit: </span>
-                    <span>{check.maxAllowed}{check.unit}</span>
+                  <div className="flex-1">
+                    <h4 className="text-lg font-bold mb-1">{check.name}</h4>
+                    <p className="text-sm text-base-content/70 mb-3">{check.description}</p>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
+                      <div className="p-3 rounded-lg bg-base-100">
+                        <div className="text-xs text-base-content/60 mb-1">Tvoje hodnota</div>
+                        <div
+                          className={`text-2xl font-bold ${
+                            check.status === 'compliant'
+                              ? 'text-success'
+                              : check.status === 'warning'
+                                ? 'text-warning'
+                                : 'text-error'
+                          }`}
+                        >
+                          {check.currentValue}
+                          {check.unit}
+                        </div>
+                      </div>
+                      <div className="p-3 rounded-lg bg-base-100">
+                        <div className="text-xs text-base-content/60 mb-1">Maximální limit</div>
+                        <div className="text-2xl font-bold">
+                          {check.maxAllowed}
+                          {check.unit}
+                        </div>
+                      </div>
+                    </div>
+
+                    <p className="text-base-content/90 mb-2">{check.message}</p>
+
+                    <div className="text-xs text-base-content/50 flex items-center gap-1">
+                      <span className="material-icons text-xs">description</span>
+                      <span>{check.officialReference}</span>
+                    </div>
                   </div>
                 </div>
-                <p className="mt-2">{check.message}</p>
-                <p className="text-xs text-base-content/60 mt-2">
-                  <span className="material-icons text-xs align-middle">description</span>{' '}
-                  {check.officialReference}
-                </p>
               </div>
             </div>
           ))}
@@ -300,29 +402,33 @@ export default function RegulationGuide() {
 
         {/* Before/After Comparison */}
         {regulationResult.beforeAfterComparison.length > 0 && (
-          <div className="card bg-base-200">
+          <div className="card bg-base-200 shadow-lg">
             <div className="card-body">
-              <h3 className="card-title text-xl flex items-center gap-2">
-                <span className="material-icons">history</span>
+              <h3 className="card-title text-2xl flex items-center gap-2 mb-4">
+                <span className="material-icons text-primary">history</span>
                 Co se změnilo v dubnu 2026
               </h3>
+              <p className="text-base-content/70 mb-4">
+                ČNB přitvrdila pravidla pro hypotéky. Tady vidíš, jak se změnily limity
+                oproti předchozímu stavu.
+              </p>
               <div className="overflow-x-auto">
                 <table className="table table-zebra">
                   <thead>
                     <tr>
-                      <th>Kategorie</th>
-                      <th>Před dubnem 2026</th>
-                      <th>Po dubnu 2026</th>
-                      <th>Dopad</th>
+                      <th className="bg-base-300">Kategorie</th>
+                      <th className="bg-base-300">Před dubnem 2026</th>
+                      <th className="bg-base-300">Po dubnu 2026</th>
+                      <th className="bg-base-300">Dopad na tebe</th>
                     </tr>
                   </thead>
                   <tbody>
                     {regulationResult.beforeAfterComparison.map((comparison, idx) => (
                       <tr key={idx}>
                         <td className="font-semibold">{comparison.category}</td>
-                        <td>{comparison.before}</td>
-                        <td className="font-semibold">{comparison.after}</td>
-                        <td>{comparison.impact}</td>
+                        <td className="text-base-content/60">{comparison.before}</td>
+                        <td className="font-semibold text-primary">{comparison.after}</td>
+                        <td className="text-sm">{comparison.impact}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -334,15 +440,25 @@ export default function RegulationGuide() {
 
         {/* Recommendations */}
         {regulationResult.recommendations.length > 0 && (
-          <div className="card bg-info/10">
+          <div className="card bg-info/10 border-2 border-info/20">
             <div className="card-body">
-              <h3 className="card-title text-xl flex items-center gap-2">
-                <span className="material-icons">lightbulb</span>
-                Doporučení
+              <h3 className="card-title text-2xl flex items-center gap-2 mb-4">
+                <span className="material-icons text-info">lightbulb</span>
+                Co s tím?
               </h3>
-              <ul className="list-disc list-inside space-y-2">
+              <p className="text-base-content/70 mb-4">
+                {regulationResult.overallStatus !== 'compliant'
+                  ? 'Tady jsou naše tipy, jak dostat hypotéku do souladu s pravidly ČNB:'
+                  : 'Máš skvělé parametry! Tady jsou ještě pár tipů:'}
+              </p>
+              <ul className="space-y-3">
                 {regulationResult.recommendations.map((rec, idx) => (
-                  <li key={idx}>{rec}</li>
+                  <li key={idx} className="flex items-start gap-3">
+                    <span className="material-icons text-info shrink-0 mt-0.5">
+                      arrow_right
+                    </span>
+                    <span>{rec}</span>
+                  </li>
                 ))}
               </ul>
             </div>
@@ -350,31 +466,45 @@ export default function RegulationGuide() {
         )}
 
         {/* CNB Reference */}
-        <div className="alert alert-info">
-          <span className="material-icons">info</span>
-          <div>
-            <h4 className="font-bold">Oficiální informace</h4>
-            <p className="text-sm">
+        <div className="card bg-neutral text-neutral-content">
+          <div className="card-body">
+            <h4 className="card-title text-xl flex items-center gap-2">
+              <span className="material-icons">info</span>
+              Oficiální zdroj
+            </h4>
+            <p>
               Všechna pravidla vycházejí z{' '}
               <a
                 href="https://www.cnb.cz/cs/financni-stabilita/makroobezretnostni-politika/nastroje-makroobezretnostni-politiky/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="link"
+                className="link link-primary font-semibold"
               >
-                Doporučení ČNB k řízení rizik
+                Doporučení ČNB k řízení rizik spojených s poskytováním retailových úvěrů
+                zajištěných rezidenční nemovitostí
               </a>
-              {' '}platných od dubna 2026.
+              , která vstoupila v platnost v dubnu 2026.
+            </p>
+            <p className="text-sm opacity-80 mt-2">
+              Tento průvodce slouží jako orientační nástroj. Finální rozhodnutí o poskytnutí
+              hypotéky vždy závisí na konkrétní bance a tvé celkové finanční situaci.
             </p>
           </div>
         </div>
 
         {/* Action Buttons */}
-        <div className="flex gap-4">
-          <button onClick={handleRestart} className="btn btn-primary">
+        <div className="flex flex-col sm:flex-row gap-4">
+          <button onClick={handleRestart} className="btn btn-primary flex-1">
             <span className="material-icons">refresh</span>
             Zkusit jiný scénář
           </button>
+          <a
+            href="/kalkulacky/hypoteka"
+            className="btn btn-outline flex-1"
+          >
+            <span className="material-icons">calculate</span>
+            Spočítat splátku
+          </a>
         </div>
       </div>
     );
