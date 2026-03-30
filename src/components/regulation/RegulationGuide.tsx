@@ -340,7 +340,7 @@ export default function RegulationGuide() {
                 : 'alert-error'
           }`}
         >
-          <span className="material-icons">
+          <span className="material-symbols-outlined">
             {regulationResult.overallStatus === 'compliant'
               ? 'check_circle'
               : regulationResult.overallStatus === 'warning'
@@ -362,7 +362,7 @@ export default function RegulationGuide() {
         {/* Individual Checks - Detailed View */}
         <div className="space-y-4">
           <h3 className="text-2xl font-bold flex items-center gap-2">
-            <span className="material-icons">rule</span>
+            <span className="material-symbols-outlined">rule</span>
             Detailní kontrola limitů
           </h3>
           <p className="text-base-content/70">
@@ -384,17 +384,17 @@ export default function RegulationGuide() {
                   <div className="shrink-0">
                     {check.status === 'compliant' && (
                       <div className="w-10 h-10 rounded-full bg-success/20 flex items-center justify-center">
-                        <span className="material-icons text-success">check_circle</span>
+                        <span className="material-symbols-outlined text-success">check_circle</span>
                       </div>
                     )}
                     {check.status === 'warning' && (
                       <div className="w-10 h-10 rounded-full bg-warning/20 flex items-center justify-center">
-                        <span className="material-icons text-warning">warning</span>
+                        <span className="material-symbols-outlined text-warning">warning</span>
                       </div>
                     )}
                     {check.status === 'non-compliant' && (
                       <div className="w-10 h-10 rounded-full bg-error/20 flex items-center justify-center">
-                        <span className="material-icons text-error">cancel</span>
+                        <span className="material-symbols-outlined text-error">cancel</span>
                       </div>
                     )}
                   </div>
@@ -430,7 +430,7 @@ export default function RegulationGuide() {
                     <p className="text-base-content/90 mb-2">{check.message}</p>
 
                     <div className="text-xs text-base-content/50 flex items-center gap-1">
-                      <span className="material-icons text-xs">description</span>
+                      <span className="material-symbols-outlined text-xs">description</span>
                       <span>{check.officialReference}</span>
                     </div>
                   </div>
@@ -445,7 +445,7 @@ export default function RegulationGuide() {
           <div className="card bg-base-200 shadow-lg">
             <div className="card-body">
               <h3 className="card-title text-2xl flex items-center gap-2 mb-4">
-                <span className="material-icons text-primary">history</span>
+                <span className="material-symbols-outlined text-primary">history</span>
                 Co se změnilo v dubnu 2026
               </h3>
               <p className="text-base-content/70 mb-4">
@@ -456,7 +456,7 @@ export default function RegulationGuide() {
               {/* Timeline Visualization */}
               <div className="mb-6">
                 <h4 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                  <span className="material-icons text-sm">timeline</span>
+                  <span className="material-symbols-outlined text-sm">timeline</span>
                   Časová osa regulatorních změn
                 </h4>
                 <div className="bg-base-100 rounded-lg p-4">
@@ -535,7 +535,7 @@ export default function RegulationGuide() {
                     </LineChart>
                   </ResponsiveContainer>
                   <div className="mt-4 text-xs text-base-content/60 flex items-center gap-1">
-                    <span className="material-icons text-xs">info</span>
+                    <span className="material-symbols-outlined text-xs">info</span>
                     <span>
                       Graf zobrazuje vývoj limitů LTV a DSTI{' '}
                       {propertyType === 'investment' ? 'pro investiční nemovitosti' : 'pro primární bydlení'}.
@@ -576,7 +576,7 @@ export default function RegulationGuide() {
           <div className="card bg-info/10 border-2 border-info/20">
             <div className="card-body">
               <h3 className="card-title text-2xl flex items-center gap-2 mb-4">
-                <span className="material-icons text-info">lightbulb</span>
+                <span className="material-symbols-outlined text-info">lightbulb</span>
                 Co s tím?
               </h3>
               <p className="text-base-content/70 mb-4">
@@ -587,7 +587,7 @@ export default function RegulationGuide() {
               <ul className="space-y-3">
                 {regulationResult.recommendations.map((rec, idx) => (
                   <li key={idx} className="flex items-start gap-3">
-                    <span className="material-icons text-info shrink-0 mt-0.5">
+                    <span className="material-symbols-outlined text-info shrink-0 mt-0.5">
                       arrow_right
                     </span>
                     <span>{rec}</span>
@@ -602,7 +602,7 @@ export default function RegulationGuide() {
         <div className="card bg-neutral text-neutral-content">
           <div className="card-body">
             <h4 className="card-title text-xl flex items-center gap-2">
-              <span className="material-icons">info</span>
+              <span className="material-symbols-outlined">info</span>
               Oficiální zdroj
             </h4>
             <p>
@@ -628,14 +628,14 @@ export default function RegulationGuide() {
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-4">
           <button onClick={handleRestart} className="btn btn-primary flex-1">
-            <span className="material-icons">refresh</span>
+            <span className="material-symbols-outlined">refresh</span>
             Zkusit jiný scénář
           </button>
           <a
             href="/kalkulacky/hypoteka"
             className="btn btn-outline flex-1"
           >
-            <span className="material-icons">calculate</span>
+            <span className="material-symbols-outlined">calculate</span>
             Spočítat splátku
           </a>
         </div>
@@ -662,7 +662,7 @@ export default function RegulationGuide() {
               }`}
             >
               {step < currentStep ? (
-                <span className="material-icons">check</span>
+                <span className="material-symbols-outlined">check</span>
               ) : (
                 step
               )}
@@ -683,7 +683,7 @@ export default function RegulationGuide() {
         <div className="card bg-base-100 shadow-xl">
           <div className="card-body">
             <h2 className="card-title text-2xl flex items-center gap-2">
-              <span className="material-icons">person</span>
+              <span className="material-symbols-outlined">person</span>
               Základní informace
             </h2>
             <p className="text-base-content/70">
@@ -705,7 +705,7 @@ export default function RegulationGuide() {
               {age < 36 && (
                 <label className="label">
                   <span className="label-text-alt text-success flex items-center gap-1">
-                    <span className="material-icons text-xs">info</span>
+                    <span className="material-symbols-outlined text-xs">info</span>
                     Skvělá zpráva! Mladí do 36 let mohou získat až 90% LTV na primární bydlení.
                   </span>
                 </label>
@@ -741,7 +741,7 @@ export default function RegulationGuide() {
               {propertyType === 'investment' && (
                 <label className="label">
                   <span className="label-text-alt text-warning flex items-center gap-1">
-                    <span className="material-icons text-xs">warning</span>
+                    <span className="material-symbols-outlined text-xs">warning</span>
                     Pro investiční nemovitosti platí přísnější pravidla (max 70% LTV).
                   </span>
                 </label>
@@ -786,7 +786,7 @@ export default function RegulationGuide() {
         <div className="card bg-base-100 shadow-xl">
           <div className="card-body">
             <h2 className="card-title text-2xl flex items-center gap-2">
-              <span className="material-icons">home</span>
+              <span className="material-symbols-outlined">home</span>
               Parametry hypotéky
             </h2>
             <p className="text-base-content/70">
@@ -860,7 +860,7 @@ export default function RegulationGuide() {
         <div className="card bg-base-100 shadow-xl">
           <div className="card-body">
             <h2 className="card-title text-2xl flex items-center gap-2">
-              <span className="material-icons">account_balance_wallet</span>
+              <span className="material-symbols-outlined">account_balance_wallet</span>
               Příjem a závazky
             </h2>
             <p className="text-base-content/70">
@@ -911,7 +911,7 @@ export default function RegulationGuide() {
               </label>
               <label className="label">
                 <span className="label-text-alt text-info flex items-center gap-1">
-                  <span className="material-icons text-xs">info</span>
+                  <span className="material-symbols-outlined text-xs">info</span>
                   Zahrň všechny půjčky, leasingy, jiné hypotéky a kreditní karty.
                 </span>
               </label>
@@ -927,17 +927,17 @@ export default function RegulationGuide() {
           disabled={!canGoBack}
           className="btn btn-outline"
         >
-          <span className="material-icons">arrow_back</span>
+          <span className="material-symbols-outlined">arrow_back</span>
           Zpět
         </button>
         {canGoNext ? (
           <button onClick={handleNext} className="btn btn-primary">
             Další
-            <span className="material-icons">arrow_forward</span>
+            <span className="material-symbols-outlined">arrow_forward</span>
           </button>
         ) : (
           <button onClick={handleShowResults} className="btn btn-primary">
-            <span className="material-icons">check</span>
+            <span className="material-symbols-outlined">check</span>
             Zobrazit výsledek
           </button>
         )}
