@@ -1,0 +1,14 @@
+---
+import CalculatorLayout from '../../layouts/CalculatorLayout.astro';
+import RegulationGuide from '../../components/regulation/RegulationGuide.tsx';
+---
+
+<CalculatorLayout
+	title="Regulace hypotéky 2026"
+	description="Zjisti, jestli splníš podmínky pro získání hypotéky podle aktuálních pravidel ČNB platných od dubna 2026."
+	icon="policy"
+	iconBg="bg-primary-container/20"
+	iconColor="text-primary"
+>
+	<RegulationGuide client:visible />
+</CalculatorLayout>
