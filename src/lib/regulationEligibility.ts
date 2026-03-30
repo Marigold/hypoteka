@@ -62,6 +62,20 @@ export interface RegulationCheck {
 }
 
 /**
+ * Before/after comparison of regulatory rules.
+ */
+export interface RegulatoryComparison {
+  /** Rule category (e.g., "LTV limit", "DTI limit") */
+  category: string;
+  /** Value before April 2026 */
+  before: string;
+  /** Value after April 2026 */
+  after: string;
+  /** Impact description in Czech */
+  impact: string;
+}
+
+/**
  * Overall regulation compliance result.
  */
 export interface RegulationResult {
@@ -75,6 +89,8 @@ export interface RegulationResult {
   summary: string;
   /** Recommendations to improve compliance */
   recommendations: string[];
+  /** Before/after comparison of how 2026 rules changed */
+  beforeAfterComparison: RegulatoryComparison[];
 }
 
 /**
@@ -86,11 +102,13 @@ function calculateLTV(loanAmount: number, propertyValue: number): number {
 }
 
 /**
- * Calculate debt-to-income ratio as a percentage.
+ * Calculate debt-to-income ratio as a multiple of annual income.
+ * Returns the ratio of total annual debt to annual income.
  */
 function calculateDTI(totalMonthlyDebt: number, monthlyIncome: number): number {
   if (monthlyIncome === 0) return 0;
-  return (totalMonthlyDebt / monthlyIncome) * 100;
+  // Annual debt / Annual income = (monthlyDebt * 12) / (monthlyIncome * 12) = monthlyDebt / monthlyIncome
+  return totalMonthlyDebt / monthlyIncome;
 }
 
 /**
@@ -278,11 +296,69 @@ export function evaluateRegulationCompliance(
     recommendations.push("Vaše hypotéka splňuje všechny požadavky. Můžete pokračovat v žádosti.");
   }
 
+  // Generate before/after comparison of 2026 regulatory changes
+  const beforeAfterComparison: RegulatoryComparison[] = [];
+
+  // LTV changes for investment properties
+  if (profile.propertyType === "investment") {
+    beforeAfterComparison.push({
+      category: "LTV limit pro investiční nemovitosti",
+      before: "80 %",
+      after: "70 %",
+      impact:
+        "Musíte mít vyšší vlastní kapitál (akontaci). Místo 20 % teď potřebujete minimálně 30 % hodnoty nemovitosti.",
+    });
+  }
+
+  // LTV for primary residence (under-36 exception)
+  if (profile.propertyType === "primary-residence") {
+    if (profile.age < 36) {
+      beforeAfterComparison.push({
+        category: "LTV limit pro mladé do 36 let",
+        before: "90 %",
+        after: "90 %",
+        impact:
+          "Výjimka pro mladé do 36 let zůstává stejná. Můžete stále financovat až 90 % hodnoty nemovitosti.",
+      });
+    } else {
+      beforeAfterComparison.push({
+        category: "LTV limit pro primární bydlení",
+        before: "80 %",
+        after: "80 %",
+        impact: "Standardní LTV limit pro primární bydlení zůstává na 80 %.",
+      });
+    }
+  }
+
+  // DTI changes for investment properties
+  if (profile.propertyType === "investment") {
+    beforeAfterComparison.push({
+      category: "DTI limit (poměr dluhu k příjmu)",
+      before: "9× roční příjem",
+      after: "8× roční příjem",
+      impact:
+        "Přísnější požadavky na příjem pro investiční nemovitosti. Potřebujete vyšší příjem nebo nižší celkový dluh.",
+    });
+  }
+
+  // DSTI changes
+  const dstiLimit = profile.propertyType === "investment" ? 40 : 45;
+  beforeAfterComparison.push({
+    category: "DSTI limit (poměr splátky k příjmu)",
+    before: profile.propertyType === "investment" ? "45 %" : "45 %",
+    after: `${dstiLimit} %`,
+    impact:
+      profile.propertyType === "investment"
+        ? "Přísnější limit pro investiční nemovitosti. Splátka nesmí překročit 40 % vašeho měsíčního příjmu."
+        : "DSTI limit zůstává na 45 % pro primární bydlení.",
+  });
+
   return {
     checks,
     overallStatus,
     isLikelyApproved,
     summary,
     recommendations: Array.from(new Set(recommendations)), // Remove duplicates
+    beforeAfterComparison,
   };
 }
