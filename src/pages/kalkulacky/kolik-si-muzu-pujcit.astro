@@ -1,0 +1,14 @@
+---
+import CalculatorLayout from '../../layouts/CalculatorLayout.astro';
+import AffordabilityCalculator from '../../components/calculators/AffordabilityCalculator.tsx';
+---
+
+<CalculatorLayout
+	title="Kolik si můžu půjčit"
+	description="Zjisti, jak velkou hypotéku ti banka schválí podle tvého příjmu, věku a závazků. Kalkulačka zohledňuje všechny limity bank a CNB."
+	icon="calculator"
+	iconBg="bg-primary-container/20"
+	iconColor="text-primary"
+>
+	<AffordabilityCalculator client:visible />
+</CalculatorLayout>
