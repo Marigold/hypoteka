@@ -304,3 +304,98 @@ export function calculateAffordability(
     availableMonthlyIncome,
   };
 }
+
+export interface SensitivityScenario {
+  name: string;
+  rateChange?: number;
+  incomeChange?: number;
+  debtChange?: number;
+}
+
+export interface SensitivityResult {
+  name: string;
+  maxLoan: number;
+  maxLoanChange: number;
+  maxLoanChangePercent: number;
+  maxPropertyPrice: number;
+  bindingConstraint: BindingConstraint;
+}
+
+export interface SensitivityAnalysisOutput {
+  baseMaxLoan: number;
+  baseMaxPropertyPrice: number;
+  baseBindingConstraint: BindingConstraint;
+  scenarios: SensitivityResult[];
+}
+
+export interface SensitivityAnalysisParams extends AffordabilityParams {
+  scenarios?: SensitivityScenario[];
+}
+
+const DEFAULT_SENSITIVITY_SCENARIOS: SensitivityScenario[] = [
+  { name: "Sazba +0.5 %", rateChange: 0.5 },
+  { name: "Sazba +1 %", rateChange: 1 },
+  { name: "Sazba +2 %", rateChange: 2 },
+  { name: "Sazba −0.5 %", rateChange: -0.5 },
+  { name: "Příjem +10 %", incomeChange: 10 },
+  { name: "Příjem +20 %", incomeChange: 20 },
+  { name: "Příjem −10 %", incomeChange: -10 },
+  { name: "Dluhy +5000 Kč", debtChange: 5000 },
+  { name: "Sazba +1 % a příjem −10 %", rateChange: 1, incomeChange: -10 },
+];
+
+/**
+ * Run sensitivity analysis on affordability calculations.
+ *
+ * Tests how maximum borrowing capacity changes under different scenarios:
+ * interest rate changes, income changes, and debt changes.
+ *
+ * @param params - Affordability parameters with optional scenarios
+ * @returns Base affordability and per-scenario sensitivity results
+ */
+export function analyzeSensitivity(
+  params: SensitivityAnalysisParams,
+): SensitivityAnalysisOutput {
+  const scenarios = params.scenarios ?? DEFAULT_SENSITIVITY_SCENARIOS;
+
+  // Calculate base affordability
+  const baseResult = calculateAffordability(params);
+
+  // Run each scenario
+  const results: SensitivityResult[] = scenarios.map((scenario) => {
+    const scenarioParams: AffordabilityParams = {
+      ...params,
+      annualRate: params.annualRate + (scenario.rateChange ?? 0),
+      monthlyIncome:
+        params.monthlyIncome * (1 + (scenario.incomeChange ?? 0) / 100),
+      partnerIncome: params.partnerIncome
+        ? params.partnerIncome * (1 + (scenario.incomeChange ?? 0) / 100)
+        : undefined,
+      existingDebts: params.existingDebts + (scenario.debtChange ?? 0),
+    };
+
+    const scenarioResult = calculateAffordability(scenarioParams);
+
+    const maxLoanChange = scenarioResult.maxLoan - baseResult.maxLoan;
+    const maxLoanChangePercent =
+      baseResult.maxLoan > 0
+        ? (maxLoanChange / baseResult.maxLoan) * 100
+        : 0;
+
+    return {
+      name: scenario.name,
+      maxLoan: scenarioResult.maxLoan,
+      maxLoanChange,
+      maxLoanChangePercent,
+      maxPropertyPrice: scenarioResult.maxPropertyPrice,
+      bindingConstraint: scenarioResult.bindingConstraint,
+    };
+  });
+
+  return {
+    baseMaxLoan: baseResult.maxLoan,
+    baseMaxPropertyPrice: baseResult.maxPropertyPrice,
+    baseBindingConstraint: baseResult.bindingConstraint,
+    scenarios: results,
+  };
+}
