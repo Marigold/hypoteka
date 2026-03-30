@@ -2,33 +2,88 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 ---
 
-<BaseLayout title="O projektu – Hypotéka.cz" description="Neziskový vzdělávací projekt pomáhající Čechům lépe rozumět hypotékám a bydlení.">
-	<h1 class="text-3xl font-bold mb-4">O co tady jde</h1>
+<BaseLayout title="O projektu – Hypotéka.cz" description="Neziskový vzdělávací projekt pomáhající Čechům lépe rozumět hypotékám a bydlení." fullWidth>
+	<div class="max-w-7xl mx-auto px-6 py-16">
+		<!-- Header -->
+		<div class="max-w-3xl mb-16">
+			<h1 class="text-4xl md:text-5xl font-black tracking-tighter mb-6">O co tady jde</h1>
+			<p class="text-on-surface-variant text-xl leading-relaxed">
+				Hypotéka.cz je neziskovka. Nikdo ti tu nic neprodává.
+				Chceme, abys rozuměl/a tomu, jak hypotéky fungují,
+				a mohl/a se rozhodnout sám/sama.
+			</p>
+		</div>
 
-	<div class="prose prose-gray max-w-none">
-		<p>
-			Hypotéka.cz je neziskovka. Nikdo ti tu nic neprodává.
-			Chceme, abys rozuměl/a tomu, jak hypotéky fungují,
-			a mohl/a se rozhodnout sám/sama.
-		</p>
+		<!-- Content grid -->
+		<div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+			<div class="bg-surface-container-lowest p-8 rounded-xl ambient-shadow">
+				<div class="w-14 h-14 bg-primary-deep/10 rounded-xl flex items-center justify-center mb-6">
+					<span class="material-symbols-outlined text-primary-deep text-3xl">target</span>
+				</div>
+				<h2 id="metodika" class="text-2xl font-bold tracking-tight mb-4">Proč to děláme?</h2>
+				<p class="text-on-surface-variant leading-relaxed">
+					Česko má nejhorší dostupnost bydlení v&nbsp;Evropě – na průměrný byt potřebuješ 13 ročních platů.
+					A&nbsp;přitom neexistuje místo, kde by ti to někdo normálně vysvětlil, aniž by ti chtěl prodat hypotéku.
+				</p>
+			</div>
 
-		<h2 id="metodika">Proč to děláme?</h2>
-		<p>
-			Česko má nejhorší dostupnost bydlení v Evropě – na průměrný byt potřebuješ 13 ročních platů.
-			A přitom neexistuje místo, kde by ti to někdo normálně vysvětlil, aniž by ti chtěl prodat hypotéku.
-		</p>
+			<div class="bg-surface-container-lowest p-8 rounded-xl ambient-shadow">
+				<div class="w-14 h-14 bg-secondary-container/10 rounded-xl flex items-center justify-center mb-6">
+					<span class="material-symbols-outlined text-secondary-container text-3xl">handyman</span>
+				</div>
+				<h2 class="text-2xl font-bold tracking-tight mb-4">Co tu najdeš</h2>
+				<ul class="text-on-surface-variant leading-relaxed space-y-3">
+					<li class="flex items-start gap-3">
+						<span class="material-symbols-outlined text-primary-deep text-[20px] mt-0.5">check_circle</span>
+						Kalkulačky postavené na reálných datech z&nbsp;ČNB a&nbsp;ČSÚ
+					</li>
+					<li class="flex items-start gap-3">
+						<span class="material-symbols-outlined text-primary-deep text-[20px] mt-0.5">check_circle</span>
+						Články bez balastu a&nbsp;marketingového bullshitu
+					</li>
+					<li class="flex items-start gap-3">
+						<span class="material-symbols-outlined text-primary-deep text-[20px] mt-0.5">check_circle</span>
+						Žádné provize, žádné „nejlepší nabídky"
+					</li>
+				</ul>
+			</div>
+		</div>
 
-		<h2>Co tu najdeš</h2>
-		<ul>
-			<li>Kalkulačky postavené na reálných datech z ČNB a ČSÚ</li>
-			<li>Články bez balastu a marketingového bullshitu</li>
-			<li>Žádné provize, žádné „nejlepší nabídky"</li>
-		</ul>
+		<!-- Data sources -->
+		<div class="bg-surface-container-low rounded-xl p-8 mb-16">
+			<h2 class="text-2xl font-bold tracking-tight mb-6">Zdroje dat</h2>
+			<div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+				<a href="https://www.cnb.cz" target="_blank" rel="noopener noreferrer" class="flex items-center gap-4 p-4 bg-surface-container-lowest rounded-xl hover:-translate-y-0.5 transition-all no-underline">
+					<span class="material-symbols-outlined text-primary-deep text-2xl">account_balance</span>
+					<div>
+						<p class="font-bold text-on-background">ČNB</p>
+						<p class="text-sm text-on-surface-variant">Česká národní banka</p>
+					</div>
+				</a>
+				<a href="https://www.czso.cz" target="_blank" rel="noopener noreferrer" class="flex items-center gap-4 p-4 bg-surface-container-lowest rounded-xl hover:-translate-y-0.5 transition-all no-underline">
+					<span class="material-symbols-outlined text-primary-deep text-2xl">monitoring</span>
+					<div>
+						<p class="font-bold text-on-background">ČSÚ</p>
+						<p class="text-sm text-on-surface-variant">Český statistický úřad</p>
+					</div>
+				</a>
+				<a href="https://www.hypoindex.cz" target="_blank" rel="noopener noreferrer" class="flex items-center gap-4 p-4 bg-surface-container-lowest rounded-xl hover:-translate-y-0.5 transition-all no-underline">
+					<span class="material-symbols-outlined text-primary-deep text-2xl">insights</span>
+					<div>
+						<p class="font-bold text-on-background">Hypoindex</p>
+						<p class="text-sm text-on-surface-variant">Swiss Life Hypoindex</p>
+					</div>
+				</a>
+			</div>
+		</div>
 
-		<h2 id="kontakt">Právní upozornění</h2>
-		<p>
-			Tohle není finanční poradenství. Snažíme se ti dát co nejlepší informace,
-			ale před velkým rozhodnutím se poraď s odborníkem.
-		</p>
+		<!-- Legal -->
+		<div id="kontakt" class="bg-tertiary-fixed/30 rounded-xl p-8 border border-tertiary-fixed">
+			<h2 class="text-2xl font-bold tracking-tight mb-4">Právní upozornění</h2>
+			<p class="text-on-surface-variant leading-relaxed">
+				Tohle není finanční poradenství. Snažíme se ti dát co nejlepší informace,
+				ale před velkým rozhodnutím se poraď s&nbsp;odborníkem. Data aktualizujeme průběžně z&nbsp;veřejných zdrojů.
+			</p>
+		</div>
 	</div>
 </BaseLayout>

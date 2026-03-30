@@ -1,10 +1,14 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
+import CalculatorLayout from '../../layouts/CalculatorLayout.astro';
 import TotalCostOfOwnership from '../../components/calculators/TotalCostOfOwnership.tsx';
 ---
 
-<BaseLayout title="Kalkulačka celkových nákladů vlastnictví – Hypotéka.cz" description="Zjistěte skutečné měsíční náklady na bydlení včetně všech skrytých poplatků. Spočítejte si splátku hypotéky, fond oprav, pojištění, daň z nemovitosti a všechny ostatní výdaje.">
-	<h1 class="text-3xl font-bold mb-4">Celkové náklady vlastnictví</h1>
-	<p class="text-gray-600 mb-8">Kalkulačky hypoték vám ukážou pouze měsíční splátku, ale realita je dražší. Tato kalkulačka odhalí skutečné náklady vlastnictví: splátku hypotéky, fond oprav, pojištění nemovitosti, daň z nemovitosti, údržbu, energie a transakční náklady při nákupu. Zjistěte rozdíl mezi „reklamovanou splátkou" a skutečnými měsíčními výdaji.</p>
+<CalculatorLayout
+	title="Celkové náklady vlastnictví"
+	description="Splátka je jen začátek. Fond oprav, pojistka, daň, energie – tady je celý účet za vlastní bydlení."
+	icon="home"
+	iconBg="bg-tertiary-fixed"
+	iconColor="text-tertiary"
+>
 	<TotalCostOfOwnership client:visible />
-</BaseLayout>
+</CalculatorLayout>

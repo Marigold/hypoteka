@@ -1,58 +1,87 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const calculators = [
+	{
+		href: '/kalkulacky/najem-vs-vlastni',
+		icon: 'compare_arrows',
+		iconBg: 'bg-primary-deep/10',
+		iconColor: 'text-primary-deep',
+		hoverColor: 'group-hover:text-primary-deep',
+		title: 'Nájem vs. vlastní',
+		description: 'Vyplatí se ti víc pronájem s investováním, nebo koupě na hypotéku? Porovnej oba scénáře na 20 let.',
+	},
+	{
+		href: '/kalkulacky/splatka-hypoteky',
+		icon: 'payments',
+		iconBg: 'bg-secondary-container/10',
+		iconColor: 'text-secondary-container',
+		hoverColor: 'group-hover:text-secondary-container',
+		title: 'Kolik budeš platit',
+		description: 'Měsíční splátka, celkové náklady a amortizace – všechno na jednom místě.',
+	},
+	{
+		href: '/kalkulacky/stresovy-test',
+		icon: 'warning',
+		iconBg: 'bg-error-container/20',
+		iconColor: 'text-error',
+		hoverColor: 'group-hover:text-error',
+		title: 'Stresový test',
+		description: 'Co když úroky vyletí o 2 %? Nebo přijdeš o kus výplaty? Ověř si, jestli to ustojíš.',
+	},
+	{
+		href: '/kalkulacky/optimalizace-fixace',
+		icon: 'tune',
+		iconBg: 'bg-primary-bright/10',
+		iconColor: 'text-primary-bright',
+		hoverColor: 'group-hover:text-primary-bright',
+		title: 'Optimalizace fixace',
+		description: 'Najdi ideální dobu fixace podle svého plánu. Porovnej různá fixační období a ušetři tisíce.',
+	},
+	{
+		href: '/kalkulacky/celkove-naklady-vlastnictvi',
+		icon: 'home',
+		iconBg: 'bg-tertiary-fixed',
+		iconColor: 'text-tertiary',
+		hoverColor: 'group-hover:text-tertiary',
+		title: 'Celkové náklady vlastnictví',
+		description: 'Splátka je jen začátek. Fond oprav, pojistka, daň, energie – tady je celý účet.',
+	},
+	{
+		href: '/kalkulacky/nemovitost-vs-akcie',
+		icon: 'trending_up',
+		iconBg: 'bg-surface-container-high',
+		iconColor: 'text-on-surface-variant',
+		hoverColor: 'group-hover:text-primary-deep',
+		title: 'Nemovitost vs. akcie',
+		description: 'Porovnej investici do nemovitosti na hypotéku s investováním do akcií. Včetně daní, páky a rizik.',
+	},
+];
 ---
 
-<BaseLayout title="Kalkulačky – Hypotéka.cz" description="Interaktivní kalkulačky pro srovnání nájmu vs. vlastního bydlení, výpočet splátek a stresový test hypotéky.">
-	<h1 class="text-3xl font-bold mb-2">Kalkulačky</h1>
-	<p class="text-base-content/60 mb-8">Naklikej si svoji situaci a uvidíš, jak na tom jsi.</p>
+<BaseLayout title="Kalkulačky – Hypotéka.cz" description="Interaktivní kalkulačky pro srovnání nájmu vs. vlastního bydlení, výpočet splátek a stresový test hypotéky." fullWidth>
+	<div class="max-w-7xl mx-auto px-6 py-16">
+		<div class="mb-16">
+			<h1 class="text-4xl md:text-5xl font-black tracking-tighter mb-4">Kalkulačky</h1>
+			<p class="text-on-surface-variant text-lg max-w-2xl">Naklikej si svoji situaci a&nbsp;uvidíš, jak na tom jsi. Žádná registrace, žádné osobní údaje.</p>
+		</div>
 
-	<div class="grid gap-6 sm:grid-cols-2">
-		<a href="/kalkulacky/najem-vs-vlastni" class="card bg-base-100 border border-base-200 hover:border-primary hover:shadow-lg transition-all no-underline">
-			<div class="card-body">
-				<div class="text-3xl mb-2">⚖️</div>
-				<h2 class="card-title">Nájem vs. vlastní</h2>
-				<p class="text-base-content/60 text-sm">Porovnej si, jestli se ti víc vyplatí pronájem s investováním, nebo koupě na hypotéku.</p>
-			</div>
-		</a>
-
-		<a href="/kalkulacky/splatka-hypoteky" class="card bg-base-100 border border-base-200 hover:border-primary hover:shadow-lg transition-all no-underline">
-			<div class="card-body">
-				<div class="text-3xl mb-2">💰</div>
-				<h2 class="card-title">Kolik budeš platit</h2>
-				<p class="text-base-content/60 text-sm">Měsíční splátka, celkové náklady a amortizace – všechno na jednom místě.</p>
-			</div>
-		</a>
-
-		<a href="/kalkulacky/stresovy-test" class="card bg-base-100 border border-base-200 hover:border-primary hover:shadow-lg transition-all no-underline">
-			<div class="card-body">
-				<div class="text-3xl mb-2">🔥</div>
-				<h2 class="card-title">Stresový test</h2>
-				<p class="text-base-content/60 text-sm">Co když úroky vyletí o 2 %? Nebo přijdeš o kus výplaty? Ověř si, jestli to ustojíš.</p>
-			</div>
-		</a>
-
-		<a href="/kalkulacky/optimalizace-fixace" class="card bg-base-100 border border-base-200 hover:border-primary hover:shadow-lg transition-all no-underline">
-			<div class="card-body">
-				<div class="text-3xl mb-2">🎯</div>
-				<h2 class="card-title">Optimalizace fixace</h2>
-				<p class="text-base-content/60 text-sm">Najdi ideální dobu fixace podle svého plánu. Porovnej různá fixační období a ušetři tisíce.</p>
-			</div>
-		</a>
-
-		<a href="/kalkulacky/celkove-naklady-vlastnictvi" class="card bg-base-100 border border-base-200 hover:border-primary hover:shadow-lg transition-all no-underline">
-			<div class="card-body">
-				<div class="text-3xl mb-2">🏠</div>
-				<h2 class="card-title">Celkové náklady vlastnictví</h2>
-				<p class="text-base-content/60 text-sm">Kolik tě vlastní bydlení bude skutečně stát? Přidej fond oprav, pojištění, daň a energie – uvidíš reálný obrázek.</p>
-			</div>
-		</a>
-
-		<a href="/kalkulacky/nemovitost-vs-akcie" class="card bg-base-100 border border-base-200 hover:border-primary hover:shadow-lg transition-all no-underline">
-			<div class="card-body">
-				<div class="text-3xl mb-2">📊</div>
-				<h2 class="card-title">Nemovitost vs. akcie</h2>
-				<p class="text-base-content/60 text-sm">Porovnej investici do nemovitosti na hypotéku s investováním do akcií. Včetně daní, páky a rizik.</p>
-			</div>
-		</a>
+		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+			{calculators.map((calc) => (
+				<a
+					href={calc.href}
+					class="group bg-surface-container-lowest p-8 rounded-xl ambient-shadow hover:-translate-y-1 transition-all no-underline"
+				>
+					<div class="flex justify-between items-start mb-8">
+						<div class:list={['w-14 h-14 rounded-xl flex items-center justify-center', calc.iconBg]}>
+							<span class:list={['material-symbols-outlined text-3xl', calc.iconColor]}>{calc.icon}</span>
+						</div>
+						<span class:list={['material-symbols-outlined text-outline-variant transition-colors', calc.hoverColor]}>arrow_forward_ios</span>
+					</div>
+					<h2 class="text-xl font-bold mb-3 tracking-tight text-on-background">{calc.title}</h2>
+					<p class="text-on-surface-variant text-sm leading-relaxed">{calc.description}</p>
+				</a>
+			))}
+		</div>
 	</div>
 </BaseLayout>

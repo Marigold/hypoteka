@@ -1,39 +1,70 @@
 ---
 ---
 
-<section class="relative overflow-hidden bg-gradient-to-br from-primary/8 via-base-100 to-secondary/5 py-24 md:py-32 px-6" aria-label="Úvod">
-	<!-- Decorative background circles -->
-	<div class="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-primary/5 blur-3xl pointer-events-none" aria-hidden="true"></div>
-	<div class="absolute -bottom-16 -left-16 w-64 h-64 rounded-full bg-secondary/5 blur-3xl pointer-events-none" aria-hidden="true"></div>
-
-	<div class="max-w-6xl mx-auto text-center relative z-10">
-		<h1 class="text-5xl md:text-6xl lg:text-7xl font-extrabold mb-6 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent leading-tight">
-			Hypotéka na rovinu
-		</h1>
-		<p class="text-lg md:text-xl text-base-content/70 mb-10 max-w-2xl mx-auto leading-relaxed">
-			Žádný finanční poradce, žádné provize, žádné reklamy.
-			Jen férové kalkulačky a srozumitelné vysvětlení, jak to celé funguje.
-		</p>
-
-		<div class="flex flex-col sm:flex-row items-center justify-center gap-6 mb-12">
-			<a href="/kalkulacky/najem-vs-vlastni" class="btn btn-primary btn-lg text-lg px-10 shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 no-underline">
-				Spočítej si to
-				<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-1" viewBox="0 0 20 20" fill="currentColor">
-					<path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
-				</svg>
-			</a>
-			<a href="/clanky" class="btn btn-ghost text-base-content/70 no-underline">
-				Nebo si nejdřív přečti, jak to funguje
-			</a>
+<section class="max-w-7xl mx-auto px-6 py-16 md:py-28 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+	<!-- Left: Text -->
+	<div class="space-y-8">
+		<div class="inline-flex items-center gap-2 bg-surface-container px-4 py-2 rounded-full text-primary-deep font-semibold text-sm">
+			<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+			Nezávislý srovnávač bez provizí
 		</div>
 
-		<div class="inline-flex items-center gap-4 bg-base-100/80 backdrop-blur-sm rounded-2xl shadow-lg px-8 py-5 border border-base-200">
-			<span class="text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-error to-warning bg-clip-text text-transparent leading-none">
-				13,3&times;
-			</span>
-			<span class="text-base text-base-content/60 text-left">
-				ročních platů stojí<br />průměrný byt v&nbsp;Česku
-			</span>
+		<h1 class="text-6xl md:text-8xl font-black tracking-tighter leading-[0.9] text-on-background">
+			Hypotéka <br /><span class="text-gradient">na rovinu.</span>
+		</h1>
+
+		<p class="text-xl md:text-2xl text-on-surface-variant max-w-lg leading-relaxed">
+			Bydlení bez reklam, provizí a&nbsp;skrytých poplatků. Data čerpáme přímo z&nbsp;oficiálních zdrojů ČNB.
+		</p>
+
+		<div class="flex flex-col sm:flex-row gap-4 pt-4">
+			<a href="/kalkulacky/najem-vs-vlastni" class="bg-gradient-primary text-white text-lg px-8 py-4 rounded-lg font-bold hover:opacity-90 active:scale-95 transition-all shadow-xl shadow-primary-deep/20 no-underline text-center">
+				Spočítej si to
+			</a>
+			<a href="#jak-to-funguje" class="bg-surface-container-high text-on-surface-variant text-lg px-8 py-4 rounded-lg font-bold hover:bg-outline-variant/30 transition-all no-underline text-center">
+				Jak to funguje?
+			</a>
+		</div>
+	</div>
+
+	<!-- Right: Stat Card -->
+	<div class="relative">
+		<div class="bg-surface-container-low rounded-2xl p-10 ambient-shadow border border-outline-variant/10 relative overflow-hidden">
+			<!-- Decorative blurs -->
+			<div class="absolute -top-24 -right-24 w-64 h-64 bg-primary-deep/5 rounded-full blur-3xl" aria-hidden="true"></div>
+			<div class="absolute -bottom-24 -left-24 w-64 h-64 bg-secondary-container/5 rounded-full blur-3xl" aria-hidden="true"></div>
+
+			<div class="relative z-10 space-y-6">
+				<div class="flex justify-between items-start">
+					<div class="p-3 bg-white rounded-xl shadow-sm">
+						<span class="material-symbols-outlined text-primary-deep text-3xl">analytics</span>
+					</div>
+					<span class="bg-tertiary-fixed text-on-tertiary-fixed px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
+						Aktuální data 2026
+					</span>
+				</div>
+
+				<div class="space-y-1">
+					<span class="text-on-surface-variant font-medium">Průměrná dostupnost bydlení</span>
+					<h2 class="text-5xl font-black tracking-tighter text-on-background">13,3×</h2>
+					<p class="text-on-surface-variant">ročních platů stojí průměrný byt v&nbsp;ČR</p>
+				</div>
+
+				<div class="h-2 w-full bg-surface-container rounded-full overflow-hidden">
+					<div class="h-full bg-gradient-primary w-[78%]"></div>
+				</div>
+
+				<div class="grid grid-cols-2 gap-4 pt-4">
+					<div class="p-4 bg-white rounded-xl">
+						<p class="text-xs text-on-surface-variant font-bold uppercase">Repo sazba ČNB</p>
+						<p class="text-xl font-bold text-on-background">3,50 %</p>
+					</div>
+					<div class="p-4 bg-white rounded-xl">
+						<p class="text-xs text-on-surface-variant font-bold uppercase">Hypoindex</p>
+						<p class="text-xl font-bold text-on-background">4,48 %</p>
+					</div>
+				</div>
+			</div>
 		</div>
 	</div>
 </section>

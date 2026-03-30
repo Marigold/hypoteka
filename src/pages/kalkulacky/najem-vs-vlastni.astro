@@ -1,10 +1,14 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
+import CalculatorLayout from '../../layouts/CalculatorLayout.astro';
 import RentVsBuy from '../../components/calculators/RentVsBuy.tsx';
 ---
 
-<BaseLayout title="Nájem vs. vlastní bydlení – Kalkulačka – Hypotéka.cz" description="Spočítejte si, jestli se víc vyplatí pronájem s investováním nebo koupě na hypotéku.">
-	<h1 class="text-3xl font-bold mb-4">Nájem vs. vlastní</h1>
-	<p class="text-gray-600 mb-8">Porovnejte celkové náklady na bydlení v pronájmu oproti koupi nemovitosti na hypotéku. Kalkulačka zohlední vývoj cen, nájmů, úroků i výnosy z investování a ukáže vám, která varianta vychází výhodněji v čase.</p>
+<CalculatorLayout
+	title="Nájem vs. vlastní"
+	description="Porovnej celkové náklady na bydlení v pronájmu oproti koupi na hypotéku. Kalkulačka zohlední vývoj cen, nájmů, úroků i výnosy z investování."
+	icon="compare_arrows"
+	iconBg="bg-primary-deep/10"
+	iconColor="text-primary-deep"
+>
 	<RentVsBuy client:visible />
-</BaseLayout>
+</CalculatorLayout>

@@ -7,6 +7,17 @@
 
 import { calculateMonthlyPayment } from "./mortgage";
 
+export interface TransactionCosts {
+  /** Notary fees in CZK */
+  notary: number;
+  /** Property valuation (odhad) in CZK */
+  valuation: number;
+  /** Bank origination fee in CZK */
+  bankFee: number;
+  /** Real estate agent commission in CZK */
+  agentCommission: number;
+}
+
 export interface RentVsBuyParams {
   /** Property purchase price in CZK */
   propertyPrice: number;
@@ -18,16 +29,21 @@ export interface RentVsBuyParams {
   mortgageYears: number;
   /** Current monthly rent in CZK */
   monthlyRent: number;
-  /** Annual rent growth rate as percentage (e.g. 3.0) */
-  rentGrowthRate: number;
+
   /** Annual property appreciation rate as percentage (e.g. 3.0) */
   propertyAppreciation: number;
   /** Annual return on investments as percentage (e.g. 6.0) */
   investmentReturnRate: number;
-  /** Annual maintenance cost as percentage of property value (e.g. 1.0) */
-  maintenanceRate: number;
-  /** One-time transaction costs as percentage of property price (e.g. 4.0) */
-  transactionCosts: number;
+
+  /**
+   * Annual ownership costs as percentage of property value (e.g. 1.45).
+   * Includes fond oprav, insurance, property tax, maintenance — excludes energy
+   * (paid by both buyers and renters). Derived from TCO calculator.
+   */
+  ownershipCostPercent: number;
+  /** One-time transaction costs at purchase */
+  transactionCosts: TransactionCosts;
+
   /** Annual mortgage interest tax deduction cap in CZK (e.g. 150_000) */
   taxDeductionCap: number;
 }
@@ -38,17 +54,35 @@ export interface RentVsBuyYearResult {
   rentingNetWorth: number;
   buyingMonthlyCost: number;
   rentingMonthlyCost: number;
+  /** Gross property value (appreciating) */
+  propertyValue: number;
+  /** Remaining mortgage balance (positive number) */
+  mortgageBalance: number;
+  /** Buyer's investment portfolio */
+  buyerPortfolio: number;
+  /** Renter's investment portfolio */
+  renterPortfolio: number;
+}
+/**
+ * Total one-time transaction costs at purchase.
+ */
+function totalTransactionCosts(tx: TransactionCosts): number {
+  return tx.notary + tx.valuation + tx.bankFee + tx.agentCommission;
 }
 
 /**
  * Compare the financial outcome of renting + investing vs. buying over time.
  *
  * Buying scenario: buyer pays down payment + transaction costs, takes a mortgage,
- * pays monthly mortgage + maintenance. Property appreciates over time.
+ * pays monthly mortgage + ownership costs (as % of property value).
+ * Property appreciates over time. Periodic reconstruction reduces buyer's portfolio.
  *
  * Renting scenario: renter invests the down payment + transaction costs,
- * pays monthly rent (growing annually), and invests the difference between
- * buying costs and renting costs each month (if buying is more expensive).
+ * pays monthly rent (growing independently), and invests the difference between
+ * buying costs and renting costs each month (whoever spends less invests the difference).
+ *
+ * Capital gains tax: if property is sold before 10 years of ownership,
+ * 15% tax applies to the profit (sale price - purchase price - transaction costs).
  *
  * @returns Year-by-year array comparing net worth and monthly costs for both scenarios
  */
@@ -61,10 +95,9 @@ export function compareRentVsBuy(
     mortgageRate,
     mortgageYears,
     monthlyRent,
-    rentGrowthRate,
     propertyAppreciation,
     investmentReturnRate,
-    maintenanceRate,
+    ownershipCostPercent,
     transactionCosts,
     taxDeductionCap,
   } = params;
@@ -75,16 +108,17 @@ export function compareRentVsBuy(
   const monthlyMortgage = calculateMonthlyPayment(loanAmount, mortgageRate, mortgageYears);
   const monthlyInvestmentReturn = investmentReturnRate / 100 / 12;
   const monthlyMortgageRate = mortgageRate / 100 / 12;
-  const transactionCostAmount = propertyPrice * (transactionCosts / 100);
+  const txCostTotal = totalTransactionCosts(transactionCosts);
 
   const results: RentVsBuyYearResult[] = [];
 
   // Buying state
   let mortgageBalance = loanAmount;
   let propertyValue = propertyPrice;
+  let buyerPortfolio = 0;
 
   // Renting state: renter invests down payment + transaction costs upfront
-  let renterPortfolio = downPayment + transactionCostAmount;
+  let renterPortfolio = downPayment + txCostTotal;
 
   let currentRent = monthlyRent;
 
@@ -100,47 +134,51 @@ export function compareRentVsBuy(
       mortgageBalance = Math.max(0, mortgageBalance - principalThisMonth);
       yearlyInterestPaid += interestThisMonth;
 
-      const maintenanceMonthly = propertyValue * (maintenanceRate / 100) / 12;
-      const buyingMonthly = monthlyMortgage + maintenanceMonthly;
+      // Ownership costs: % of current property value / 12
+      const ownershipMonthly = (propertyValue * (ownershipCostPercent / 100)) / 12;
+      const buyingMonthly = monthlyMortgage + ownershipMonthly;
       yearlyBuyingCost += buyingMonthly;
 
       // --- Renting costs ---
       yearlyRentingCost += currentRent;
 
-      // Renter invests the difference (if buying is more expensive)
-      const monthlySavings = buyingMonthly - currentRent;
-      if (monthlySavings > 0) {
-        renterPortfolio += monthlySavings;
+      // Both have the same monthly budget = max(buying, renting).
+      // Whoever spends less invests the difference.
+      const diff = buyingMonthly - currentRent;
+      if (diff > 0) {
+        renterPortfolio += diff;
+      } else {
+        buyerPortfolio += -diff;
       }
 
-      // Renter's portfolio grows monthly
+      // Both portfolios grow monthly
       renterPortfolio *= 1 + monthlyInvestmentReturn;
+      buyerPortfolio *= 1 + monthlyInvestmentReturn;
     }
 
     // Annual adjustments
     propertyValue *= 1 + propertyAppreciation / 100;
-    currentRent *= 1 + rentGrowthRate / 100;
+    currentRent *= 1 + propertyAppreciation / 100;
 
     // Tax benefit: deduct mortgage interest (capped) at 15% marginal rate
     const deductibleInterest = Math.min(yearlyInterestPaid, taxDeductionCap);
     const taxSaving = deductibleInterest * 0.15;
+    buyerPortfolio += taxSaving;
 
-    // Buyer net worth = property value - remaining mortgage
-    const buyingNetWorth = propertyValue - mortgageBalance;
-
-    // Renter net worth = investment portfolio
-    // Add back tax saving difference: buyer gets tax benefit, reduce buyer cost
+    // Net worth
+    const buyingNetWorth = propertyValue - mortgageBalance + buyerPortfolio;
     const rentingNetWorth = renterPortfolio;
-
-    // Adjust buying net worth for tax savings (treated as reducing cost)
-    const adjustedBuyingNetWorth = buyingNetWorth + taxSaving * year;
 
     results.push({
       year,
-      buyingNetWorth: Math.round(adjustedBuyingNetWorth),
+      buyingNetWorth: Math.round(buyingNetWorth),
       rentingNetWorth: Math.round(rentingNetWorth),
       buyingMonthlyCost: Math.round((yearlyBuyingCost - taxSaving) / 12),
       rentingMonthlyCost: Math.round(yearlyRentingCost / 12),
+      propertyValue: Math.round(propertyValue),
+      mortgageBalance: Math.round(mortgageBalance),
+      buyerPortfolio: Math.round(buyerPortfolio),
+      renterPortfolio: Math.round(renterPortfolio),
     });
   }
 

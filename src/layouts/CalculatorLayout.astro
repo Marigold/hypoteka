@@ -1,0 +1,59 @@
+---
+import BaseLayout from './BaseLayout.astro';
+
+interface Props {
+	title: string;
+	description: string;
+	icon: string;
+	iconBg: string;
+	iconColor: string;
+}
+
+const { title, description, icon, iconBg, iconColor } = Astro.props;
+
+const breadcrumbs = [
+	{ label: 'Domů', href: '/' },
+	{ label: 'Kalkulačky', href: '/kalkulacky' },
+	{ label: title, href: null },
+];
+---
+
+<BaseLayout title={`${title} – Hypotéka.cz`} description={description}>
+	<!-- Breadcrumbs -->
+	<nav aria-label="breadcrumbs" class="text-sm text-on-surface-variant mb-8">
+		<ol class="flex flex-wrap items-center gap-1">
+			{breadcrumbs.map((crumb, i) => (
+				<li class="flex items-center gap-1">
+					{i > 0 && <span aria-hidden="true" class="text-outline-variant">/</span>}
+					{crumb.href ? (
+						<a href={crumb.href} class="hover:text-primary-deep transition-colors no-underline">{crumb.label}</a>
+					) : (
+						<span class="text-on-background font-medium">{crumb.label}</span>
+					)}
+				</li>
+			))}
+		</ol>
+	</nav>
+
+	<!-- Header -->
+	<div class="flex items-start gap-5 mb-8">
+		<div class:list={['w-14 h-14 rounded-xl flex items-center justify-center shrink-0', iconBg]}>
+			<span class:list={['material-symbols-outlined text-3xl', iconColor]}>{icon}</span>
+		</div>
+		<div>
+			<h1 class="text-3xl font-black tracking-tight text-on-background mb-2">{title}</h1>
+			<p class="text-on-surface-variant leading-relaxed">{description}</p>
+		</div>
+	</div>
+
+	<!-- Calculator slot -->
+	<div class="bg-surface-container-lowest rounded-xl ambient-shadow p-6 md:p-8">
+		<slot />
+	</div>
+
+	<!-- Disclaimer -->
+	<div class="mt-8 p-4 bg-surface-container-low rounded-xl border border-outline-variant/10 text-sm text-on-surface-variant">
+		<p class="font-semibold mb-1">Právní upozornění</p>
+		<p>Výsledky jsou orientační a nepředstavují finanční poradenství. Před rozhodnutím se poraď s&nbsp;odborníkem.</p>
+	</div>
+</BaseLayout>

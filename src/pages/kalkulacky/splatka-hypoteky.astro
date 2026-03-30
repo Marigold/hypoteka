@@ -1,10 +1,14 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
+import CalculatorLayout from '../../layouts/CalculatorLayout.astro';
 import MortgagePayment from '../../components/calculators/MortgagePayment.tsx';
 ---
 
-<BaseLayout title="Kalkulačka splátek hypotéky – Hypotéka.cz" description="Vypočítejte si měsíční splátku hypotéky, celkové náklady a kolik na vás vydělá banka.">
-	<h1 class="text-3xl font-bold mb-4">Kolik budeš platit</h1>
-	<p class="text-gray-600 mb-8">Zadejte výši hypotéky, úrokovou sazbu a dobu splácení. Kalkulačka vám ukáže měsíční splátku, celkové náklady na úrocích a podrobný rozpis splácení v čase.</p>
+<CalculatorLayout
+	title="Kolik budeš platit"
+	description="Měsíční splátka, celkové náklady na úrocích a podrobný rozpis splácení v čase."
+	icon="payments"
+	iconBg="bg-secondary-container/10"
+	iconColor="text-secondary-container"
+>
 	<MortgagePayment client:visible />
-</BaseLayout>
+</CalculatorLayout>

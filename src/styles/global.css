@@ -8,25 +8,25 @@
 	name: "hypoteka";
 	default: true;
 	color-scheme: light;
-	--color-base-100: oklch(0.98 0.005 250);
-	--color-base-200: oklch(0.94 0.01 250);
-	--color-base-300: oklch(0.88 0.015 250);
-	--color-base-content: oklch(0.25 0.02 250);
-	--color-primary: oklch(0.45 0.15 240);
-	--color-primary-content: oklch(0.98 0.005 250);
-	--color-secondary: oklch(0.55 0.12 270);
-	--color-secondary-content: oklch(0.98 0.005 250);
-	--color-accent: oklch(0.65 0.18 85);
-	--color-accent-content: oklch(0.25 0.02 85);
-	--color-neutral: oklch(0.35 0.02 250);
-	--color-neutral-content: oklch(0.95 0.005 250);
-	--color-info: oklch(0.60 0.12 240);
-	--color-info-content: oklch(0.98 0.005 240);
+	--color-base-100: oklch(0.985 0.003 265);
+	--color-base-200: oklch(0.955 0.008 265);
+	--color-base-300: oklch(0.91 0.012 265);
+	--color-base-content: oklch(0.22 0.02 260);
+	--color-primary: oklch(0.40 0.20 262);
+	--color-primary-content: oklch(0.98 0.005 260);
+	--color-secondary: oklch(0.42 0.22 295);
+	--color-secondary-content: oklch(0.98 0.005 295);
+	--color-accent: oklch(0.62 0.16 75);
+	--color-accent-content: oklch(0.22 0.03 75);
+	--color-neutral: oklch(0.30 0.02 260);
+	--color-neutral-content: oklch(0.95 0.005 260);
+	--color-info: oklch(0.55 0.15 255);
+	--color-info-content: oklch(0.98 0.005 255);
 	--color-success: oklch(0.60 0.16 155);
 	--color-success-content: oklch(0.98 0.005 155);
 	--color-warning: oklch(0.75 0.15 75);
 	--color-warning-content: oklch(0.25 0.02 75);
-	--color-error: oklch(0.55 0.18 25);
+	--color-error: oklch(0.50 0.20 25);
 	--color-error-content: oklch(0.98 0.005 25);
 	--radius-selector: 1rem;
 	--radius-field: 0.75rem;
@@ -38,4 +38,43 @@
 
 @theme {
 	--font-sans: "Inter", sans-serif;
+	--color-surface: #fbf8ff;
+	--color-surface-container: #ededfb;
+	--color-surface-container-low: #f3f2ff;
+	--color-surface-container-high: #e7e7f5;
+	--color-surface-container-lowest: #ffffff;
+	--color-on-background: #191b25;
+	--color-on-surface-variant: #434656;
+	--color-outline-variant: #c3c5d9;
+	--color-primary-deep: #003ec7;
+	--color-primary-bright: #0052ff;
+	--color-secondary-container: #7000ff;
+	--color-tertiary: #674900;
+	--color-tertiary-fixed: #ffdea8;
+	--color-on-tertiary-fixed: #271900;
+	--color-error-container: #ffdad6;
+}
+
+body {
+	background-color: var(--color-surface);
+	-webkit-font-smoothing: antialiased;
+}
+
+.text-gradient {
+	background: linear-gradient(135deg, var(--color-primary-deep) 0%, var(--color-primary-bright) 100%);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	background-clip: text;
+}
+
+.bg-gradient-primary {
+	background: linear-gradient(135deg, var(--color-primary-deep) 0%, var(--color-primary-bright) 100%);
+}
+
+.ambient-shadow {
+	box-shadow: 0 12px 60px -12px rgba(25, 27, 37, 0.08);
+}
+
+.material-symbols-outlined {
+	font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
