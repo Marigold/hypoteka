@@ -22,7 +22,12 @@ import {
   formatCurrencyCompact,
   formatNumber,
 } from '../../lib/formatters';
-import { $mortgageRate, $mortgageYears } from '../../stores/mortgage';
+import {
+  $propertyPrice,
+  $downPaymentPercent,
+  $mortgageRate,
+  $mortgageYears
+} from '../../stores/mortgage';
 import {
   calculateAffordableSize,
   getCitiesByPrice,
@@ -199,6 +204,11 @@ export default function AffordabilityCalculator() {
     (value: number | undefined) => formatCurrency(Math.round(value ?? 0)),
     [],
   );
+
+  const handleUseInCalculators = useCallback(() => {
+    $propertyPrice.set(Math.round(results.maxPropertyPrice));
+    $downPaymentPercent.set(Math.round(results.downPaymentPercent));
+  }, [results.maxPropertyPrice, results.downPaymentPercent]);
 
   return (
     <div className="space-y-8">
@@ -380,6 +390,26 @@ export default function AffordabilityCalculator() {
           value={formatCurrency(Math.round(results.monthlyPayment))}
           description={`${formatNumber((results.monthlyPayment / results.totalMonthlyIncome) * 100, { decimals: 1 })} % z příjmu`}
         />
+      </div>
+
+      {/* Use in Other Calculators */}
+      <div className="card bg-base-100 border border-primary/20 shadow-sm">
+        <div className="card-body">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+              <h3 className="font-semibold">Použít tyto hodnoty v jiných kalkulačkách</h3>
+              <p className="text-sm text-base-content/70 mt-1">
+                Uložit vypočítanou cenu nemovitosti a akontaci pro použití v ostatních kalkulačkách (např. stresový test, fixace).
+              </p>
+            </div>
+            <button
+              onClick={handleUseInCalculators}
+              className="btn btn-primary btn-sm sm:btn-md whitespace-nowrap"
+            >
+              Uložit hodnoty
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Binding Constraint Explanation */}
