@@ -13,6 +13,10 @@ import {
   formatNumber,
 } from '../../lib/formatters';
 import { $mortgageRate, $mortgageYears } from '../../stores/mortgage';
+import {
+  calculateAffordableSize,
+  getCitiesByPrice,
+} from '../../data/regionalPrices';
 
 interface Params {
   monthlyIncome: number;
@@ -400,6 +404,32 @@ export default function AffordabilityCalculator() {
                 {formatCurrency(Math.round(results.availableMonthlyIncome))}
               </span>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Regional Price Mapping */}
+      <div className="card bg-base-100 border border-base-200 shadow-sm">
+        <div className="card-body">
+          <h3 className="font-semibold">Co si můžeš dovolit podle města</h3>
+          <p className="text-sm text-base-content/70 mb-4">
+            Velikost bytu, který si můžeš koupit za {formatCurrency(Math.round(results.maxPropertyPrice))} v různých městech:
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {getCitiesByPrice().map(([cityKey, cityData]) => {
+              const affordableSize = calculateAffordableSize(results.maxPropertyPrice, cityKey);
+              return (
+                <div key={cityKey} className="bg-base-200/50 rounded-lg p-3">
+                  <div className="text-sm font-medium">{cityData.city}</div>
+                  <div className="text-lg font-bold text-primary mt-1">
+                    {affordableSize} m²
+                  </div>
+                  <div className="text-xs text-base-content/50 mt-1">
+                    {formatCurrencyCompact(cityData.pricePerSqm)}/m²
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
