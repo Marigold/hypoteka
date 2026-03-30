@@ -1,4 +1,14 @@
 import { useState, useEffect, useMemo } from 'react';
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+  ReferenceLine,
+} from 'recharts';
 import type {
   UserProfile,
   RegulationResult,
@@ -110,6 +120,36 @@ const DEFAULTS = {
   existingProperties: 0,
   currentStep: 1,
 };
+
+/**
+ * Generate timeline data showing regulatory changes before and after April 2026.
+ * Shows a snapshot of regulatory limits across several months to visualize the transition.
+ */
+function getTimelineData(propertyType: PropertyType) {
+  if (propertyType === 'investment') {
+    // Investment property timeline - stricter limits after April 2026
+    return [
+      { period: 'Leden 2026', ltvLimit: 80, dstiLimit: 45 },
+      { period: 'Únor 2026', ltvLimit: 80, dstiLimit: 45 },
+      { period: 'Březen 2026', ltvLimit: 80, dstiLimit: 45 },
+      { period: 'Duben 2026', ltvLimit: 70, dstiLimit: 40 }, // Regulation change
+      { period: 'Květen 2026', ltvLimit: 70, dstiLimit: 40 },
+      { period: 'Červen 2026', ltvLimit: 70, dstiLimit: 40 },
+      { period: 'Červenec 2026', ltvLimit: 70, dstiLimit: 40 },
+    ];
+  } else {
+    // Primary residence timeline - limits remain relatively stable
+    return [
+      { period: 'Leden 2026', ltvLimit: 80, dstiLimit: 45 },
+      { period: 'Únor 2026', ltvLimit: 80, dstiLimit: 45 },
+      { period: 'Březen 2026', ltvLimit: 80, dstiLimit: 45 },
+      { period: 'Duben 2026', ltvLimit: 80, dstiLimit: 45 }, // Minimal change for primary residence
+      { period: 'Květen 2026', ltvLimit: 80, dstiLimit: 45 },
+      { period: 'Červen 2026', ltvLimit: 80, dstiLimit: 45 },
+      { period: 'Červenec 2026', ltvLimit: 80, dstiLimit: 45 },
+    ];
+  }
+}
 
 export default function RegulationGuide() {
   const urlParams = useMemo(() => getParamsFromURL(), []);
@@ -412,6 +452,99 @@ export default function RegulationGuide() {
                 ČNB přitvrdila pravidla pro hypotéky. Tady vidíš, jak se změnily limity
                 oproti předchozímu stavu.
               </p>
+
+              {/* Timeline Visualization */}
+              <div className="mb-6">
+                <h4 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                  <span className="material-icons text-sm">timeline</span>
+                  Časová osa regulatorních změn
+                </h4>
+                <div className="bg-base-100 rounded-lg p-4">
+                  <ResponsiveContainer width="100%" height={300}>
+                    <LineChart
+                      data={getTimelineData(propertyType)}
+                      margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                    >
+                      <XAxis
+                        dataKey="period"
+                        tick={{ fontSize: 12 }}
+                        stroke="currentColor"
+                        opacity={0.5}
+                      />
+                      <YAxis
+                        tick={{ fontSize: 12 }}
+                        stroke="currentColor"
+                        opacity={0.5}
+                        label={{
+                          value: 'Limit (%)',
+                          angle: -90,
+                          position: 'insideLeft',
+                          style: { fontSize: 12 },
+                        }}
+                      />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: 'hsl(var(--b1))',
+                          border: '1px solid hsl(var(--bc) / 0.2)',
+                          borderRadius: '0.5rem',
+                          fontSize: '0.875rem',
+                        }}
+                        labelStyle={{ color: 'hsl(var(--bc))' }}
+                        formatter={(value: number, name: string) => [
+                          `${value}%`,
+                          name === 'ltvLimit' ? 'LTV limit' :
+                          name === 'dstiLimit' ? 'DSTI limit' : name,
+                        ]}
+                      />
+                      <Legend
+                        wrapperStyle={{ fontSize: '0.875rem' }}
+                        formatter={(value: string) =>
+                          value === 'ltvLimit' ? 'LTV limit' :
+                          value === 'dstiLimit' ? 'DSTI limit' : value
+                        }
+                      />
+                      <ReferenceLine
+                        x="Duben 2026"
+                        stroke="hsl(var(--p))"
+                        strokeWidth={2}
+                        strokeDasharray="5 5"
+                        label={{
+                          value: 'Nové regulace v platnosti',
+                          position: 'top',
+                          fill: 'hsl(var(--p))',
+                          fontSize: 12,
+                          fontWeight: 'bold',
+                        }}
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="ltvLimit"
+                        stroke="hsl(var(--s))"
+                        strokeWidth={3}
+                        dot={{ fill: 'hsl(var(--s))', r: 5 }}
+                        activeDot={{ r: 7 }}
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="dstiLimit"
+                        stroke="hsl(var(--a))"
+                        strokeWidth={3}
+                        dot={{ fill: 'hsl(var(--a))', r: 5 }}
+                        activeDot={{ r: 7 }}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                  <div className="mt-4 text-xs text-base-content/60 flex items-center gap-1">
+                    <span className="material-icons text-xs">info</span>
+                    <span>
+                      Graf zobrazuje vývoj limitů LTV a DSTI{' '}
+                      {propertyType === 'investment' ? 'pro investiční nemovitosti' : 'pro primární bydlení'}.
+                      Duben 2026 je klíčový mezník, kdy vstoupily v platnost přísnější regulace ČNB.
+                    </span>
+                  </div>
+                </div>
+              </div>
+
               <div className="overflow-x-auto">
                 <table className="table table-zebra">
                   <thead>
