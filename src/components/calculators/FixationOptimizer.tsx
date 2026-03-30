@@ -72,7 +72,8 @@ function getParamsFromURL(): Partial<Params> {
   if (r10) result.rate10y = clampRate(Number(r10));
   if (r15) result.rate15y = clampRate(Number(r15));
   if (r20) result.rate20y = clampRate(Number(r20));
-  if (la && isNaN(Number(la))) delete result.loanAmount;
+  if (pp && isNaN(Number(pp))) delete result.propertyPrice;
+  if (dp && isNaN(Number(dp))) delete result.downPaymentPercent;
   if (ry && isNaN(Number(ry))) delete result.remainingYears;
   if (hp && isNaN(Number(hp))) delete result.holdingPeriod;
   return result;

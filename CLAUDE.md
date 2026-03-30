@@ -13,6 +13,9 @@ npm run build    # Production build
 npm run preview  # Preview production build
 npm test         # Run vitest (all tests)
 npx vitest run src/lib/mortgage.test.ts  # Run a single test file
+
+# To keep dev server alive in agent/CLI context:
+nohup npm run dev > /tmp/hypoteka-dev.log 2>&1 &
 ```
 
 ## Tech Stack
@@ -49,6 +52,10 @@ Calculators: mortgage payment, rent-vs-buy, stress test, fixation optimizer, tot
 ### UI Components
 - `src/components/ui/` — shared components: `SharedMortgageInputs`, `ResultCard`, `InfoTooltip`, `Slider`
 - `src/components/subsidy/SubsidyNavigator.tsx` — subsidy eligibility wizard
+
+### Icons
+- The project uses **Material Symbols Outlined** (loaded via Google Fonts in `BaseLayout.astro`)
+- In components, use class `material-symbols-outlined` — **not** `material-icons` (that's a different, unloaded font)
 
 ## Content & Tone
 - **Czech only.** Informal "tykání" style (like Airbank). Direct, no banking jargon.
