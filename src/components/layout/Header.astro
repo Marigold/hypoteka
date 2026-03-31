@@ -1,16 +1,18 @@
 ---
+import { url } from '../../lib/url';
+
 const navLinks = [
-	{ href: '/kalkulacky', label: 'Kalkulačky' },
-	{ href: '/clanky', label: 'Články' },
-	{ href: '/o-projektu', label: 'O projektu' },
+	{ href: url('/kalkulacky'), label: 'Kalkulačky' },
+	{ href: url('/clanky'), label: 'Články' },
+	{ href: url('/o-projektu'), label: 'O projektu' },
 ];
 
 const currentPath = Astro.url.pathname;
 ---
 
-<nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl shadow-sm">
+<nav class="sticky top-0 w-full z-50 bg-white/80 backdrop-blur-xl shadow-sm">
 	<div class="flex justify-between items-center px-6 py-4 max-w-7xl mx-auto">
-		<a href="/" class="text-2xl font-black tracking-tighter text-primary-deep no-underline">
+		<a href={url('/')} class="text-2xl font-black tracking-tighter text-primary-deep no-underline">
 			Hypotéka.cz
 		</a>
 
@@ -54,7 +56,7 @@ const currentPath = Astro.url.pathname;
 				</ul>
 			</div>
 
-			<a href="/kalkulacky/splatka-hypoteky" class="bg-gradient-primary text-white px-6 py-2.5 rounded-lg font-bold hover:opacity-90 active:scale-95 transition-all no-underline hidden sm:inline-flex">
+			<a href={url('/kalkulacky/splatka-hypoteky')} class="bg-gradient-primary text-white px-6 py-2.5 rounded-lg font-bold hover:opacity-90 active:scale-95 transition-all no-underline hidden sm:inline-flex">
 				Spočítat hypotéku
 			</a>
 		</div>

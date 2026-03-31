@@ -164,7 +164,7 @@ export default function RentVsBuy() {
               />
               <div className="text-xs text-base-content/50 -mt-2">
                 Fond oprav, pojištění, daň, údržba.{' '}
-                <a href="/kalkulacky/celkove-naklady-vlastnictvi" className="link link-primary">
+                <a href={`${import.meta.env.BASE_URL.replace(/\/$/, '')}/kalkulacky/celkove-naklady-vlastnictvi`} className="link link-primary">
                   Upřesnit v kalkulačce nákladů →
                 </a>
               </div>
@@ -391,7 +391,7 @@ export default function RentVsBuy() {
               Každý měsíc platí splátku hypotéky + <strong>náklady na vlastnictví</strong>{' '}
               (fond oprav, pojištění, daň z nemovitosti, údržba) jako procento z aktuální hodnoty nemovitosti.
               Toto procento si můžete upřesnit v{' '}
-              <a href="/kalkulacky/celkove-naklady-vlastnictvi" className="link link-primary">kalkulačce celkových nákladů</a>.
+              <a href={`${import.meta.env.BASE_URL.replace(/\/$/, '')}/kalkulacky/celkove-naklady-vlastnictvi`} className="link link-primary">kalkulačce celkových nákladů</a>.
             </li>
             <li>Nemovitost každý rok <strong>zhodnocuje</strong> o zadané procento (růst ceny již zahrnuje vliv údržby a rekonstrukcí).</li>
             <li>
@@ -428,23 +428,14 @@ export default function RentVsBuy() {
             <li>Energie a služby — platí je obě strany přibližně stejně.</li>
             <li>Emocionální hodnotu vlastního bydlení.</li>
             <li>Riziko ztráty zaměstnání, rozvodu, stěhování.</li>
-            <li>Změny úrokové sazby po refixaci (pro to máme <a href="/kalkulacky/stresovy-test" className="link link-primary">stresový test</a>).</li>
+            <li>Změny úrokové sazby po refixaci (pro to máme <a href={`${import.meta.env.BASE_URL.replace(/\/$/, '')}/kalkulacky/stresovy-test`} className="link link-primary">stresový test</a>).</li>
             <li>Daň z příjmu při prodeji investic (u ETF po 3 letech osvobozeno).</li>
           </ul>
         </div>
       </div>
 
       {/* Disclaimer */}
-      <div className="text-xs text-base-content/50 border-t border-base-200 pt-4">
-        <p>
-          <strong>Právní upozornění:</strong> Tato kalkulačka slouží pouze k orientačním výpočtům
-          a nepředstavuje finanční poradenství. Výpočet zohledňuje náklady na vlastnictví
-          ({formatPercent(ownershipPercent)} z ceny ročně) a transakční náklady.
-          Skutečné výsledky se mohou výrazně lišit v závislosti na vývoji trhu,
-          konkrétních podmínkách hypotéky a dalších faktorech. Před rozhodnutím se poraďte
-          s nezávislým finančním poradcem.
-        </p>
-      </div>
+
     </div>
   );
 }

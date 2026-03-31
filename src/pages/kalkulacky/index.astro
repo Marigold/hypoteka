@@ -1,9 +1,10 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import { url } from '../../lib/url';
 
 const calculators = [
 	{
-		href: '/kalkulacky/kolik-si-muzu-pujcit',
+		href: url('/kalkulacky/kolik-si-muzu-pujcit'),
 		icon: 'account_balance_wallet',
 		iconBg: 'bg-success-container/10',
 		iconColor: 'text-success',
@@ -12,7 +13,7 @@ const calculators = [
 		description: 'Zjisti, na jak velkou hypotéku máš podle příjmu a dluhů. Včetně pravidel pro mladé do 36 let a investory.',
 	},
 	{
-		href: '/kalkulacky/najem-vs-vlastni',
+		href: url('/kalkulacky/najem-vs-vlastni'),
 		icon: 'compare_arrows',
 		iconBg: 'bg-primary-deep/10',
 		iconColor: 'text-primary-deep',
@@ -21,7 +22,7 @@ const calculators = [
 		description: 'Vyplatí se ti víc pronájem s investováním, nebo koupě na hypotéku? Porovnej oba scénáře na 20 let.',
 	},
 	{
-		href: '/kalkulacky/splatka-hypoteky',
+		href: url('/kalkulacky/splatka-hypoteky'),
 		icon: 'payments',
 		iconBg: 'bg-secondary-container/10',
 		iconColor: 'text-secondary-container',
@@ -30,7 +31,7 @@ const calculators = [
 		description: 'Měsíční splátka, celkové náklady a amortizace – všechno na jednom místě.',
 	},
 	{
-		href: '/kalkulacky/stresovy-test',
+		href: url('/kalkulacky/stresovy-test'),
 		icon: 'warning',
 		iconBg: 'bg-error-container/20',
 		iconColor: 'text-error',
@@ -39,7 +40,7 @@ const calculators = [
 		description: 'Co když úroky vyletí o 2 %? Nebo přijdeš o kus výplaty? Ověř si, jestli to ustojíš.',
 	},
 	{
-		href: '/kalkulacky/regulace-2026',
+		href: url('/kalkulacky/regulace-2026'),
 		icon: 'policy',
 		iconBg: 'bg-primary-container/20',
 		iconColor: 'text-primary',
@@ -48,7 +49,7 @@ const calculators = [
 		description: 'Nová pravidla od dubna 2026 – zjisti, jak ovlivňují tvoji hypotéku a maximální LTV.',
 	},
 	{
-		href: '/kalkulacky/optimalizace-fixace',
+		href: url('/kalkulacky/optimalizace-fixace'),
 		icon: 'tune',
 		iconBg: 'bg-primary-bright/10',
 		iconColor: 'text-primary-bright',
@@ -57,7 +58,7 @@ const calculators = [
 		description: 'Najdi ideální dobu fixace podle svého plánu. Porovnej různá fixační období a ušetři tisíce.',
 	},
 	{
-		href: '/kalkulacky/celkove-naklady-vlastnictvi',
+		href: url('/kalkulacky/celkove-naklady-vlastnictvi'),
 		icon: 'home',
 		iconBg: 'bg-tertiary-fixed',
 		iconColor: 'text-tertiary',
@@ -66,7 +67,7 @@ const calculators = [
 		description: 'Splátka je jen začátek. Fond oprav, pojistka, daň, energie – tady je celý účet.',
 	},
 	{
-		href: '/kalkulacky/nemovitost-vs-akcie',
+		href: url('/kalkulacky/nemovitost-vs-akcie'),
 		icon: 'trending_up',
 		iconBg: 'bg-surface-container-high',
 		iconColor: 'text-on-surface-variant',

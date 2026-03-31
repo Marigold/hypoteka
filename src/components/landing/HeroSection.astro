@@ -1,4 +1,5 @@
 ---
+import { url } from '../../lib/url';
 ---
 
 <section class="max-w-7xl mx-auto px-6 py-16 md:py-28 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
@@ -6,7 +7,7 @@
 	<div class="space-y-8">
 		<div class="inline-flex items-center gap-2 bg-surface-container px-4 py-2 rounded-full text-primary-deep font-semibold text-sm">
 			<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">verified</span>
-			Nezávislý srovnávač bez provizí
+			Nezávislý průvodce bydlením
 		</div>
 
 		<h1 class="text-6xl md:text-8xl font-black tracking-tighter leading-[0.9] text-on-background">
@@ -18,8 +19,8 @@
 		</p>
 
 		<div class="flex flex-col sm:flex-row gap-4 pt-4">
-			<a href="/kalkulacky/najem-vs-vlastni" class="bg-gradient-primary text-white text-lg px-8 py-4 rounded-lg font-bold hover:opacity-90 active:scale-95 transition-all shadow-xl shadow-primary-deep/20 no-underline text-center">
-				Spočítej si to
+			<a href={url('/kalkulacky')} class="bg-gradient-primary text-white text-lg px-8 py-4 rounded-lg font-bold hover:opacity-90 active:scale-95 transition-all shadow-xl shadow-primary-deep/20 no-underline text-center">
+				Vyzkoušej kalkulačky
 			</a>
 			<a href="#jak-to-funguje" class="bg-surface-container-high text-on-surface-variant text-lg px-8 py-4 rounded-lg font-bold hover:bg-outline-variant/30 transition-all no-underline text-center">
 				Jak to funguje?

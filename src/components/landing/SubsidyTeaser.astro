@@ -1,4 +1,6 @@
 ---
+import { url } from '../../lib/url';
+
 const programs = [
 	{
 		icon: 'gavel',
@@ -11,9 +13,9 @@ const programs = [
 		description: 'Úroky z úvěrů na družstevní bydlení nově odečitatelné z daní (max 150 000 Kč/rok).',
 	},
 	{
-		icon: 'savings',
-		title: 'Program dostupného bydlení',
-		description: 'Rozpočet 2,25 mld. Kč – až 80 % pokrytí nákladů s úrokem 1–2 %.',
+		icon: 'person',
+		title: 'Výhody pro mladé do 36 let',
+		description: 'Hypotéka až na 90 % hodnoty nemovitosti — oproti standardním 80 % LTV.',
 	},
 ];
 ---
@@ -39,7 +41,7 @@ const programs = [
 					Česko rozšiřuje programy na podporu dostupného bydlení. Pomůžeme ti se v&nbsp;nich zorientovat.
 				</p>
 			</div>
-			<a href="/podpora" class="bg-white text-primary-deep px-8 py-4 rounded-lg font-black hover:bg-white/90 transition-all whitespace-nowrap no-underline">
+			<a href={url('/podpora')} class="bg-white text-primary-deep px-8 py-4 rounded-lg font-black hover:bg-white/90 transition-all whitespace-nowrap no-underline">
 				Zjistit více
 			</a>
 		</div>

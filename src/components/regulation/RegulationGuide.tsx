@@ -632,7 +632,7 @@ export default function RegulationGuide() {
             Zkusit jiný scénář
           </button>
           <a
-            href="/kalkulacky/hypoteka"
+            href={`${import.meta.env.BASE_URL.replace(/\/$/, '')}/kalkulacky/hypoteka`}
             className="btn btn-outline flex-1"
           >
             <span className="material-symbols-outlined">calculate</span>

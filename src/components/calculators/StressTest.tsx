@@ -283,14 +283,7 @@ export default function StressTest() {
       </div>
 
       {/* Disclaimer */}
-      <div className="text-xs text-base-content/50 border-t border-base-200 pt-4">
-        <p>
-          <strong>Právní upozornění:</strong> Tento stresový test slouží pouze k orientačním
-          výpočtům a nepředstavuje finanční poradenství. Skutečné dopady změn úrokových sazeb
-          závisí na typu fixace, podmínkách vaší smlouvy a dalších faktorech. Před rozhodnutím
-          se poraďte s nezávislým finančním poradcem.
-        </p>
-      </div>
+
     </div>
   );
 }

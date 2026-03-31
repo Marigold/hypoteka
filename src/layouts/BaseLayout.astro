@@ -2,6 +2,7 @@
 import '../styles/global.css';
 import Header from '../components/layout/Header.astro';
 import Footer from '../components/layout/Footer.astro';
+import { url } from '../lib/url';
 
 interface Props {
 	title: string;
@@ -12,14 +13,14 @@ interface Props {
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const { title, description = 'Nezávislý průvodce hypotékami v Česku. Kalkulačky, srovnání nájmu vs. vlastního bydlení, státní podpora 2026.', fullWidth = false, ogImage = '/og-default.png' } = Astro.props;
-const ogImageURL = new URL(ogImage, Astro.site);
+const ogImageURL = new URL(url(ogImage), Astro.site);
 ---
 
 <html lang="cs" class="scroll-smooth">
 	<head>
 		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" type="image/x-icon" href="/favicon.ico" />
+		<link rel="icon" type="image/svg+xml" href={url('/favicon.svg')} />
+		<link rel="icon" type="image/x-icon" href={url('/favicon.ico')} />
 		<meta name="viewport" content="width=device-width" />
 		<link rel="canonical" href={canonicalURL} />
 
@@ -51,8 +52,13 @@ const ogImageURL = new URL(ogImage, Astro.site);
 		<title>{title}</title>
 	</head>
 	<body class="min-h-screen flex flex-col bg-surface text-on-background selection:bg-primary/20">
+		<!-- AI / WIP disclaimer -->
+		<div id="disclaimer-banner" class="bg-amber-50 border-b border-amber-300 text-amber-900 text-sm text-center px-4 py-2.5">
+			<span class="material-symbols-outlined text-[16px] align-text-bottom mr-1">warning</span>
+			<strong>Rozpracovaný projekt</strong> · Obsah byl vygenerován pomocí AI a neprošel kompletní kontrolou. Může obsahovat chyby. Nepoužívejte pro finanční rozhodování. <a href="https://github.com/Marigold/hypoteka" target="_blank" rel="noopener noreferrer" class="underline font-semibold hover:text-amber-950">Zdrojový kód na GitHubu</a>
+		</div>
 		<Header />
-		<main class:list={['flex-1 w-full', fullWidth ? 'pt-20' : 'pt-20 max-w-4xl mx-auto px-4 py-8']}>
+		<main class:list={['flex-1 w-full', fullWidth ? '' : 'max-w-4xl mx-auto px-4 py-8']}>
 			<slot />
 		</main>
 		<Footer />

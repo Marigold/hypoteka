@@ -1,18 +1,20 @@
 ---
+import { url } from '../../lib/url';
+
 const year = new Date().getFullYear();
 
 const toolLinks = [
-	{ href: '/kalkulacky', label: 'Všechny kalkulačky' },
-	{ href: '/kalkulacky/splatka-hypoteky', label: 'Splátka hypotéky' },
-	{ href: '/kalkulacky/najem-vs-vlastni', label: 'Nájem vs. vlastní' },
-	{ href: '/kalkulacky/stresovy-test', label: 'Stresový test' },
+	{ href: url('/kalkulacky'), label: 'Všechny kalkulačky' },
+	{ href: url('/kalkulacky/splatka-hypoteky'), label: 'Splátka hypotéky' },
+	{ href: url('/kalkulacky/najem-vs-vlastni'), label: 'Nájem vs. vlastní' },
+	{ href: url('/kalkulacky/stresovy-test'), label: 'Stresový test' },
 ];
 
 const infoLinks = [
-	{ href: '/clanky', label: 'Články' },
-	{ href: '/o-projektu', label: 'O projektu' },
-	{ href: '/o-projektu#metodika', label: 'Metodika výpočtů' },
-	{ href: '/o-projektu#kontakt', label: 'Kontakt' },
+	{ href: url('/clanky'), label: 'Články' },
+	{ href: url('/o-projektu'), label: 'O projektu' },
+	{ href: url('/o-projektu#metodika'), label: 'Metodika výpočtů' },
+	{ href: url('/o-projektu#kontakt'), label: 'Kontakt' },
 ];
 
 const dataSources = [
@@ -28,7 +30,7 @@ const dataSources = [
 		<div class="space-y-6">
 			<div class="text-lg font-bold text-on-background">Hypotéka.cz</div>
 			<p class="text-sm text-on-surface-variant leading-relaxed max-w-xs">
-				Nezávislý vzdělávací projekt o&nbsp;financování bydlení. Nejsme banka ani zprostředkovatel.
+				Osobní projekt o&nbsp;financování bydlení. Nejsem banka ani zprostředkovatel.
 			</p>
 			<div class="flex flex-wrap gap-2">
 				{dataSources.map(({ label, href, title }) => (
@@ -78,14 +80,30 @@ const dataSources = [
 		</div>
 	</div>
 
+	<!-- Legal disclaimer -->
+	<div class="max-w-7xl mx-auto px-8 py-6 border-t border-outline-variant/10">
+		<div class="bg-tertiary-fixed/30 rounded-xl p-5 border border-tertiary-fixed text-sm">
+			<p class="font-bold text-on-background mb-1">Právní upozornění</p>
+			<p class="text-on-surface-variant leading-relaxed">
+				Všechny kalkulačky a&nbsp;články slouží pouze k&nbsp;vzdělávacím účelům a&nbsp;nepředstavují finanční poradenství.
+				Výsledky jsou orientační. Před důležitým finančním rozhodnutím se poraď s&nbsp;odborníkem.
+				Data jsou platná k&nbsp;datu publikace a&nbsp;mohou se změnit.
+			</p>
+		</div>
+	</div>
+
 	<div class="max-w-7xl mx-auto px-8 py-8 border-t border-outline-variant/10 flex flex-col md:flex-row justify-between items-center gap-4">
 		<p class="text-sm text-on-surface-variant">
-			&copy; {year} Hypotéka.cz · Neziskovka, ne banka.
+			&copy; {year} Hypotéka.cz · Osobní projekt, ne banka.
 		</p>
 		<div class="flex gap-6 text-sm text-on-surface-variant">
-			<a href="/o-projektu#metodika" class="flex items-center gap-1 hover:text-primary-deep transition-colors no-underline">
+			<a href={url('/o-projektu#metodika')} class="flex items-center gap-1 hover:text-primary-deep transition-colors no-underline">
 				<span class="material-symbols-outlined text-[14px]">history_edu</span>
 				Metodika výpočtů
+			</a>
+			<a href="https://github.com/Marigold/hypoteka" target="_blank" rel="noopener noreferrer" class="flex items-center gap-1 hover:text-primary-deep transition-colors no-underline">
+				<span class="material-symbols-outlined text-[14px]">code</span>
+				Zdrojový kód
 			</a>
 		</div>
 	</div>

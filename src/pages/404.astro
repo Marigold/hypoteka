@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { url } from '../lib/url';
 ---
 
 <BaseLayout title="Stránka nenalezena – Hypotéka.cz" description="Hledaná stránka neexistuje." fullWidth>
@@ -13,10 +14,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 		<p class="text-on-surface-variant mb-10">Možná se přestěhovala, nebo jsi špatně zadal/a adresu.</p>
 
 		<div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-			<a href="/" class="bg-gradient-primary text-white text-lg px-8 py-4 rounded-lg font-bold hover:opacity-90 active:scale-95 transition-all no-underline">
+			<a href={url('/')} class="bg-gradient-primary text-white text-lg px-8 py-4 rounded-lg font-bold hover:opacity-90 active:scale-95 transition-all no-underline">
 				Zpět na hlavní stránku
 			</a>
-			<a href="/kalkulacky" class="bg-surface-container-high text-on-surface-variant text-lg px-8 py-4 rounded-lg font-bold hover:bg-outline-variant/30 transition-all no-underline">
+			<a href={url('/kalkulacky')} class="bg-surface-container-high text-on-surface-variant text-lg px-8 py-4 rounded-lg font-bold hover:bg-outline-variant/30 transition-all no-underline">
 				Kalkulačky
 			</a>
 		</div>
@@ -25,15 +26,15 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 		<div class="mt-16 max-w-2xl mx-auto">
 			<p class="text-sm font-bold text-on-surface-variant uppercase tracking-wider mb-6">Mohlo by tě zajímat</p>
 			<div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-				<a href="/kalkulacky/najem-vs-vlastni" class="bg-surface-container-lowest p-5 rounded-xl ambient-shadow hover:-translate-y-0.5 transition-all no-underline text-left">
+				<a href={url('/kalkulacky/najem-vs-vlastni')} class="bg-surface-container-lowest p-5 rounded-xl ambient-shadow hover:-translate-y-0.5 transition-all no-underline text-left">
 					<span class="material-symbols-outlined text-primary-deep text-2xl mb-2">compare_arrows</span>
 					<p class="font-bold text-on-background text-sm">Nájem vs. vlastní</p>
 				</a>
-				<a href="/kalkulacky/splatka-hypoteky" class="bg-surface-container-lowest p-5 rounded-xl ambient-shadow hover:-translate-y-0.5 transition-all no-underline text-left">
+				<a href={url('/kalkulacky/splatka-hypoteky')} class="bg-surface-container-lowest p-5 rounded-xl ambient-shadow hover:-translate-y-0.5 transition-all no-underline text-left">
 					<span class="material-symbols-outlined text-secondary-container text-2xl mb-2">payments</span>
 					<p class="font-bold text-on-background text-sm">Splátka hypotéky</p>
 				</a>
-				<a href="/clanky" class="bg-surface-container-lowest p-5 rounded-xl ambient-shadow hover:-translate-y-0.5 transition-all no-underline text-left">
+				<a href={url('/clanky')} class="bg-surface-container-lowest p-5 rounded-xl ambient-shadow hover:-translate-y-0.5 transition-all no-underline text-left">
 					<span class="material-symbols-outlined text-tertiary text-2xl mb-2">menu_book</span>
 					<p class="font-bold text-on-background text-sm">Články</p>
 				</a>

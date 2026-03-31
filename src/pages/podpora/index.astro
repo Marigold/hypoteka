@@ -1,9 +1,10 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import SubsidyNavigator from '../../components/subsidy/SubsidyNavigator.tsx';
+import { url } from '../../lib/url';
 
 const breadcrumbs = [
-	{ label: 'Domů', href: '/' },
+	{ label: 'Domů', href: url('/') },
 	{ label: 'Státní podpora', href: null },
 ];
 ---

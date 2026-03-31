@@ -930,7 +930,7 @@ export default function SubsidyNavigator() {
             <button onClick={handleStartOver} className="btn btn-outline">
               ← Vyplnit znovu
             </button>
-            <a href="/clanky" className="btn btn-primary no-underline">
+            <a href={`${import.meta.env.BASE_URL.replace(/\/$/, '')}/clanky`} className="btn btn-primary no-underline">
               Zjistit více o dotacích
               <svg
                 xmlns="http://www.w3.org/2000/svg"

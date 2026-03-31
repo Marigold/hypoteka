@@ -1,5 +1,6 @@
 ---
 import BaseLayout from './BaseLayout.astro';
+import { url } from '../lib/url';
 
 interface Props {
 	title: string;
@@ -12,8 +13,8 @@ interface Props {
 const { title, description, icon, iconBg, iconColor } = Astro.props;
 
 const breadcrumbs = [
-	{ label: 'Domů', href: '/' },
-	{ label: 'Kalkulačky', href: '/kalkulacky' },
+	{ label: 'Domů', href: url('/') },
+	{ label: 'Kalkulačky', href: url('/kalkulacky') },
 	{ label: title, href: null },
 ];
 ---
@@ -48,9 +49,4 @@ const breadcrumbs = [
 		<slot />
 	</div>
 
-	<!-- Disclaimer -->
-	<div class="mt-8 p-4 bg-surface-container-low rounded-xl border border-outline-variant/10 text-sm text-on-surface-variant">
-		<p class="font-semibold mb-1">Právní upozornění</p>
-		<p>Výsledky jsou orientační a nepředstavují finanční poradenství. Před rozhodnutím se poraď s&nbsp;odborníkem.</p>
-	</div>
 </BaseLayout>

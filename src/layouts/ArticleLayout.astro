@@ -1,5 +1,6 @@
 ---
 import BaseLayout from './BaseLayout.astro';
+import { url } from '../lib/url';
 
 interface Props {
 	title: string;
@@ -17,8 +18,8 @@ const formatDate = (date: Date) =>
 	date.toLocaleDateString('cs-CZ', { year: 'numeric', month: 'long', day: 'numeric' });
 
 const breadcrumbs = [
-	{ label: 'Domů', href: '/' },
-	{ label: 'Články', href: '/clanky' },
+	{ label: 'Domů', href: url('/') },
+	{ label: 'Články', href: url('/clanky') },
 	{ label: title, href: null },
 ];
 ---
@@ -68,16 +69,5 @@ const breadcrumbs = [
 			<slot />
 		</div>
 
-		<!-- Disclaimer -->
-		{disclaimer && (
-			<div class="mt-10 p-5 bg-tertiary-fixed/30 rounded-xl border border-tertiary-fixed text-sm text-on-background">
-				<p class="font-bold mb-1">Právní upozornění</p>
-				<p class="text-on-surface-variant">
-					Tento článek slouží pouze k&nbsp;vzdělávacím účelům a&nbsp;nepředstavuje finanční poradenství.
-					Před důležitým finančním rozhodnutím se poraď s&nbsp;odborníkem.
-					Data jsou platná k&nbsp;datu publikace a&nbsp;mohou se změnit.
-				</p>
-			</div>
-		)}
 	</article>
 </BaseLayout>

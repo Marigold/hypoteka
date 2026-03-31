@@ -1004,14 +1004,7 @@ export default function FixationOptimizer() {
       </div>
 
       {/* Disclaimer */}
-      <div className="text-xs text-base-content/50 border-t border-base-200 pt-4">
-        <p>
-          <strong>Právní upozornění:</strong> Tento nástroj slouží pouze k orientačním výpočtům
-          a nepředstavuje finanční poradenství. Optimální délka fixace závisí na mnoha faktorech
-          včetně vývoje úrokových sazeb, inflace a vaší osobní situace. Před rozhodnutím se
-          poraďte s nezávislým finančním poradcem nebo přímo s bankou.
-        </p>
-      </div>
+
     </div>
   );
 }

@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import { url } from '../../lib/url';
 
 const articles = (await getCollection('articles')).sort(
 	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
@@ -22,7 +23,7 @@ const articles = (await getCollection('articles')).sort(
 		) : (
 			<div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
 				{articles.map((entry) => (
-					<a href={`/clanky/${entry.id}`} class="group bg-surface-container-lowest p-8 rounded-xl ambient-shadow hover:-translate-y-1 transition-all no-underline">
+					<a href={url(`/clanky/${entry.id}`)} class="group bg-surface-container-lowest p-8 rounded-xl ambient-shadow hover:-translate-y-1 transition-all no-underline">
 						<div class="flex items-center gap-2 mb-6">
 							<span class="text-xs font-bold uppercase tracking-wider text-primary-deep bg-primary-deep/10 px-3 py-1 rounded-full">
 								{entry.data.category}

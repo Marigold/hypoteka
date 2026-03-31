@@ -344,14 +344,7 @@ export default function MortgagePayment() {
       </div>
 
       {/* Disclaimer */}
-      <div className="text-xs text-base-content/50 border-t border-base-200 pt-4">
-        <p>
-          <strong>Právní upozornění:</strong> Tato kalkulačka slouží pouze k orientačním výpočtům
-          a nepředstavuje finanční poradenství. Skutečné podmínky hypotéky se mohou lišit v
-          závislosti na konkrétní bance, vašem úvěrovém profilu a dalších faktorech. Před
-          podpisem smlouvy se poraďte s nezávislým finančním poradcem nebo přímo s bankou.
-        </p>
-      </div>
+
     </div>
   );
 }
