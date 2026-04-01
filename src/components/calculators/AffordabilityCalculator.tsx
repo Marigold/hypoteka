@@ -17,7 +17,8 @@ import {
   $propertyPrice,
   $downPaymentPercent,
   $mortgageRate,
-  $mortgageYears
+  $mortgageYears,
+  $autoSyncAffordability,
 } from '../../stores/mortgage';
 
 
@@ -104,6 +105,7 @@ export default function AffordabilityCalculator() {
   const urlParams = useMemo(() => getParamsFromURL(), []);
   const rate = useStore($mortgageRate);
   const years = useStore($mortgageYears);
+  const autoSyncAffordability = useStore($autoSyncAffordability);
 
   const [monthlyIncome, setMonthlyIncome] = useState(
     urlParams.monthlyIncome ?? DEFAULT_MONTHLY_INCOME
@@ -168,6 +170,11 @@ export default function AffordabilityCalculator() {
     $propertyPrice.set(Math.round(results.maxPropertyPrice));
     $downPaymentPercent.set(Math.round(results.downPaymentPercent));
   }, [results.maxPropertyPrice, results.downPaymentPercent]);
+
+  useEffect(() => {
+    if (!autoSyncAffordability) return;
+    handleUseInCalculators();
+  }, [autoSyncAffordability, handleUseInCalculators]);
 
   return (
     <div className="space-y-8">
@@ -353,19 +360,36 @@ export default function AffordabilityCalculator() {
 
       {/* Use in Other Calculators */}
       <div className="card bg-base-100 border border-primary/20 shadow-sm">
-        <div className="card-body">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div>
-              <h3 className="font-semibold">Použít tyto hodnoty v jiných kalkulačkách</h3>
-              <p className="text-sm text-base-content/70 mt-1">
-                Uložit vypočítanou cenu nemovitosti a akontaci pro použití v ostatních kalkulačkách (např. stresový test, fixace).
-              </p>
-            </div>
+        <div className="card-body space-y-4">
+          <div>
+            <h3 className="font-semibold">Použít tyto hodnoty v jiných kalkulačkách</h3>
+            <p className="text-sm text-base-content/70 mt-1">
+              Cena nemovitosti a akontace se dají buď uložit ručně, nebo přenášet automaticky do ostatních kalkulaček.
+            </p>
+          </div>
+
+          <label className="label cursor-pointer justify-start gap-3 p-0">
+            <input
+              type="checkbox"
+              className="toggle toggle-primary"
+              checked={autoSyncAffordability}
+              onChange={(e) => $autoSyncAffordability.set(e.target.checked)}
+            />
+            <span className="label-text font-medium">Automaticky přenášet hodnoty do ostatních kalkulaček</span>
+          </label>
+
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <p className="text-sm text-base-content/60">
+              {autoSyncAffordability
+                ? 'Automatický přenos je zapnutý — změny se ukládají průběžně.'
+                : 'Automatický přenos je vypnutý — pro jednorázové uložení použij tlačítko vpravo.'}
+            </p>
             <button
               onClick={handleUseInCalculators}
               className="btn btn-primary btn-sm sm:btn-md whitespace-nowrap"
+              disabled={autoSyncAffordability}
             >
-              Uložit hodnoty
+              Uložit hodnoty teď
             </button>
           </div>
         </div>

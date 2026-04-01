@@ -1,0 +1,103 @@
+---
+import { url } from '../../lib/url';
+
+const calculators = [
+	{
+		href: url('/kalkulacky/kolik-si-muzu-pujcit'),
+		icon: 'account_balance_wallet',
+		iconBg: 'bg-success-container/10',
+		iconColor: 'text-success',
+		hoverColor: 'group-hover:text-success',
+		title: 'Kolik si můžu půjčit',
+		description: 'Zjisti, na jak velkou hypotéku máš podle příjmu a dluhů.',
+	},
+	{
+		href: url('/kalkulacky/najem-vs-vlastni'),
+		icon: 'compare_arrows',
+		iconBg: 'bg-primary-deep/10',
+		iconColor: 'text-primary-deep',
+		hoverColor: 'group-hover:text-primary-deep',
+		title: 'Nájem vs. vlastní',
+		description: 'Vyplatí se ti víc pronájem s investováním, nebo koupě na hypotéku?',
+	},
+	{
+		href: url('/kalkulacky/splatka-hypoteky'),
+		icon: 'payments',
+		iconBg: 'bg-secondary-container/10',
+		iconColor: 'text-secondary-container',
+		hoverColor: 'group-hover:text-secondary-container',
+		title: 'Kolik budeš platit',
+		description: 'Měsíční splátka, celkové náklady a amortizace na jednom místě.',
+	},
+	{
+		href: url('/kalkulacky/stresovy-test'),
+		icon: 'warning',
+		iconBg: 'bg-error-container/20',
+		iconColor: 'text-error',
+		hoverColor: 'group-hover:text-error',
+		title: 'Stresový test',
+		description: 'Co když úroky vyletí o 2 %? Ověř si, jestli to ustojíš.',
+	},
+	{
+		href: url('/kalkulacky/regulace-2026'),
+		icon: 'policy',
+		iconBg: 'bg-primary-container/20',
+		iconColor: 'text-primary',
+		hoverColor: 'group-hover:text-primary',
+		title: 'Regulace 2026',
+		description: 'Nová pravidla od dubna 2026 – jak ovlivňují tvoji hypotéku.',
+	},
+	{
+		href: url('/kalkulacky/optimalizace-fixace'),
+		icon: 'tune',
+		iconBg: 'bg-primary-bright/10',
+		iconColor: 'text-primary-bright',
+		hoverColor: 'group-hover:text-primary-bright',
+		title: 'Optimalizace fixace',
+		description: 'Najdi ideální dobu fixace a ušetři tisíce na úrocích.',
+	},
+	{
+		href: url('/kalkulacky/celkove-naklady-vlastnictvi'),
+		icon: 'home',
+		iconBg: 'bg-tertiary-fixed',
+		iconColor: 'text-tertiary',
+		hoverColor: 'group-hover:text-tertiary',
+		title: 'Celkové náklady vlastnictví',
+		description: 'Fond oprav, pojistka, daň, energie – tady je celý účet.',
+	},
+	{
+		href: url('/kalkulacky/nemovitost-vs-akcie'),
+		icon: 'trending_up',
+		iconBg: 'bg-surface-container-high',
+		iconColor: 'text-on-surface-variant',
+		hoverColor: 'group-hover:text-primary-deep',
+		title: 'Nemovitost vs. akcie',
+		description: 'Porovnej investici do nemovitosti s investováním do akcií.',
+	},
+];
+---
+
+<section id="kalkulacky" class="max-w-7xl mx-auto px-6 py-24">
+	<div class="mb-16">
+		<h2 class="text-4xl md:text-5xl font-black tracking-tighter mb-4">Kalkulačky</h2>
+		<p class="text-on-surface-variant text-lg max-w-2xl">Naklikej si svoji situaci a&nbsp;uvidíš, jak na tom jsi. Žádná registrace, žádné osobní údaje.</p>
+	</div>
+
+	<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+		{calculators.map((calc) => (
+			<a
+				href={calc.href}
+				class="group bg-surface-container-lowest p-8 rounded-xl ambient-shadow hover:-translate-y-1 transition-all no-underline"
+			>
+				<div class="flex justify-between items-start mb-8">
+					<div class:list={['w-14 h-14 rounded-xl flex items-center justify-center', calc.iconBg]}>
+						<span class:list={['material-symbols-outlined text-3xl', calc.iconColor]}>{calc.icon}</span>
+					</div>
+					<span class:list={['material-symbols-outlined text-outline-variant transition-colors', calc.hoverColor]}>arrow_forward_ios</span>
+				</div>
+				<h3 class="text-xl font-bold mb-3 tracking-tight text-on-background">{calc.title}</h3>
+				<p class="text-on-surface-variant text-sm leading-relaxed">{calc.description}</p>
+			</a>
+		))}
+	</div>
+</section>

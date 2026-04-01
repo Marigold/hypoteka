@@ -25,6 +25,11 @@ import {
   formatPercent,
 } from '../../lib/formatters';
 import { $propertyPrice, $downPaymentPercent, $mortgageRate, $mortgageYears } from '../../stores/mortgage';
+import {
+  DEFAULT_PROPERTY_APPRECIATION,
+  DEFAULT_RENTAL_YIELD,
+  DEFAULT_INVESTMENT_RETURN,
+} from '../../lib/defaults';
 
 interface Params {
   propertyPrice: number;
@@ -32,7 +37,7 @@ interface Params {
   mortgageRate: number;
   mortgageYears: number;
   propertyAppreciation: number;
-  monthlyRentalIncome: number;
+  rentalYield: number;
   holdingPeriod: number;
   stockReturnRate: number;
 }
@@ -43,7 +48,7 @@ const URL_KEYS: Record<keyof Params, string> = {
   mortgageRate: 'urok',
   mortgageYears: 'roky',
   propertyAppreciation: 'rust_ceny',
-  monthlyRentalIncome: 'najem',
+  rentalYield: 'najem',
   holdingPeriod: 'horizont',
   stockReturnRate: 'vynosy_akcie',
 };
@@ -70,10 +75,10 @@ function setParamsToURL(params: Params) {
 }
 
 const DEFAULTS = {
-  propertyAppreciation: 3,
-  monthlyRentalIncome: 15_000,
+  propertyAppreciation: DEFAULT_PROPERTY_APPRECIATION,
+  rentalYield: DEFAULT_RENTAL_YIELD,
   holdingPeriod: 15,
-  stockReturnRate: 7,
+  stockReturnRate: DEFAULT_INVESTMENT_RETURN,
 };
 
 export default function InvestmentComparison() {
@@ -83,9 +88,11 @@ export default function InvestmentComparison() {
   const mortgageRate = useStore($mortgageRate);
   const mortgageYears = useStore($mortgageYears);
   const [propertyAppreciation, setPropertyAppreciation] = useState(urlParams.propertyAppreciation ?? DEFAULTS.propertyAppreciation);
-  const [monthlyRentalIncome, setMonthlyRentalIncome] = useState(urlParams.monthlyRentalIncome ?? DEFAULTS.monthlyRentalIncome);
+  const [rentalYield, setRentalYield] = useState(urlParams.rentalYield ?? DEFAULTS.rentalYield);
   const [holdingPeriod, setHoldingPeriod] = useState(urlParams.holdingPeriod ?? DEFAULTS.holdingPeriod);
   const [stockReturnRate, setStockReturnRate] = useState(urlParams.stockReturnRate ?? DEFAULTS.stockReturnRate);
+
+  const monthlyRentalIncome = Math.round(propertyPrice * (rentalYield / 100) / 12);
 
   // Initialize store from URL params (once on mount)
   useEffect(() => {
@@ -101,7 +108,7 @@ export default function InvestmentComparison() {
     mortgageRate,
     mortgageYears,
     propertyAppreciation,
-    monthlyRentalIncome,
+    rentalYield,
     holdingPeriod,
     stockReturnRate,
   };
@@ -109,7 +116,7 @@ export default function InvestmentComparison() {
   // Sync to URL
   useEffect(() => {
     setParamsToURL(params);
-  }, [propertyPrice, downPaymentPercent, mortgageRate, mortgageYears, propertyAppreciation, monthlyRentalIncome, holdingPeriod, stockReturnRate]);
+  }, [propertyPrice, downPaymentPercent, mortgageRate, mortgageYears, propertyAppreciation, rentalYield, holdingPeriod, stockReturnRate]);
 
   const downPayment = Math.round(propertyPrice * (downPaymentPercent / 100));
   const investmentAmount = useMemo(() => {
@@ -132,7 +139,7 @@ export default function InvestmentComparison() {
         propertyTransactionCost: 4,
         rentalTaxRate: 10.5,
       }),
-    [propertyPrice, downPaymentPercent, mortgageRate, mortgageYears, propertyAppreciation, monthlyRentalIncome, holdingPeriod, stockReturnRate],
+    [propertyPrice, downPaymentPercent, mortgageRate, mortgageYears, propertyAppreciation, monthlyRentalIncome, holdingPeriod, stockReturnRate, rentalYield],
   );
 
   // Summary statistics at end of holding period
@@ -211,18 +218,21 @@ export default function InvestmentComparison() {
               />
 
               <Slider
-                label="Měsíční příjem z nájmu"
-                value={monthlyRentalIncome}
+                label="Výnos z pronájmu (roční)"
+                value={rentalYield}
                 min={0}
-                max={40_000}
-                step={500}
-                onChange={setMonthlyRentalIncome}
-                formatValue={(v) => formatCurrency(v)}
-                minLabel="0 Kč"
-                maxLabel="40 000 Kč"
+                max={8}
+                step={0.25}
+                onChange={setRentalYield}
+                formatValue={(v) => formatPercent(v)}
+                minLabel="0 %"
+                maxLabel="8 %"
                 showInput
-                suffix="Kč"
+                suffix="%"
               />
+              <div className="text-sm text-base-content/60">
+                Měsíční příjem z nájmu: <strong>{formatCurrency(monthlyRentalIncome)}</strong>
+              </div>
             </div>
 
             {/* Stock Market inputs */}

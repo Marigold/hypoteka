@@ -1,0 +1,45 @@
+---
+import { getCollection } from 'astro:content';
+import { url } from '../../lib/url';
+
+const articles = (await getCollection('articles')).sort(
+	(a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime()
+);
+
+const categoryIcon: Record<string, string> = {
+	'Základy hypoték': 'school',
+	'Rozhodování o bydlení': 'balance',
+	'Státní podpora': 'gavel',
+	'Praktické rady': 'lightbulb',
+};
+---
+
+<section class="max-w-7xl mx-auto px-6 py-24">
+	<div class="mb-16">
+		<h2 class="text-4xl md:text-5xl font-black tracking-tighter mb-4">Články</h2>
+		<p class="text-on-surface-variant text-lg max-w-2xl">Srozumitelně vysvětlujeme hypotéky, trh s&nbsp;bydlením i&nbsp;státní podporu. Bez bankovního žargonu.</p>
+	</div>
+
+	<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+		{articles.map((article) => (
+			<a
+				href={url(`/clanky/${article.id}`)}
+				class="group bg-surface-container-lowest p-8 rounded-xl ambient-shadow hover:-translate-y-1 transition-all no-underline"
+			>
+				<div class="flex justify-between items-start mb-8">
+					<div class="w-14 h-14 rounded-xl flex items-center justify-center bg-primary-deep/10">
+						<span class="material-symbols-outlined text-3xl text-primary-deep">
+							{categoryIcon[article.data.category] || 'article'}
+						</span>
+					</div>
+					<span class="material-symbols-outlined text-outline-variant transition-colors group-hover:text-primary-deep">arrow_forward_ios</span>
+				</div>
+				<div class="mb-3">
+					<span class="text-xs font-bold uppercase tracking-wider text-on-surface-variant/70">{article.data.category}</span>
+				</div>
+				<h3 class="text-xl font-bold mb-3 tracking-tight text-on-background">{article.data.title}</h3>
+				<p class="text-on-surface-variant text-sm leading-relaxed">{article.data.description}</p>
+			</a>
+		))}
+	</div>
+</section>
