@@ -42,6 +42,15 @@ export const $mortgageYears = persistentAtom<number>(
   },
 );
 
+export const $autoSyncAffordability = persistentAtom<boolean>(
+  'hypoteka:auto-sync-affordability',
+  false,
+  {
+    encode: JSON.stringify,
+    decode: JSON.parse,
+  },
+);
+
 export const $mortgageAmount = computed(
   [$propertyPrice, $downPaymentPercent],
   (price, dp) => Math.round(price * (1 - dp / 100)),

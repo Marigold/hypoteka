@@ -2,7 +2,7 @@
 
 > ⚠️ **Rozpracovaný projekt.** Obsah byl z velké části vygenerován pomocí AI a neprošel kompletní kontrolou. Může obsahovat chyby — nepoužívejte pro finanční rozhodování.
 
-Osobní projekt, který se snaží srozumitelně vysvětlit, jak fungují hypotéky v Česku. Kalkulačky, články a průvodce státní podporou — bez reklam, provizí a bankovního žargonu.
+Osobní projekt, který se snaží srozumitelně vysvětlit, jak fungují hypotéky v Česku. Kalkulačky, články a průvodce státní podporou.
 
 **→ [Živá verze](https://marigold.github.io/hypoteka/)**
 

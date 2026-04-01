@@ -1,0 +1,86 @@
+---
+title: "Povolení vs. dokončené byty: Jak číst data o výstavbě bez chaosu"
+description: "Jaký je rozdíl mezi stavebním povolením a dokončeným bytem? Přehledně vysvětleno na datech ČSÚ, proč se tvrzení o výstavbě často jeví jako rozpor." 
+author: "Hypotéka na rovinu · člověk + AI"
+pubDate: 2026-03-31
+category: "Rozhodování o bydlení"
+keywords: ["výstavba bytů", "stavební povolení", "dokončené byty", "ČSÚ bydlení", "ceny nemovitostí"]
+disclaimer: true
+---
+
+import ConstructionRealityCharts from '../../components/articles/ConstructionRealityCharts';
+
+Když se řeší ceny bytů, často narazíš na dvě tvrzení, která vypadají jako rozpor:
+
+- **„Je bída se stavěním.“**
+- **„Staví se nejvíc v historii.“**
+
+Ve skutečnosti to nemusí být spor. Jen se míchají **různé fáze stejného procesu**.
+
+Jestli řešíš i širší kontext cen, navazuje na to článek [Růst cen nemovitostí v Česku: Co říkají data a co očekávat?](/clanky/rust-cen-nemovitosti).
+
+## Jaký je rozdíl mezi stavebním povolením a dokončeným bytem?
+
+Byty vznikají v čase. Proto jsou důležité minimálně tři typy čísel:
+
+1. **Povolení** – co se smí začít stavět (budoucí nabídka)
+2. **Výstavba** – co je rozestavěné
+3. **Dokončení** – co už je reálně hotové a vstupuje na trh
+
+Když někdo sleduje jen jednu fázi, snadno dojde k opačnému závěru než někdo jiný.
+
+V grafech níže pracujeme hlavně s první a třetí fází (povolení + dokončení), protože pro ně máme dlouhé řady ČSÚ: povolení od roku 2005 a dokončené byty od roku 1997.
+
+**Důležité:** „povolení" v tomto článku znamená počet povolení na bytové budovy (ne počet bytů), zatímco „dokončené" je počet bytových jednotek. Proto porovnáváme hlavně **trend**, ne absolutní úroveň.
+
+<ConstructionRealityCharts client:load />
+
+## Co v datech vidíš na první pohled
+
+- Povolení na nové bytové budovy v ČR spadla z **18 745 (2021)** na **10 607 (2025)**, tedy o **43,4 %**.
+- Dokončené byty měly rekord už v roce **2007 (51 138)**.
+- Poslední dostupný rok dokončení (**2024**) už ukazuje pokles na **36 843** (meziročně **-17,3 %**).
+
+Tohle je přesně ten důvod, proč můžeš v jeden moment slyšet obě věty zároveň:
+
+- zásoba nově povolených projektů slábne,
+- ale ještě dobíhají projekty z dřívějších let.
+
+## A co index stavební produkce z ČSÚ?
+
+To je dobrá otázka — a právě tady se to často plete.
+
+Index stavební produkce (`200075`) měří **stavební práce celkem**, ne jen nové bytové projekty. Zahrnuje tedy i jiné části stavebnictví (např. inženýrské stavitelství, nebytové stavby, další typy prací).
+
+V aktuálních dostupných datech ČSÚ (2020–2025) je u řady „Stavební práce celkem" (stálé ceny, průměr bazického roku) rok **2025** opravdu nejvyšší (**108,3**, kde rok 2021 = 100) — viz Graf 4 výše.
+
+Takže obě věty můžou platit zároveň:
+
+- stavebnictví jako celek může být vysoko,
+- a zároveň může klesat pipeline nové bytové výstavby.
+
+## Co to znamená pro ceny bytů
+
+Ceny často nereagují jen na to, co je hotové teď, ale i na to, co bude dostupné v dalších letech.
+
+Proto když dlouhodobě padají povolení, je to varování pro budoucí nabídku. A pokud poptávka zůstane silná (např. kvůli migraci do měst, růstu příjmů a dostupnosti hypoték), může to držet tlak na ceny nahoru i ve chvíli, kdy jsou dokončení ještě relativně vysoká.
+
+## Jak ta čísla používat v praxi
+
+Když řešíš „koupit teď, nebo čekat“, sleduj vždy současně:
+
+1. **Povolení** (trend poslední 2–3 roky)
+2. **Dokončené byty** (jestli trh reálně doplňuje nabídku)
+3. **Dostupnost financování** (hypotéční sazby + limity)
+
+Teprve kombinace těchto tří věcí dává smysluplný obrázek.
+
+Pak si scénáře můžeš rovnou zkusit v [kalkulačce nájem vs. vlastní](/kalkulacky/najem-vs-vlastni) a dopad sazby na cashflow v [kalkulačce splátky hypotéky](/kalkulacky/splatka-hypoteky).
+
+## Shrnutí v jedné větě
+
+Nejde o to, že by jedna strana „neměla pravdu“. Jen se dívá na jinou fázi stejného procesu výstavby.
+
+---
+
+*Data: ČSÚ [200077 – Stavební povolení](https://csu.gov.cz/docs/107508/130319fd-bc2c-2008-7e4c-e26b183057ce/200077-23dds.htm), [200068 – Dokončené byty v obcích](https://csu.gov.cz/docs/107508/b8162c4b-9666-eb7a-9712-81190103364d/200068-22dds.htm) a [200075 – Index stavební produkce](https://csu.gov.cz/docs/107508/e89c424a-e3df-bb6c-cffe-c8851ef50ec1/200075-24dds.docx?version=1.0). Datové podklady a exporty vznikly skriptem `scripts/articles/generate-vystavba-data.py` (výstupy v `ai/articles/vystavba/`), doplnění k indexu stavební produkce je ověřeno přes `czso` nad datasetem `200075`. Poslední dostupný rok: 2025 pro povolení a index stavební produkce, 2024 pro dokončené byty.*

@@ -19,6 +19,12 @@ export function rehypeBaseUrl(base: string) {
           node.properties.href = `${cleanBase}${href}`;
         }
       }
+      if (node.tagName === 'img' && node.properties?.src) {
+        const src = String(node.properties.src);
+        if (src.startsWith('/') && !src.startsWith(cleanBase + '/') && src !== cleanBase) {
+          node.properties.src = `${cleanBase}${src}`;
+        }
+      }
     });
   };
 }

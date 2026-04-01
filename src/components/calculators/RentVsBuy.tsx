@@ -27,11 +27,16 @@ import {
   $bankFee,
   $agentCommission,
 } from '../../stores/ownershipCosts';
+import {
+  DEFAULT_RENTAL_YIELD,
+  DEFAULT_PROPERTY_APPRECIATION,
+  DEFAULT_INVESTMENT_RETURN,
+} from '../../lib/defaults';
 
 const DEFAULTS = {
-  rentalYield: 4,
-  propertyAppreciation: 5,
-  investmentReturnRate: 7,
+  rentalYield: DEFAULT_RENTAL_YIELD,
+  propertyAppreciation: DEFAULT_PROPERTY_APPRECIATION,
+  investmentReturnRate: DEFAULT_INVESTMENT_RETURN,
 };
 
 export default function RentVsBuy() {

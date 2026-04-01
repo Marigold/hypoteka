@@ -1,0 +1,302 @@
+export interface ConstructionYearPoint {
+  year: number;
+  permits: number | null;
+  completed: number | null;
+  permits_yoy: number | null;
+  completed_yoy: number | null;
+  permits_idx_2019: number | null;
+  completed_idx_2019: number | null;
+}
+
+export interface ConstructionProductionIndexPoint {
+  year: number;
+  index_total: number;
+  index_buildings: number;
+  index_engineering: number;
+}
+
+// Zdroj: ČSÚ dataset 200077 (Stavební povolení) + 200068 (Dokončené byty v obcích)
+// Vygenerováno skriptem scripts/articles/generate-vystavba-data.py
+export const CONSTRUCTION_YEARLY_DATA: ConstructionYearPoint[] = [
+  {
+    year: 1997,
+    permits: null,
+    completed: 17002,
+    permits_yoy: null,
+    completed_yoy: null,
+    permits_idx_2019: null,
+    completed_idx_2019: 40.0,
+  },
+  {
+    year: 1998,
+    permits: null,
+    completed: 23678,
+    permits_yoy: null,
+    completed_yoy: 39.3,
+    permits_idx_2019: null,
+    completed_idx_2019: 55.7,
+  },
+  {
+    year: 1999,
+    permits: null,
+    completed: 27395,
+    permits_yoy: null,
+    completed_yoy: 15.7,
+    permits_idx_2019: null,
+    completed_idx_2019: 64.5,
+  },
+  {
+    year: 2000,
+    permits: null,
+    completed: 28816,
+    permits_yoy: null,
+    completed_yoy: 5.2,
+    permits_idx_2019: null,
+    completed_idx_2019: 67.8,
+  },
+  {
+    year: 2001,
+    permits: null,
+    completed: 28014,
+    permits_yoy: null,
+    completed_yoy: -2.8,
+    permits_idx_2019: null,
+    completed_idx_2019: 65.9,
+  },
+  {
+    year: 2002,
+    permits: null,
+    completed: 31316,
+    permits_yoy: null,
+    completed_yoy: 11.8,
+    permits_idx_2019: null,
+    completed_idx_2019: 73.7,
+  },
+  {
+    year: 2003,
+    permits: null,
+    completed: 31560,
+    permits_yoy: null,
+    completed_yoy: 0.8,
+    permits_idx_2019: null,
+    completed_idx_2019: 74.3,
+  },
+  {
+    year: 2004,
+    permits: null,
+    completed: 38211,
+    permits_yoy: null,
+    completed_yoy: 21.1,
+    permits_idx_2019: null,
+    completed_idx_2019: 89.9,
+  },
+  {
+    year: 2005,
+    permits: 16614,
+    completed: 39455,
+    permits_yoy: null,
+    completed_yoy: 3.3,
+    permits_idx_2019: 91.9,
+    completed_idx_2019: 92.9,
+  },
+  {
+    year: 2006,
+    permits: 18448,
+    completed: 35418,
+    permits_yoy: 11.0,
+    completed_yoy: -10.2,
+    permits_idx_2019: 102.1,
+    completed_idx_2019: 83.4,
+  },
+  {
+    year: 2007,
+    permits: 19414,
+    completed: 51138,
+    permits_yoy: 5.2,
+    completed_yoy: 44.4,
+    permits_idx_2019: 107.4,
+    completed_idx_2019: 120.4,
+  },
+  {
+    year: 2008,
+    permits: 20545,
+    completed: 44747,
+    permits_yoy: 5.8,
+    completed_yoy: -12.5,
+    permits_idx_2019: 113.7,
+    completed_idx_2019: 105.3,
+  },
+  {
+    year: 2009,
+    permits: 17555,
+    completed: 45911,
+    permits_yoy: -14.6,
+    completed_yoy: 2.6,
+    permits_idx_2019: 97.1,
+    completed_idx_2019: 108.1,
+  },
+  {
+    year: 2010,
+    permits: 15553,
+    completed: 42651,
+    permits_yoy: -11.4,
+    completed_yoy: -7.1,
+    permits_idx_2019: 86.0,
+    completed_idx_2019: 100.4,
+  },
+  {
+    year: 2011,
+    permits: 15853,
+    completed: 32217,
+    permits_yoy: 1.9,
+    completed_yoy: -24.5,
+    permits_idx_2019: 87.7,
+    completed_idx_2019: 75.8,
+  },
+  {
+    year: 2012,
+    permits: 13339,
+    completed: 33571,
+    permits_yoy: -15.9,
+    completed_yoy: 4.2,
+    permits_idx_2019: 73.8,
+    completed_idx_2019: 79.0,
+  },
+  {
+    year: 2013,
+    permits: 11880,
+    completed: 29136,
+    permits_yoy: -10.9,
+    completed_yoy: -13.2,
+    permits_idx_2019: 65.7,
+    completed_idx_2019: 68.6,
+  },
+  {
+    year: 2014,
+    permits: 11929,
+    completed: 28866,
+    permits_yoy: 0.4,
+    completed_yoy: -0.9,
+    permits_idx_2019: 66.0,
+    completed_idx_2019: 67.9,
+  },
+  {
+    year: 2015,
+    permits: 12926,
+    completed: 30349,
+    permits_yoy: 8.4,
+    completed_yoy: 5.1,
+    permits_idx_2019: 71.5,
+    completed_idx_2019: 71.4,
+  },
+  {
+    year: 2016,
+    permits: 14790,
+    completed: 33447,
+    permits_yoy: 14.4,
+    completed_yoy: 10.2,
+    permits_idx_2019: 81.8,
+    completed_idx_2019: 78.7,
+  },
+  {
+    year: 2017,
+    permits: 17194,
+    completed: 34458,
+    permits_yoy: 16.3,
+    completed_yoy: 3.0,
+    permits_idx_2019: 95.1,
+    completed_idx_2019: 81.1,
+  },
+  {
+    year: 2018,
+    permits: 17260,
+    completed: 39233,
+    permits_yoy: 0.4,
+    completed_yoy: 13.9,
+    permits_idx_2019: 95.5,
+    completed_idx_2019: 92.3,
+  },
+  {
+    year: 2019,
+    permits: 18077,
+    completed: 42483,
+    permits_yoy: 4.7,
+    completed_yoy: 8.3,
+    permits_idx_2019: 100.0,
+    completed_idx_2019: 100.0,
+  },
+  {
+    year: 2020,
+    permits: 17493,
+    completed: 39998,
+    permits_yoy: -3.2,
+    completed_yoy: -5.8,
+    permits_idx_2019: 96.8,
+    completed_idx_2019: 94.2,
+  },
+  {
+    year: 2021,
+    permits: 18745,
+    completed: 39900,
+    permits_yoy: 7.2,
+    completed_yoy: -0.2,
+    permits_idx_2019: 103.7,
+    completed_idx_2019: 93.9,
+  },
+  {
+    year: 2022,
+    permits: 17275,
+    completed: 46087,
+    permits_yoy: -7.8,
+    completed_yoy: 15.5,
+    permits_idx_2019: 95.6,
+    completed_idx_2019: 108.5,
+  },
+  {
+    year: 2023,
+    permits: 11972,
+    completed: 44536,
+    permits_yoy: -30.7,
+    completed_yoy: -3.4,
+    permits_idx_2019: 66.2,
+    completed_idx_2019: 104.8,
+  },
+  {
+    year: 2024,
+    permits: 11060,
+    completed: 36843,
+    permits_yoy: -7.6,
+    completed_yoy: -17.3,
+    permits_idx_2019: 61.2,
+    completed_idx_2019: 86.7,
+  },
+  {
+    year: 2025,
+    permits: 10607,
+    completed: null,
+    permits_yoy: -4.1,
+    completed_yoy: null,
+    permits_idx_2019: 58.7,
+    completed_idx_2019: null,
+  },
+];
+
+// Zdroj: ČSÚ dataset 200075 (Index stavební produkce)
+// Definice: stálé ceny, neočištěno, průměr bazického roku; roční průměr měsíčních hodnot
+// Vygenerováno skriptem scripts/articles/generate-vystavba-data.py
+export const CONSTRUCTION_PRODUCTION_INDEX_DATA: ConstructionProductionIndexPoint[] = [
+  { year: 2020, index_total: 97.4, index_buildings: 96.6, index_engineering: 99.0 },
+  { year: 2021, index_total: 100.0, index_buildings: 100.0, index_engineering: 100.0 },
+  { year: 2022, index_total: 103.2, index_buildings: 102.1, index_engineering: 105.2 },
+  { year: 2023, index_total: 100.4, index_buildings: 100.4, index_engineering: 100.5 },
+  { year: 2024, index_total: 99.2, index_buildings: 97.9, index_engineering: 101.8 },
+  { year: 2025, index_total: 108.3, index_buildings: 106.2, index_engineering: 112.2 },
+];
+
+export const CONSTRUCTION_KEY_STATS = {
+  permitsPeak: { year: 2008, value: 20545 },
+  permitsBottom: { year: 2025, value: 10607 },
+  completedPeak: { year: 2007, value: 51138 },
+  completedBottom: { year: 1997, value: 17002 },
+  productionIndexPeak: { year: 2025, value: 108.3 },
+} as const;

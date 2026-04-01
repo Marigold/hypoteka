@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "skills": {
+    "czso-data": {
+      "source": "Marigold/czso",
+      "sourceType": "github",
+      "computedHash": "4b387a6e0399e47c655cef3322c805fde7f61fd2387bd92127c682650a601486"
+    }
+  }
+}
